@@ -209,13 +209,13 @@ export async function checkoutSession(req, res, next) {
 export async function cancelSession(req, res, next) {
   try {
     const { id } = req.params;
-    const { staffId, reason } = req.body;
+    const { staffId, reason } = req.body || {};
+    const cancellationReason = (reason && reason.trim()) ? reason.trim() : 'Customer decided not to play anymore';
 
-    if (!reason) {
-      return res.status(400).json({ success: false, error: 'reason is required for cancellation.' });
-    }
-
-    const session = await sessionService.cancelSession(id, { staffId, reason });
+    const session = await sessionService.cancelSession(id, {
+      staffId: staffId || 'Staff',
+      reason: cancellationReason
+    });
     res.json({ success: true, data: session });
   } catch (err) {
     if (err.statusCode) {
@@ -228,7 +228,7 @@ export async function cancelSession(req, res, next) {
 export async function getSessionById(req, res, next) {
   try {
     const { id } = req.params;
-    if (id === 'history' || id === 'live') {
+    if (id === 'history' || id === 'live' || id === 'customer-history') {
       return next();
     }
     const session = await store.getSessionById(id);

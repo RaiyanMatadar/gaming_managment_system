@@ -33,15 +33,15 @@ export function App() {
   const [activeFilter, setActiveFilter] = useState('ALL');
 
   // Workflow Modals State
-  const [startModalStation, setStartModalStation] = useState(null);
-  const [extendModalData, setExtendModalData] = useState(null);
-  const [transferModalData, setTransferModalData] = useState(null);
-  const [checkoutModalData, setCheckoutModalData] = useState(null);
+  const [selectedStation, setSelectedStation] = useState(null);
+  const [extendData, setExtendData] = useState(null);
+  const [transferData, setTransferData] = useState(null);
+  const [checkoutData, setCheckoutData] = useState(null);
   const [isAddStationOpen, setIsAddStationOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // 5-minute active warning popups queue
-  const [fiveMinWarnings, setFiveMinWarnings] = useState([]);
+  const [activeWarnings, setActiveWarnings] = useState([]);
 
   // Toast notifications
   const [toast, setToast] = useState(null);
@@ -96,7 +96,7 @@ export function App() {
         const payload = data.payload;
 
         // Push warning to active modal queue if not already present
-        setFiveMinWarnings((prev) => {
+        setActiveWarnings((prev) => {
           if (prev.some((w) => String(w.sessionId) === String(payload.sessionId))) {
             return prev;
           }
@@ -122,7 +122,7 @@ export function App() {
             const data = JSON.parse(e.data);
             const sessId = data.payload?.sessionId;
             if (sessId) {
-              setFiveMinWarnings((prev) => prev.filter((w) => String(w.sessionId) !== String(sessId)));
+              setActiveWarnings((prev) => prev.filter((w) => String(w.sessionId) !== String(sessId)));
             }
           } catch (err) {}
         }
@@ -135,7 +135,7 @@ export function App() {
             const data = JSON.parse(e.data);
             const sessId = data.payload?.sessionId;
             if (sessId) {
-              setFiveMinWarnings((prev) => prev.filter((w) => String(w.sessionId) !== String(sessId)));
+              setActiveWarnings((prev) => prev.filter((w) => String(w.sessionId) !== String(sessId)));
             }
           } catch (err) {}
         }
@@ -147,7 +147,7 @@ export function App() {
             const data = JSON.parse(e.data);
             const sessId = data.payload?.sessionId;
             if (sessId) {
-              setFiveMinWarnings((prev) => prev.filter((w) => String(w.sessionId) !== String(sessId)));
+              setActiveWarnings((prev) => prev.filter((w) => String(w.sessionId) !== String(sessId)));
             }
           } catch (err) {}
         }
@@ -162,8 +162,8 @@ export function App() {
     };
   }, [fetchStations]);
 
-  // Action handlers
-  const handleStartSession = async (payload) => {
+  // Core session action handlers
+  const startSession = async (payload) => {
     setIsSubmitting(true);
     try {
       const res = await fetch('/api/sessions', {
@@ -174,7 +174,7 @@ export function App() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to start session');
       showToast(`Session started on ${payload.stationName || 'station'}.`, 'success');
-      setStartModalStation(null);
+      setSelectedStation(null);
       fetchStations();
     } catch (err) {
       alert(`Error: ${err.message}`);
@@ -183,7 +183,30 @@ export function App() {
     }
   };
 
-  const handlePauseSession = async (sessionId) => {
+  const cancelSession = async (sessionId, stationName) => {
+    const confirmed = window.confirm(
+      `Are you sure you want to cancel the session on ${stationName || 'this station'}? The active timer will be stopped immediately and the station will become available.`
+    );
+    if (!confirmed) return;
+
+    try {
+      const res = await fetch(`/api/sessions/${sessionId}/cancel`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: 'Customer decided not to play anymore' })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to cancel session');
+
+      setActiveWarnings((prev) => prev.filter((w) => String(w.sessionId) !== String(sessionId)));
+      showToast(`Session on ${stationName || 'station'} was cancelled.`, 'info');
+      fetchStations();
+    } catch (err) {
+      alert(`Error cancelling session: ${err.message}`);
+    }
+  };
+
+  const pauseSession = async (sessionId) => {
     try {
       const res = await fetch(`/api/sessions/${sessionId}/pause`, {
         method: 'POST',
@@ -198,7 +221,7 @@ export function App() {
     }
   };
 
-  const handleResumeSession = async (sessionId) => {
+  const resumeSession = async (sessionId) => {
     try {
       const res = await fetch(`/api/sessions/${sessionId}/resume`, {
         method: 'POST',
@@ -213,7 +236,7 @@ export function App() {
     }
   };
 
-  const handleExtendSession = async (sessionId, addedMinutes) => {
+  const extendSession = async (sessionId, addedMinutes) => {
     setIsSubmitting(true);
     try {
       const res = await fetch(`/api/sessions/${sessionId}/extend`, {
@@ -224,7 +247,7 @@ export function App() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to extend session');
       showToast(`Extended by ${addedMinutes} mins.`, 'success');
-      setExtendModalData(null);
+      setExtendData(null);
       fetchStations();
     } catch (err) {
       alert(`Error: ${err.message}`);
@@ -233,7 +256,7 @@ export function App() {
     }
   };
 
-  const handleTransferSession = async (sessionId, targetStationId, reason) => {
+  const transferSession = async (sessionId, targetStationId, reason) => {
     setIsSubmitting(true);
     try {
       const res = await fetch(`/api/sessions/${sessionId}/transfer`, {
@@ -244,7 +267,7 @@ export function App() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to transfer session');
       showToast('Session transferred successfully.', 'success');
-      setTransferModalData(null);
+      setTransferData(null);
       fetchStations();
     } catch (err) {
       alert(`Error: ${err.message}`);
@@ -253,7 +276,7 @@ export function App() {
     }
   };
 
-  const handleCheckoutSession = async ({ sessionId, discount, payment }) => {
+  const checkoutSession = async ({ sessionId, discount, payment }) => {
     setIsSubmitting(true);
     try {
       const res = await fetch(`/api/sessions/${sessionId}/checkout`, {
@@ -264,7 +287,7 @@ export function App() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to checkout');
       showToast(`Checkout complete. Receipt: ${data.data.receipt.receiptNumber}`, 'success');
-      setCheckoutModalData(null);
+      setCheckoutData(null);
       fetchStations();
     } catch (err) {
       alert(`Error: ${err.message}`);
@@ -273,7 +296,7 @@ export function App() {
     }
   };
 
-  const handleToggleMaintenance = async (stationId, status) => {
+  const toggleMaintenance = async (stationId, status) => {
     try {
       const res = await fetch(`/api/stations/${stationId}/status`, {
         method: 'PATCH',
@@ -288,7 +311,7 @@ export function App() {
     }
   };
 
-  const handleAddStation = async (payload) => {
+  const addStation = async (payload) => {
     setIsSubmitting(true);
     try {
       const res = await fetch('/api/stations', {
@@ -309,10 +332,10 @@ export function App() {
   };
 
   // Quick start helper
-  const handleQuickStart = () => {
+  const quickStart = () => {
     const available = stations.find((s) => s.status === 'AVAILABLE');
     if (available) {
-      setStartModalStation(available);
+      setSelectedStation(available);
     } else {
       showToast('All gaming stations are currently occupied or in service.', 'warning');
     }
@@ -356,7 +379,7 @@ export function App() {
           currentView={currentView}
           onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
           onNewStationClick={() => setIsAddStationOpen(true)}
-          onQuickStartClick={handleQuickStart}
+          onQuickStartClick={quickStart}
           onRefresh={() => fetchStations(true)}
           isRefreshing={isRefreshing}
           isLiveConnected={isLiveConnected}
@@ -426,15 +449,16 @@ export function App() {
                   <StationCard
                     key={station._id}
                     station={station}
-                    onStartSession={(st) => setStartModalStation(st)}
-                    onPauseSession={handlePauseSession}
-                    onResumeSession={handleResumeSession}
-                    onExtendSession={(id, name) => setExtendModalData({ sessionId: id, stationName: name })}
-                    onTransferSession={(id, name) => setTransferModalData({ sessionId: id, currentStationName: name })}
-                    onCheckoutSession={(id, name) =>
-                      setCheckoutModalData({ sessionId: id, stationName: name, liveSession: station.liveSession })
+                    onStart={(st) => setSelectedStation(st)}
+                    onPause={pauseSession}
+                    onResume={resumeSession}
+                    onExtend={(id, name) => setExtendData({ sessionId: id, stationName: name })}
+                    onTransfer={(id, name) => setTransferData({ sessionId: id, currentStationName: name })}
+                    onCheckout={(id, name) =>
+                      setCheckoutData({ sessionId: id, stationName: name, liveSession: station.liveSession })
                     }
-                    onToggleMaintenance={handleToggleMaintenance}
+                    onCancel={(id, name) => cancelSession(id, name)}
+                    onToggleMaintenance={toggleMaintenance}
                   />
                 ))}
               </div>
@@ -445,19 +469,20 @@ export function App() {
           {currentView === 'sessions' && (
             <ActiveSessionsView
               stations={stations}
-              onExtendSession={(id, name) => setExtendModalData({ sessionId: id, stationName: name })}
-              onPauseSession={handlePauseSession}
-              onResumeSession={handleResumeSession}
-              onTransferSession={(id, name) => setTransferModalData({ sessionId: id, currentStationName: name })}
-              onCheckoutSession={(id, name) => {
+              onExtend={(id, name) => setExtendData({ sessionId: id, stationName: name })}
+              onPause={pauseSession}
+              onResume={resumeSession}
+              onTransfer={(id, name) => setTransferData({ sessionId: id, currentStationName: name })}
+              onCheckout={(id, name) => {
                 const targetStation = stations.find((s) => s.liveSession?.sessionId === id);
-                setCheckoutModalData({
+                setCheckoutData({
                   sessionId: id,
                   stationName: name,
                   liveSession: targetStation?.liveSession
                 });
               }}
-              onQuickStart={handleQuickStart}
+              onCancel={(id, name) => cancelSession(id, name)}
+              onQuickStart={quickStart}
             />
           )}
 
@@ -475,51 +500,51 @@ export function App() {
             <StationInventoryView
               stations={stations}
               onNewStationClick={() => setIsAddStationOpen(true)}
-              onStartSession={(st) => setStartModalStation(st)}
-              onToggleMaintenance={handleToggleMaintenance}
+              onStartSession={(st) => setSelectedStation(st)}
+              onToggleMaintenance={toggleMaintenance}
             />
           )}
         </main>
       </div>
 
       {/* Global Focused Workflow Modals */}
-      {startModalStation && (
+      {selectedStation && (
         <StartSessionModal
-          station={startModalStation}
-          onClose={() => setStartModalStation(null)}
-          onSubmit={handleStartSession}
+          station={selectedStation}
+          onClose={() => setSelectedStation(null)}
+          onSubmit={startSession}
           isSubmitting={isSubmitting}
         />
       )}
 
-      {extendModalData && (
+      {extendData && (
         <ExtendSessionModal
-          sessionId={extendModalData.sessionId}
-          stationName={extendModalData.stationName}
-          onClose={() => setExtendModalData(null)}
-          onSubmit={handleExtendSession}
+          sessionId={extendData.sessionId}
+          stationName={extendData.stationName}
+          onClose={() => setExtendData(null)}
+          onSubmit={extendSession}
           isSubmitting={isSubmitting}
         />
       )}
 
-      {transferModalData && (
+      {transferData && (
         <TransferSessionModal
-          sessionId={transferModalData.sessionId}
-          currentStationName={transferModalData.currentStationName}
+          sessionId={transferData.sessionId}
+          currentStationName={transferData.currentStationName}
           availableStations={availableStationsForTransfer}
-          onClose={() => setTransferModalData(null)}
-          onSubmit={handleTransferSession}
+          onClose={() => setTransferData(null)}
+          onSubmit={transferSession}
           isSubmitting={isSubmitting}
         />
       )}
 
-      {checkoutModalData && (
+      {checkoutData && (
         <CheckoutModal
-          sessionId={checkoutModalData.sessionId}
-          stationName={checkoutModalData.stationName}
-          liveSession={checkoutModalData.liveSession}
-          onClose={() => setCheckoutModalData(null)}
-          onSubmit={handleCheckoutSession}
+          sessionId={checkoutData.sessionId}
+          stationName={checkoutData.stationName}
+          liveSession={checkoutData.liveSession}
+          onClose={() => setCheckoutData(null)}
+          onSubmit={checkoutSession}
           isSubmitting={isSubmitting}
         />
       )}
@@ -527,16 +552,16 @@ export function App() {
       {isAddStationOpen && (
         <AddStationModal
           onClose={() => setIsAddStationOpen(false)}
-          onSubmit={handleAddStation}
+          onSubmit={addStation}
           isSubmitting={isSubmitting}
         />
       )}
 
       {/* High-Priority Floating 5-Minute Warning Popup Queue */}
       <FiveMinuteWarningModal
-        warnings={fiveMinWarnings}
-        onDismiss={(sessId) => setFiveMinWarnings((prev) => prev.filter((w) => String(w.sessionId) !== String(sessId)))}
-        onExtend={(sessId, stName) => setExtendModalData({ sessionId: sessId, stationName: stName })}
+        warnings={activeWarnings}
+        onDismiss={(sessId) => setActiveWarnings((prev) => prev.filter((w) => String(w.sessionId) !== String(sessId)))}
+        onExtend={(sessId, stName) => setExtendData({ sessionId: sessId, stationName: stName })}
       />
     </div>
   );

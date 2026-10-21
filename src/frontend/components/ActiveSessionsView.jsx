@@ -12,7 +12,8 @@ import {
   User,
   Phone,
   Monitor,
-  CheckCircle2
+  CheckCircle2,
+  XCircle
 } from 'lucide-react';
 
 function formatDuration(ms) {
@@ -35,13 +36,26 @@ function formatDuration(ms) {
 
 export function ActiveSessionsView({
   stations = [],
+  onExtend,
   onExtendSession,
+  onPause,
   onPauseSession,
+  onResume,
   onResumeSession,
+  onTransfer,
   onTransferSession,
+  onCheckout,
   onCheckoutSession,
+  onCancel,
+  onCancelSession,
   onQuickStart
 }) {
+  const extendSession = onExtend || onExtendSession;
+  const pauseSession = onPause || onPauseSession;
+  const resumeSession = onResume || onResumeSession;
+  const transferSession = onTransfer || onTransferSession;
+  const checkoutSession = onCheckout || onCheckoutSession;
+  const cancelSession = onCancel || onCancelSession;
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('ALL');
   const [now, setNow] = useState(Date.now());
@@ -308,7 +322,7 @@ export function ActiveSessionsView({
                 {/* Session Action Controls */}
                 <div className="pt-3 border-t border-slate-800/80 flex flex-wrap gap-2">
                   <button
-                    onClick={() => onExtendSession(live.sessionId, station.name)}
+                    onClick={() => extendSession && extendSession(live.sessionId, station.name)}
                     className="py-1.5 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition-all flex items-center gap-1 border border-slate-700/60"
                   >
                     <PlusCircle className="w-3.5 h-3.5 text-blue-400" />
@@ -317,7 +331,7 @@ export function ActiveSessionsView({
 
                   {computedStatus === 'PAUSED' ? (
                     <button
-                      onClick={() => onResumeSession(live.sessionId)}
+                      onClick={() => resumeSession && resumeSession(live.sessionId)}
                       className="py-1.5 px-2.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs font-semibold transition-all flex items-center gap-1"
                     >
                       <Play className="w-3.5 h-3.5 fill-current" />
@@ -325,7 +339,7 @@ export function ActiveSessionsView({
                     </button>
                   ) : (
                     <button
-                      onClick={() => onPauseSession(live.sessionId)}
+                      onClick={() => pauseSession && pauseSession(live.sessionId)}
                       className="py-1.5 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition-all flex items-center gap-1 border border-slate-700/60"
                     >
                       <Pause className="w-3.5 h-3.5" />
@@ -334,15 +348,27 @@ export function ActiveSessionsView({
                   )}
 
                   <button
-                    onClick={() => onTransferSession(live.sessionId, station.name)}
+                    onClick={() => transferSession && transferSession(live.sessionId, station.name)}
                     className="py-1.5 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition-all flex items-center gap-1 border border-slate-700/60"
                   >
                     <ArrowRightLeft className="w-3.5 h-3.5 text-slate-400" />
                     <span>Transfer</span>
                   </button>
 
+                  {/* Cancel Session */}
+                  {cancelSession && (
+                    <button
+                      onClick={() => cancelSession(live.sessionId, station.name)}
+                      className="py-1.5 px-2.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-medium transition-all flex items-center gap-1"
+                      title="Cancel session if customer decides not to play"
+                    >
+                      <XCircle className="w-3.5 h-3.5" />
+                      <span>Cancel</span>
+                    </button>
+                  )}
+
                   <button
-                    onClick={() => onCheckoutSession(live.sessionId, station.name)}
+                    onClick={() => checkoutSession && checkoutSession(live.sessionId, station.name)}
                     className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold shadow-md transition-all flex items-center justify-center gap-1.5 ${
                       isOvertime
                         ? 'bg-red-600 hover:bg-red-500 text-white shadow-red-600/20'

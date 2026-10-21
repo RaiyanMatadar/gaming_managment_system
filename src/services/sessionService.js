@@ -490,14 +490,10 @@ export class SessionService {
   }
 
   /**
-   * Cancels a session with mandatory reason.
+   * Cancels a session and immediately stops the active timer and usage calculations.
    */
-  async cancelSession(sessionId, { staffId = 'Manager', reason }) {
-    if (!reason || reason.trim() === '') {
-      const err = new Error('Cancellation requires a documented reason.');
-      err.statusCode = 400;
-      throw err;
-    }
+  async cancelSession(sessionId, { staffId = 'Staff', reason } = {}) {
+    const cancellationReason = (reason && reason.trim()) ? reason.trim() : 'Customer decided not to play anymore';
 
     const session = await store.getSessionById(sessionId);
     if (!session) {
@@ -515,7 +511,8 @@ export class SessionService {
 
     const updated = await store.updateSession(sessionId, {
       status: SessionStatus.CANCELLED,
-      cancellationReason: reason,
+      actualEndTime: new Date(),
+      cancellationReason: cancellationReason,
       cancelledBy: staffId
     });
 
@@ -528,14 +525,14 @@ export class SessionService {
       targetId: String(sessionId),
       customerName: session.customerName,
       stationName: session.stationName,
-      reason
+      reason: cancellationReason
     });
 
     eventBroadcaster.broadcast('SESSION_CANCELLED', {
       sessionId,
       stationId: session.stationId,
       stationName: session.stationName,
-      reason
+      reason: cancellationReason
     });
 
     return updated;

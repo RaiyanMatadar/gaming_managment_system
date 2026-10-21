@@ -44,8 +44,10 @@ export function createApp() {
     }
   });
 
-  // Customer history direct endpoint
+  // Customer history direct endpoints
   app.get('/api/customers/history', getCustomerHistory);
+  app.get('/api/customers', getCustomerHistory);
+  app.get('/api/customer-history', getCustomerHistory);
 
   // Main feature routes
   app.use('/api/stations', stationRoutes);

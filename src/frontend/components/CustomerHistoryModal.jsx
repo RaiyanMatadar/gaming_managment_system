@@ -24,9 +24,10 @@ export function CustomerLedgerView({ embedded = true }) {
       if (searchTerm.trim()) params.set('search', searchTerm.trim());
       if (statusFilter !== 'ALL') params.set('status', statusFilter);
 
-      let res = await fetch(`/api/sessions/history?${params.toString()}`);
+      const qs = params.toString() ? `?${params.toString()}` : '';
+      let res = await fetch(`/api/sessions/history${qs}`);
       if (!res.ok) {
-        res = await fetch(`/api/customers/history?${params.toString()}`);
+        res = await fetch(`/api/customers/history${qs}`);
       }
 
       if (!res.ok) {

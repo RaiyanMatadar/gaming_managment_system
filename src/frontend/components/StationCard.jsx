@@ -12,7 +12,8 @@ import {
   Wrench,
   AlertTriangle,
   User,
-  CheckCircle2
+  CheckCircle2,
+  XCircle
 } from 'lucide-react';
 
 function getStationIcon(type) {
@@ -51,14 +52,29 @@ function formatDuration(ms) {
 
 export function StationCard({
   station,
+  onStart,
   onStartSession,
+  onPause,
   onPauseSession,
+  onResume,
   onResumeSession,
+  onExtend,
   onExtendSession,
+  onTransfer,
   onTransferSession,
+  onCheckout,
   onCheckoutSession,
+  onCancel,
+  onCancelSession,
   onToggleMaintenance
 }) {
+  const startSession = onStart || onStartSession;
+  const pauseSession = onPause || onPauseSession;
+  const resumeSession = onResume || onResumeSession;
+  const extendSession = onExtend || onExtendSession;
+  const transferSession = onTransfer || onTransferSession;
+  const checkoutSession = onCheckout || onCheckoutSession;
+  const cancelSession = onCancel || onCancelSession;
   const live = station.liveSession;
   const isOccupied = station.status === 'OCCUPIED' && live;
   const isMaintenance = station.status === 'MAINTENANCE';
@@ -223,7 +239,7 @@ export function StationCard({
         {station.status === 'AVAILABLE' && (
           <>
             <button
-              onClick={() => onStartSession(station)}
+              onClick={() => startSession && startSession(station)}
               className="flex-1 py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-md shadow-blue-600/20 transition-all flex items-center justify-center gap-1.5"
             >
               <Play className="w-3.5 h-3.5 fill-current" />
@@ -244,7 +260,7 @@ export function StationCard({
           <>
             {/* Extend */}
             <button
-              onClick={() => onExtendSession(live.sessionId, station.name)}
+              onClick={() => extendSession && extendSession(live.sessionId, station.name)}
               className="py-1.5 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition-all flex items-center gap-1 border border-slate-700/60"
               title="Add 15, 30, or 60 minutes"
             >
@@ -255,7 +271,7 @@ export function StationCard({
             {/* Pause / Resume */}
             {currentStatus === 'PAUSED' ? (
               <button
-                onClick={() => onResumeSession(live.sessionId)}
+                onClick={() => resumeSession && resumeSession(live.sessionId)}
                 className="py-1.5 px-2.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs font-semibold transition-all flex items-center gap-1"
               >
                 <Play className="w-3.5 h-3.5 fill-current" />
@@ -263,7 +279,7 @@ export function StationCard({
               </button>
             ) : (
               <button
-                onClick={() => onPauseSession(live.sessionId)}
+                onClick={() => pauseSession && pauseSession(live.sessionId)}
                 className="py-1.5 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition-all flex items-center gap-1 border border-slate-700/60"
                 title="Pause billing timer"
               >
@@ -274,7 +290,7 @@ export function StationCard({
 
             {/* Transfer */}
             <button
-              onClick={() => onTransferSession(live.sessionId, station.name)}
+              onClick={() => transferSession && transferSession(live.sessionId, station.name)}
               className="py-1.5 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition-all flex items-center gap-1 border border-slate-700/60"
               title="Transfer customer to another PC"
             >
@@ -282,9 +298,21 @@ export function StationCard({
               <span>Transfer</span>
             </button>
 
+            {/* Cancel Session */}
+            {cancelSession && (
+              <button
+                onClick={() => cancelSession(live.sessionId, station.name)}
+                className="py-1.5 px-2.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-medium transition-all flex items-center gap-1"
+                title="Cancel session if customer decides not to play"
+              >
+                <XCircle className="w-3.5 h-3.5" />
+                <span>Cancel</span>
+              </button>
+            )}
+
             {/* Checkout & Settle */}
             <button
-              onClick={() => onCheckoutSession(live.sessionId, station.name)}
+              onClick={() => checkoutSession && checkoutSession(live.sessionId, station.name)}
               className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold shadow-md transition-all flex items-center justify-center gap-1.5 ${
                 isOvertime
                   ? 'bg-red-600 hover:bg-red-500 text-white shadow-red-600/20'
