@@ -2,15 +2,14 @@ import React from 'react';
 import {
   LayoutGrid,
   Gamepad2,
-  Clock,
   Users,
   BarChart3,
   ShieldCheck,
   SlidersHorizontal,
   Radio,
-  Trash2,
   UserCheck,
-  X
+  X,
+  AlertTriangle
 } from 'lucide-react';
 
 export function Sidebar({
@@ -27,35 +26,35 @@ export function Sidebar({
   const navItems = [
     {
       id: 'floor',
-      label: 'Live Floor Grid',
+      label: 'Floor grid',
       icon: LayoutGrid,
-      badge: stations.length > 0 ? stations.length : null
+      count: stations.length > 0 ? stations.length : null
     },
     {
       id: 'sessions',
-      label: 'Active Sessions',
+      label: 'Active sessions',
       icon: Gamepad2,
-      badge: occupiedCount > 0 ? occupiedCount : null,
-      badgeColor: 'bg-blue-600 text-white'
+      count: occupiedCount > 0 ? occupiedCount : null,
+      highlight: occupiedCount > 0
     },
     {
       id: 'customers',
-      label: 'Customer Ledger',
+      label: 'Customer ledger',
       icon: Users
     },
     {
       id: 'reports',
-      label: 'Shift Reconciliation',
+      label: 'Shift reconciliation',
       icon: BarChart3
     },
     {
       id: 'audit',
-      label: 'Audit Trail',
+      label: 'Audit trail',
       icon: ShieldCheck
     },
     {
       id: 'inventory',
-      label: 'Station Inventory',
+      label: 'Station inventory',
       icon: SlidersHorizontal
     }
   ];
@@ -66,134 +65,125 @@ export function Sidebar({
       {isOpen && (
         <div
           onClick={onClose}
-          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden transition-opacity"
+          className="fixed inset-0 z-40 bg-black/80 lg:hidden transition-opacity"
         />
       )}
 
-      {/* Sidebar Container */}
+      {/* Terminal Sidebar Container */}
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-50 w-64 bg-slate-900 border-r border-slate-800 flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+        className={`fixed top-0 bottom-0 left-0 z-50 w-60 bg-surface-container-low border-r border-outline-variant/40 flex flex-col justify-between transition-transform duration-200 ease-in-out lg:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        {/* Brand Header */}
-        <div className="p-5 border-b border-slate-800 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-700 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/20 text-white">
-              <Gamepad2 className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="font-bold text-base text-white tracking-tight">CyberArena</span>
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-500/20 border border-blue-500/30 text-blue-400">
-                  POS
-                </span>
+        <div className="flex flex-col flex-1 min-h-0">
+          {/* Brand Header */}
+          <div className="px-5 py-4 border-b border-outline-variant/40 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-primary-container/40 border border-primary/30 flex items-center justify-center text-primary">
+                <Gamepad2 className="w-4 h-4" />
               </div>
-              <p className="text-[11px] text-slate-400">Gaming Center Controller</p>
+              <div>
+                <span className="font-bold text-sm text-on-surface tracking-tight block">CyberArena</span>
+                <span className="text-[11px] text-on-surface-variant font-normal block leading-tight">Cashier terminal</span>
+              </div>
             </div>
-          </div>
 
-          <button
-            onClick={onClose}
-            className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Alert Pill if Overtime/Warnings Exist */}
-        {alertCount > 0 && (
-          <div className="mx-4 mt-4 p-2.5 rounded-xl bg-red-950/40 border border-red-500/40 flex items-center justify-between text-xs">
-            <div className="flex items-center gap-2 text-red-300">
-              <span className="w-2 h-2 rounded-full bg-red-400 animate-ping" />
-              <span className="font-semibold">{alertCount} Urgent Alert{alertCount > 1 ? 's' : ''}</span>
-            </div>
             <button
-              onClick={() => {
-                onSelectView('floor');
-                onClose?.();
-              }}
-              className="text-[10px] font-bold text-red-300 underline hover:text-white"
+              onClick={onClose}
+              className="lg:hidden p-1.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
+              aria-label="Close menu"
             >
-              View
+              <X className="w-4 h-4" />
             </button>
           </div>
-        )}
 
-        {/* Navigation Items */}
-        <nav className="flex-1 p-3 space-y-1.5 overflow-y-auto">
-          <div className="px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
-            Operations Menu
-          </div>
-
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = currentView === item.id;
-
-            return (
+          {/* Alert Notice Strip (Only rendered if stations need attention) */}
+          {alertCount > 0 && (
+            <div className="mx-3 mt-3 px-3 py-2 rounded-lg bg-amber-950/30 border border-amber-600/40 flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2 text-amber-300">
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                <span className="font-medium text-[11px]">{alertCount} station{alertCount > 1 ? 's' : ''} require attention</span>
+              </div>
               <button
-                key={item.id}
                 onClick={() => {
-                  onSelectView(item.id);
+                  onSelectView('floor');
                   onClose?.();
                 }}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                  isActive
-                    ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/70'
-                }`}
+                className="text-[11px] font-semibold text-amber-400 hover:text-on-surface transition-colors"
               >
-                <div className="flex items-center gap-3">
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
-                  <span>{item.label}</span>
-                </div>
-
-                {item.badge !== null && item.badge !== undefined && (
-                  <span
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                      isActive
-                        ? 'bg-white/20 text-white'
-                        : item.badgeColor || 'bg-slate-800 text-slate-300'
-                    }`}
-                  >
-                    {item.badge}
-                  </span>
-                )}
+                View
               </button>
-            );
-          })}
-        </nav>
-
-        {/* Sidebar Footer System Health & Cashier Status */}
-        <div className="p-4 border-t border-slate-800 space-y-3 bg-slate-950/40">
-          {/* SSE Live Gateway */}
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-slate-400 flex items-center gap-1.5">
-              <Radio className={`w-3.5 h-3.5 ${isLiveConnected ? 'text-emerald-400 animate-pulse' : 'text-amber-400'}`} />
-              Gateway Stream:
-            </span>
-            <span className={`text-[11px] font-bold ${isLiveConnected ? 'text-emerald-400' : 'text-amber-400'}`}>
-              {isLiveConnected ? 'Live Real-time' : 'Reconnecting...'}
-            </span>
-          </div>
-
-          {/* Retention Policy */}
-          <div className="flex items-center justify-between text-[11px] text-slate-400">
-            <span className="flex items-center gap-1 text-slate-400">
-              <Trash2 className="w-3 h-3 text-slate-500" />
-              Retention:
-            </span>
-            <span className="text-slate-300 font-medium">30-Day Auto Purge</span>
-          </div>
-
-          {/* Cashier Badge */}
-          <div className="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-              <UserCheck className="w-4 h-4" />
             </div>
-            <div className="overflow-hidden">
-              <span className="block text-[11px] font-bold text-white truncate">Admin / Lead Cashier</span>
-              <span className="block text-[10px] text-emerald-400 font-medium">Shift Active</span>
+          )}
+
+          {/* Navigation Section */}
+          <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+            <span className="px-2 pb-2 block text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant">
+              Navigation
+            </span>
+
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = currentView === item.id;
+
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    onSelectView(item.id);
+                    onClose?.();
+                  }}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                    isActive
+                      ? 'bg-primary-container text-on-primary-container border border-primary/30 font-semibold'
+                      : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high border border-transparent'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-primary' : 'text-on-surface-variant'}`} />
+                    <span>{item.label}</span>
+                  </div>
+
+                  {item.count !== null && item.count !== undefined && (
+                    <span
+                      className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${
+                        isActive
+                          ? 'bg-primary/20 text-on-primary-container'
+                          : item.highlight
+                          ? 'bg-primary-container text-primary border border-primary/40'
+                          : 'bg-surface-container-high text-on-surface-variant'
+                      }`}
+                    >
+                      {item.count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* Footer: Operator & Gateway Status */}
+        <div className="p-3 border-t border-outline-variant/40 space-y-2.5 bg-surface-container-lowest">
+          {/* Gateway Status */}
+          <div className="flex items-center justify-between px-1 text-[11px]">
+            <span className="text-on-surface-variant flex items-center gap-1.5">
+              <Radio className={`w-3 h-3 ${isLiveConnected ? 'text-emerald-400' : 'text-amber-400'}`} />
+              Gateway stream:
+            </span>
+            <span className={`font-medium ${isLiveConnected ? 'text-emerald-400' : 'text-amber-400'}`}>
+              {isLiveConnected ? 'Connected' : 'Reconnecting'}
+            </span>
+          </div>
+
+          {/* Active Operator Card */}
+          <div className="p-2.5 rounded-lg bg-surface-container border border-outline-variant/50 flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-md bg-emerald-950/60 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
+              <UserCheck className="w-3.5 h-3.5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <span className="block text-xs font-semibold text-on-surface truncate">Lead Cashier</span>
+              <span className="block text-[10px] text-emerald-400 font-medium leading-none mt-0.5">Shift active</span>
             </div>
           </div>
         </div>

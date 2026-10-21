@@ -3,7 +3,7 @@ import {
   Gamepad2,
   Clock,
   Search,
-  PlusCircle,
+  Plus,
   Pause,
   Play,
   ArrowRightLeft,
@@ -12,9 +12,9 @@ import {
   User,
   Phone,
   Monitor,
-  CheckCircle2,
   XCircle
 } from 'lucide-react';
+import { Button, Card, Badge } from './ui';
 
 function formatDuration(ms) {
   const totalSeconds = Math.max(0, Math.floor(ms / 1000));
@@ -56,6 +56,7 @@ export function ActiveSessionsView({
   const transferSession = onTransfer || onTransferSession;
   const checkoutSession = onCheckout || onCheckoutSession;
   const cancelSession = onCancel || onCancelSession;
+
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('ALL');
   const [now, setNow] = useState(Date.now());
@@ -129,190 +130,224 @@ export function ActiveSessionsView({
 
   return (
     <div className="space-y-6">
-      {/* Top Overview Cards */}
+      {/* Top Session Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center justify-between">
+        <Card variant="container" className="p-4 flex items-center justify-between">
           <div>
-            <span className="text-xs font-semibold text-slate-400">Total Active Players</span>
-            <p className="text-2xl font-black text-white mt-1">{enrichedSessions.length}</p>
+            <span className="text-xs font-medium text-on-surface-variant">Total in play</span>
+            <div className="text-xl font-bold text-on-surface tabular-nums mt-0.5">{activeStations.length} sessions</div>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
-            <Gamepad2 className="w-5 h-5" />
+          <div className="w-9 h-9 rounded-lg bg-primary-container/40 border border-primary/30 flex items-center justify-center text-primary">
+            <Gamepad2 className="w-4 h-4" />
+          </div>
+        </Card>
+
+        <div className={`rounded-xl p-4 flex items-center justify-between border ${
+          warningCount > 0
+            ? 'bg-amber-950/30 border-amber-500/50 text-amber-300'
+            : 'bg-surface-container border-outline-variant/60'
+        }`}>
+          <div>
+            <span className="text-xs font-medium text-on-surface-variant">Expiring in 5 minutes</span>
+            <div className={`text-xl font-bold tabular-nums mt-0.5 ${warningCount > 0 ? 'text-amber-300' : 'text-on-surface'}`}>
+              {warningCount} sessions
+            </div>
+          </div>
+          <div className="w-9 h-9 rounded-lg bg-amber-950/60 border border-amber-500/30 flex items-center justify-center text-amber-400">
+            <Clock className="w-4 h-4" />
           </div>
         </div>
 
-        <div className="bg-slate-900 border border-amber-900/30 rounded-2xl p-4 flex items-center justify-between">
+        <div className={`rounded-xl p-4 flex items-center justify-between border ${
+          overtimeCount > 0
+            ? 'bg-error-container/40 border-error/50 text-on-error-container'
+            : 'bg-surface-container border-outline-variant/60'
+        }`}>
           <div>
-            <span className="text-xs font-semibold text-amber-400">5-Minute Warnings</span>
-            <p className="text-2xl font-black text-amber-300 mt-1">{warningCount}</p>
+            <span className="text-xs font-medium text-on-surface-variant">In overtime</span>
+            <div className={`text-xl font-bold tabular-nums mt-0.5 ${overtimeCount > 0 ? 'text-on-error-container' : 'text-on-surface'}`}>
+              {overtimeCount} sessions
+            </div>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
-            <AlertTriangle className="w-5 h-5" />
-          </div>
-        </div>
-
-        <div className="bg-slate-900 border border-red-900/30 rounded-2xl p-4 flex items-center justify-between">
-          <div>
-            <span className="text-xs font-semibold text-red-400">Overtime Alerts</span>
-            <p className="text-2xl font-black text-red-400 mt-1">{overtimeCount}</p>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400">
-            <Clock className="w-5 h-5" />
+          <div className="w-9 h-9 rounded-lg bg-error-container/60 border border-error/40 flex items-center justify-center text-error">
+            <AlertTriangle className="w-4 h-4" />
           </div>
         </div>
       </div>
 
-      {/* Search & Filter Toolbar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+      {/* Filter and Search Bar */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+          <button
+            onClick={() => setFilterType('ALL')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              filterType === 'ALL'
+                ? 'bg-primary-container text-on-primary-container border border-primary/40 font-semibold'
+                : 'bg-surface-container text-on-surface-variant border border-outline-variant/60 hover:text-on-surface'
+            }`}
+          >
+            All active ({activeStations.length})
+          </button>
+          <button
+            onClick={() => setFilterType('WARNING')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
+              filterType === 'WARNING'
+                ? 'bg-amber-500/20 text-amber-200 border border-amber-500/50 font-semibold'
+                : 'bg-surface-container text-amber-400 border border-outline-variant/60 hover:text-on-surface'
+            }`}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+            5m warning ({warningCount})
+          </button>
+          <button
+            onClick={() => setFilterType('OVERTIME')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
+              filterType === 'OVERTIME'
+                ? 'bg-error-container/40 text-on-error-container border border-error/50 font-semibold'
+                : 'bg-surface-container text-error border border-outline-variant/60 hover:text-on-surface'
+            }`}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-error" />
+            Overtime ({overtimeCount})
+          </button>
+          <button
+            onClick={() => setFilterType('PAUSED')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              filterType === 'PAUSED'
+                ? 'bg-tertiary-container text-tertiary border border-tertiary/50 font-semibold'
+                : 'bg-surface-container text-tertiary border border-outline-variant/60 hover:text-on-surface'
+            }`}
+          >
+            Paused
+          </button>
+        </div>
+
+        {/* Search Input */}
+        <div className="relative min-w-[220px]">
+          <Search className="w-3.5 h-3.5 text-outline absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search player, PC, or phone..."
+            placeholder="Search by player or PC..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-blue-500"
+            className="w-full pl-8 pr-3 py-1.5 bg-surface-container border border-outline-variant/60 rounded-lg text-xs text-on-surface placeholder-on-surface-variant focus:outline-none focus:border-primary"
           />
-        </div>
-
-        <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto pb-1 scrollbar-none">
-          {[
-            { id: 'ALL', label: 'All Active', count: enrichedSessions.length },
-            { id: 'WARNING', label: '5m Warning', count: warningCount },
-            { id: 'OVERTIME', label: 'Overtime', count: overtimeCount },
-            { id: 'PAUSED', label: 'Paused', count: enrichedSessions.filter((s) => s.computedStatus === 'PAUSED').length }
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setFilterType(tab.id)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all border flex items-center gap-1.5 ${
-                filterType === tab.id
-                  ? 'bg-blue-600 text-white border-blue-500 shadow-md shadow-blue-600/20'
-                  : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-slate-200'
-              }`}
-            >
-              <span>{tab.label}</span>
-              <span className="px-1.5 py-0.2 rounded-md bg-white/20 text-[10px] font-bold">
-                {tab.count}
-              </span>
-            </button>
-          ))}
         </div>
       </div>
 
-      {/* Active Sessions Grid / Table */}
+      {/* Grid of Active Sessions */}
       {filtered.length === 0 ? (
-        <div className="text-center py-20 bg-slate-900/60 border border-slate-800 rounded-2xl p-8">
-          <Gamepad2 className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-          <h3 className="text-base font-bold text-slate-200">No active gaming sessions match</h3>
-          <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
-            {searchTerm
-              ? 'Try modifying your search or filter options.'
-              : 'All stations are currently idle. Start a new session from the Live Floor.'}
+        <Card variant="container" className="p-10 text-center">
+          <Gamepad2 className="w-8 h-8 text-outline mx-auto mb-2" />
+          <p className="text-sm font-semibold text-on-surface">No active sessions match the filter</p>
+          <p className="text-xs text-on-surface-variant mt-1">
+            {searchTerm ? 'Try a different search query' : 'Assign a walk-in player from the floor grid'}
           </p>
           {onQuickStart && (
-            <button
+            <Button
+              variant="filled"
+              size="sm"
               onClick={onQuickStart}
-              className="mt-4 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-md shadow-blue-600/20 inline-flex items-center gap-2"
+              className="mt-3"
             >
               <Play className="w-3.5 h-3.5 fill-current" />
-              <span>Start New Session</span>
-            </button>
+              <span>Start session</span>
+            </Button>
           )}
-        </div>
+        </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((item) => {
             const { station, live, remainingMs, overtimeMs, isWarning, isOvertime, computedStatus } = item;
 
-            let cardBorder = 'border-slate-800 bg-slate-900';
-            if (isOvertime) cardBorder = 'border-red-500/60 bg-red-950/20 animate-pulse-glow';
-            else if (isWarning) cardBorder = 'border-amber-500/60 bg-amber-950/20';
-            else if (computedStatus === 'PAUSED') cardBorder = 'border-purple-500/40 bg-purple-950/20';
+            let cardBorder = 'border-outline-variant/60 bg-surface-container';
+            if (isOvertime) cardBorder = 'border-error/60 bg-error-container/30';
+            else if (isWarning) cardBorder = 'border-amber-500/60 bg-amber-950/40';
+            else if (computedStatus === 'PAUSED') cardBorder = 'border-tertiary/40 bg-tertiary-container/20';
 
             return (
               <div
                 key={live.sessionId}
-                className={`rounded-2xl border p-5 flex flex-col justify-between transition-all shadow-sm ${cardBorder}`}
+                className={`rounded-xl border p-4 sm:p-5 flex flex-col justify-between transition-colors ${cardBorder}`}
               >
                 <div>
                   {/* Header: Station & Status */}
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-800/80">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-blue-400">
+                  <div className="flex items-center justify-between pb-3 border-b border-outline-variant/40">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-surface-container-lowest border border-outline-variant/40 flex items-center justify-center text-primary">
                         <Monitor className="w-4 h-4" />
                       </div>
                       <div>
-                        <h4 className="text-base font-bold text-white">{station.name}</h4>
-                        <span className="text-[11px] text-slate-400 font-medium">₹{station.hourlyRate}/hr</span>
+                        <h4 className="text-sm font-bold text-on-surface tracking-tight">{station.name}</h4>
+                        <span className="text-[11px] text-on-surface-variant font-medium">₹{station.hourlyRate}/hour</span>
                       </div>
                     </div>
 
                     <span
-                      className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
+                      className={`text-[10px] font-medium px-2 py-0.5 rounded border ${
                         isOvertime
-                          ? 'bg-red-500/20 text-red-300 border-red-500/50'
+                          ? 'bg-error-container text-on-error-container border-error/40 font-semibold'
                           : isWarning
-                          ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 animate-pulse'
+                          ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 font-semibold'
                           : computedStatus === 'PAUSED'
-                          ? 'bg-purple-500/20 text-purple-300 border-purple-500/40'
-                          : 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                          ? 'bg-tertiary-container text-tertiary border-tertiary/30'
+                          : 'bg-primary-container text-on-primary-container border-primary/30'
                       }`}
                     >
-                      {isOvertime ? 'Overtime' : isWarning ? '5m Warning' : computedStatus === 'PAUSED' ? 'Paused' : 'In Session'}
+                      {isOvertime ? 'Overtime accruing' : isWarning ? 'Expiring soon' : computedStatus === 'PAUSED' ? 'Paused' : 'In play'}
                     </span>
                   </div>
 
-                  {/* Customer Information */}
+                  {/* Customer Details */}
                   <div className="my-3 space-y-1.5 text-xs">
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-400 flex items-center gap-1.5">
-                        <User className="w-3.5 h-3.5 text-slate-500" />
+                      <span className="text-on-surface-variant flex items-center gap-1.5">
+                        <User className="w-3.5 h-3.5 text-outline" />
                         Player:
                       </span>
-                      <span className="font-bold text-white">{live.customerName}</span>
+                      <span className="font-semibold text-on-surface">{live.customerName}</span>
                     </div>
 
                     {live.customerPhone && (
-                      <div className="flex items-center justify-between text-slate-400">
+                      <div className="flex items-center justify-between text-on-surface-variant">
                         <span className="flex items-center gap-1.5">
-                          <Phone className="w-3.5 h-3.5 text-slate-500" />
+                          <Phone className="w-3.5 h-3.5 text-outline" />
                           Phone:
                         </span>
-                        <span className="font-mono text-slate-300">{live.customerPhone}</span>
+                        <span className="font-mono tabular-nums text-on-surface">{live.customerPhone}</span>
                       </div>
                     )}
 
-                    <div className="flex items-center justify-between text-slate-400">
-                      <span>Booked Duration:</span>
-                      <span className="font-semibold text-slate-200">{live.bookedMinutes} minutes</span>
+                    <div className="flex items-center justify-between text-on-surface-variant">
+                      <span>Booked duration:</span>
+                      <span className="font-semibold text-on-surface">{live.bookedMinutes} minutes</span>
                     </div>
                   </div>
 
-                  {/* Timer Display Box */}
-                  <div className="bg-slate-950 border border-slate-800 rounded-xl p-3 my-3 flex items-center justify-between">
-                    <span className="text-xs text-slate-400 flex items-center gap-1.5">
-                      <Clock className="w-3.5 h-3.5 text-slate-500" />
-                      {isOvertime ? 'Overtime Accruing:' : 'Time Left:'}
+                  {/* Timer Display */}
+                  <div className="p-3 rounded-lg bg-surface-container-lowest border border-outline-variant/50 my-3 flex items-center justify-between">
+                    <span className="text-xs text-on-surface-variant flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-outline" />
+                      {isOvertime ? 'Overtime:' : 'Time remaining:'}
                     </span>
 
                     {isOvertime ? (
                       <div className="text-right">
-                        <span className="font-mono text-base font-black text-red-400">
+                        <span className="font-mono tabular-nums text-base font-bold text-error">
                           +{formatDuration(overtimeMs)}
                         </span>
                         {live.overtimeFee > 0 && (
-                          <span className="block text-[10px] text-red-300 font-bold">
-                            OT Charge: ₹{live.overtimeFee}
+                          <span className="block text-[11px] text-error font-semibold">
+                            Accrued: ₹{live.overtimeFee}
                           </span>
                         )}
                       </div>
                     ) : computedStatus === 'PAUSED' ? (
-                      <span className="font-mono text-xs font-bold text-purple-400">
-                        Timer Paused
+                      <span className="text-xs font-semibold text-tertiary">
+                        Timer paused
                       </span>
                     ) : (
-                      <span className={`font-mono text-base font-black ${isWarning ? 'text-amber-400 animate-pulse' : 'text-emerald-400'}`}>
+                      <span className={`font-mono tabular-nums text-base font-bold ${isWarning ? 'text-amber-400' : 'text-primary'}`}>
                         {formatDuration(remainingMs)}
                       </span>
                     )}
@@ -320,64 +355,71 @@ export function ActiveSessionsView({
                 </div>
 
                 {/* Session Action Controls */}
-                <div className="pt-3 border-t border-slate-800/80 flex flex-wrap gap-2">
-                  <button
+                <div className="pt-3 border-t border-outline-variant/40 flex flex-wrap gap-2">
+                  <Button
+                    variant="outlined"
+                    size="sm"
                     onClick={() => extendSession && extendSession(live.sessionId, station.name)}
-                    className="py-1.5 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition-all flex items-center gap-1 border border-slate-700/60"
                   >
-                    <PlusCircle className="w-3.5 h-3.5 text-blue-400" />
+                    <Plus className="w-3.5 h-3.5 text-primary" />
                     <span>Extend</span>
-                  </button>
+                  </Button>
 
                   {computedStatus === 'PAUSED' ? (
-                    <button
+                    <Button
+                      variant="success"
+                      size="sm"
                       onClick={() => resumeSession && resumeSession(live.sessionId)}
-                      className="py-1.5 px-2.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs font-semibold transition-all flex items-center gap-1"
                     >
                       <Play className="w-3.5 h-3.5 fill-current" />
                       <span>Resume</span>
-                    </button>
+                    </Button>
                   ) : (
-                    <button
+                    <Button
+                      variant="outlined"
+                      size="sm"
                       onClick={() => pauseSession && pauseSession(live.sessionId)}
-                      className="py-1.5 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition-all flex items-center gap-1 border border-slate-700/60"
                     >
                       <Pause className="w-3.5 h-3.5" />
                       <span>Pause</span>
-                    </button>
+                    </Button>
                   )}
 
-                  <button
+                  <Button
+                    variant="outlined"
+                    size="sm"
                     onClick={() => transferSession && transferSession(live.sessionId, station.name)}
-                    className="py-1.5 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition-all flex items-center gap-1 border border-slate-700/60"
                   >
-                    <ArrowRightLeft className="w-3.5 h-3.5 text-slate-400" />
+                    <ArrowRightLeft className="w-3.5 h-3.5 text-on-surface-variant" />
                     <span>Transfer</span>
-                  </button>
+                  </Button>
 
                   {/* Cancel Session */}
                   {cancelSession && (
-                    <button
+                    <Button
+                      variant="error"
+                      size="sm"
                       onClick={() => cancelSession(live.sessionId, station.name)}
-                      className="py-1.5 px-2.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-medium transition-all flex items-center gap-1"
                       title="Cancel session if customer decides not to play"
                     >
                       <XCircle className="w-3.5 h-3.5" />
                       <span>Cancel</span>
-                    </button>
+                    </Button>
                   )}
 
-                  <button
+                  <Button
+                    variant="filled"
+                    size="sm"
                     onClick={() => checkoutSession && checkoutSession(live.sessionId, station.name)}
-                    className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold shadow-md transition-all flex items-center justify-center gap-1.5 ${
+                    className={`flex-1 ${
                       isOvertime
-                        ? 'bg-red-600 hover:bg-red-500 text-white shadow-red-600/20'
-                        : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/20'
+                        ? 'bg-error text-on-error hover:opacity-90'
+                        : 'bg-emerald-600 hover:bg-emerald-500 text-white'
                     }`}
                   >
                     <CreditCard className="w-3.5 h-3.5" />
                     <span>Checkout</span>
-                  </button>
+                  </Button>
                 </div>
               </div>
             );

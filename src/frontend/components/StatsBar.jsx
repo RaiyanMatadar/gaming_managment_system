@@ -2,11 +2,11 @@ import React from 'react';
 import {
   Monitor,
   CheckCircle2,
-  AlertTriangle,
   Clock,
-  Wrench,
-  Percent
+  AlertTriangle,
+  Wrench
 } from 'lucide-react';
+import { Card, Badge } from './ui';
 
 export function StatsBar({ stations = [] }) {
   const total = stations.length;
@@ -16,88 +16,116 @@ export function StatsBar({ stations = [] }) {
 
   const expiring = stations.filter(s => s.liveSession && s.liveSession.isWarning).length;
   const overtime = stations.filter(s => s.liveSession && s.liveSession.isOvertime).length;
+  const hasAlerts = expiring > 0 || overtime > 0;
 
   const occupancyRate = total > 0 ? Math.round((occupied / total) * 100) : 0;
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
-      {/* 1. Total Fleet */}
-      <div className="bg-slate-900 border border-slate-800 hover:border-slate-700/80 rounded-2xl p-4 transition-all flex flex-col justify-between">
-        <div className="flex items-center justify-between text-slate-400">
-          <span className="text-xs font-semibold">Total Fleet</span>
-          <div className="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center text-slate-300">
-            <Monitor className="w-4 h-4" />
-          </div>
+    <Card variant="container" className="p-4 sm:p-5 mb-6">
+      {/* Top Floor Summary Heading & Status Strip */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-outline-variant/40">
+        <div>
+          <h2 className="text-sm font-bold text-on-surface tracking-tight flex items-center gap-2">
+            <Monitor className="w-4 h-4 text-primary" />
+            <span>Floor capacity overview</span>
+          </h2>
+          <p className="text-xs text-on-surface-variant mt-0.5">
+            {total} total gaming rigs configured in arena fleet
+          </p>
         </div>
-        <div className="mt-2 flex items-baseline justify-between">
-          <span className="text-2xl font-black text-white">{total}</span>
-          <span className="text-[11px] text-slate-500 font-medium">Configured Units</span>
-        </div>
+
+        {/* Operational Attention Badge */}
+        {hasAlerts ? (
+          <Badge variant="warning" size="md" className="self-start sm:self-auto">
+            <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span>
+              {overtime > 0 ? `${overtime} session in overtime` : `${expiring} session expiring within 5 minutes`}
+            </span>
+          </Badge>
+        ) : (
+          <Badge variant="success" size="md" className="self-start sm:self-auto">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+            <span>All sessions running on schedule</span>
+          </Badge>
+        )}
       </div>
 
-      {/* 2. Available for Walk-ins */}
-      <div className="bg-slate-900 border border-emerald-900/30 hover:border-emerald-500/40 rounded-2xl p-4 transition-all flex flex-col justify-between">
-        <div className="flex items-center justify-between text-emerald-400">
-          <span className="text-xs font-semibold">Available Units</span>
-          <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-            <CheckCircle2 className="w-4 h-4" />
+      {/* Capacity Breakdown Gauge Strip */}
+      {total > 0 && (
+        <div className="pt-4">
+          {/* Segmented Capacity Bar */}
+          <div className="h-2 w-full bg-surface-container-high rounded-full overflow-hidden flex gap-0.5">
+            {available > 0 && (
+              <div
+                className="bg-emerald-500 h-full rounded-sm transition-all"
+                style={{ width: `${(available / total) * 100}%` }}
+                title={`${available} available`}
+              />
+            )}
+            {occupied > 0 && (
+              <div
+                className="bg-primary h-full rounded-sm transition-all"
+                style={{ width: `${(occupied / total) * 100}%` }}
+                title={`${occupied} in play`}
+              />
+            )}
+            {maintenance > 0 && (
+              <div
+                className="bg-outline h-full rounded-sm transition-all"
+                style={{ width: `${(maintenance / total) * 100}%` }}
+                title={`${maintenance} in maintenance`}
+              />
+            )}
           </div>
-        </div>
-        <div className="mt-2 flex items-baseline justify-between">
-          <span className="text-2xl font-black text-emerald-300">{available}</span>
-          <span className="text-[11px] text-emerald-400/80 font-medium">Ready to Assign</span>
-        </div>
-      </div>
 
-      {/* 3. In Play / Occupied */}
-      <div className="bg-slate-900 border border-blue-900/30 hover:border-blue-500/40 rounded-2xl p-4 transition-all flex flex-col justify-between">
-        <div className="flex items-center justify-between text-blue-400">
-          <span className="text-xs font-semibold">Active Sessions</span>
-          <div className="w-8 h-8 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
-            <Clock className="w-4 h-4" />
-          </div>
-        </div>
-        <div className="mt-2 flex items-baseline justify-between">
-          <span className="text-2xl font-black text-blue-300">{occupied}</span>
-          <span className="text-[11px] px-1.5 py-0.5 rounded bg-blue-500/15 border border-blue-500/30 text-blue-300 font-bold">
-            {occupancyRate}% Floor Load
-          </span>
-        </div>
-      </div>
+          {/* Operational Metrics Row */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4 pt-2">
+            {/* Available */}
+            <div className="flex items-start gap-2.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 mt-1 shrink-0" />
+              <div>
+                <span className="text-lg font-bold text-on-surface tabular-nums leading-none block">
+                  {available}
+                </span>
+                <span className="text-[11px] text-on-surface-variant font-medium">Ready for walk-in</span>
+              </div>
+            </div>
 
-      {/* 4. Floor Alerts (5-Min Warning & Overtime) */}
-      <div className="bg-slate-900 border border-amber-900/30 hover:border-amber-500/40 rounded-2xl p-4 transition-all flex flex-col justify-between">
-        <div className="flex items-center justify-between text-amber-400">
-          <span className="text-xs font-semibold">Alerts (5m / Over)</span>
-          <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
-            <AlertTriangle className="w-4 h-4" />
-          </div>
-        </div>
-        <div className="mt-2 flex items-baseline justify-between">
-          <div className="flex items-center gap-1.5">
-            <span className="text-2xl font-black text-amber-300">{expiring}</span>
-            <span className="text-slate-600 font-bold">/</span>
-            <span className="text-2xl font-black text-red-400">{overtime}</span>
-          </div>
-          <span className="text-[11px] text-slate-400 font-medium">
-            {overtime > 0 ? 'Action Needed' : 'Normal'}
-          </span>
-        </div>
-      </div>
+            {/* In Play / Active */}
+            <div className="flex items-start gap-2.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-primary mt-1 shrink-0" />
+              <div>
+                <span className="text-lg font-bold text-on-surface tabular-nums leading-none block">
+                  {occupied} <span className="text-xs font-normal text-on-surface-variant">({occupancyRate}% load)</span>
+                </span>
+                <span className="text-[11px] text-on-surface-variant font-medium">Active gaming sessions</span>
+              </div>
+            </div>
 
-      {/* 5. Maintenance */}
-      <div className="bg-slate-900 border border-slate-800 hover:border-slate-700/80 rounded-2xl p-4 transition-all flex flex-col justify-between col-span-2 sm:col-span-1">
-        <div className="flex items-center justify-between text-slate-400">
-          <span className="text-xs font-semibold">Maintenance</span>
-          <div className="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center text-slate-400">
-            <Wrench className="w-4 h-4" />
+            {/* Expiring / Overtime */}
+            <div className="flex items-start gap-2.5">
+              <span className={`w-2.5 h-2.5 rounded-full mt-1 shrink-0 ${hasAlerts ? 'bg-amber-400' : 'bg-outline'}`} />
+              <div>
+                <span className={`text-lg font-bold tabular-nums leading-none block ${hasAlerts ? 'text-amber-300' : 'text-on-surface-variant'}`}>
+                  {expiring + overtime}
+                </span>
+                <span className="text-[11px] text-on-surface-variant font-medium">Alerts (5m warning / overtime)</span>
+              </div>
+            </div>
+
+            {/* Maintenance */}
+            <div className="flex items-start gap-2.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-outline mt-1 shrink-0" />
+              <div>
+                <span className="text-lg font-bold text-on-surface tabular-nums leading-none block">
+                  {maintenance}
+                </span>
+                <span className="text-[11px] text-on-surface-variant font-medium">Under maintenance</span>
+              </div>
+            </div>
           </div>
         </div>
-        <div className="mt-2 flex items-baseline justify-between">
-          <span className="text-2xl font-black text-slate-300">{maintenance}</span>
-          <span className="text-[11px] text-slate-500 font-medium">Hardware Check</span>
-        </div>
-      </div>
-    </div>
+      )}
+    </Card>
   );
 }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { X, Play, Clock, ArrowRightLeft, CreditCard, PlusCircle, CheckCircle, Smartphone, Banknote } from 'lucide-react';
+import { Play, ArrowRightLeft, CreditCard, PlusCircle, CheckCircle, Smartphone, Banknote } from 'lucide-react';
+import { Modal, Button, Input, Select, Card } from './ui/index.js';
 
 /**
  * Modal to initiate a new gaming session
@@ -23,104 +24,85 @@ export function StartSessionModal({ station, onClose, onSubmit, isSubmitting }) 
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl relative">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-slate-400 hover:text-slate-200 p-1 rounded-lg hover:bg-slate-800"
-        >
-          <X className="w-5 h-5" />
-        </button>
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      maxWidth="max-w-md"
+      title="Start new session"
+      subtitle={`${station.name} • ₹${station.hourlyRate}/hour`}
+      icon={Play}
+      iconColor="text-primary bg-primary-container/40 border-primary/30"
+    >
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-xs font-semibold text-on-surface mb-1.5">Customer name</label>
+          <Input
+            type="text"
+            placeholder="e.g. Alex (or leave blank for Guest)"
+            value={customerName}
+            onChange={(e) => setCustomerName(e.target.value)}
+          />
+        </div>
 
-        <div className="flex items-center gap-3 mb-5">
-          <div className="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
-            <Play className="w-5 h-5 fill-current" />
+        <div>
+          <label className="block text-xs font-semibold text-on-surface mb-1.5">Customer phone (optional)</label>
+          <Input
+            type="tel"
+            placeholder="e.g. 9876543210"
+            value={customerPhone}
+            onChange={(e) => setCustomerPhone(e.target.value)}
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-on-surface mb-1.5">Session duration</label>
+          <div className="grid grid-cols-4 gap-2 mb-2">
+            {durationOptions.map((mins) => (
+              <button
+                type="button"
+                key={mins}
+                onClick={() => setDurationMins(mins)}
+                className={`py-2 rounded-xl text-xs font-semibold border transition-all ${
+                  durationMins === mins
+                    ? 'bg-primary text-on-primary border-primary'
+                    : 'bg-surface-container-lowest text-on-surface-variant border-outline-variant hover:text-on-surface'
+                }`}
+              >
+                {mins >= 60 ? `${mins / 60}h` : `${mins}m`}
+              </button>
+            ))}
           </div>
-          <div>
-            <h3 className="text-lg font-bold text-white">Start New Session</h3>
-            <p className="text-xs text-slate-400">{station.name} • ₹{station.hourlyRate}/hour</p>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-on-surface-variant">Custom minutes:</span>
+            <Input
+              type="number"
+              min="15"
+              max="720"
+              fullWidth={false}
+              size="sm"
+              value={durationMins}
+              onChange={(e) => setDurationMins(Math.max(1, Number(e.target.value)))}
+              className="w-24 text-center font-mono"
+            />
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">Customer Name</label>
-            <input
-              type="text"
-              placeholder="e.g. Alex (or leave blank for Guest)"
-              value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500"
-            />
-          </div>
+        {/* Pricing Preview Banner */}
+        <Card variant="lowest" className="p-3 flex items-center justify-between text-xs">
+          <span className="text-on-surface-variant">Estimated base package:</span>
+          <span className="text-base font-bold text-emerald-400 tabular-nums">₹{estimatedCost}</span>
+        </Card>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">Customer Phone (Optional)</label>
-            <input
-              type="tel"
-              placeholder="e.g. 9876543210"
-              value={customerPhone}
-              onChange={(e) => setCustomerPhone(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">Session Duration</label>
-            <div className="grid grid-cols-4 gap-2 mb-2">
-              {durationOptions.map((mins) => (
-                <button
-                  type="button"
-                  key={mins}
-                  onClick={() => setDurationMins(mins)}
-                  className={`py-2 rounded-xl text-xs font-bold border transition-all ${
-                    durationMins === mins
-                      ? 'bg-blue-600 text-white border-blue-500'
-                      : 'bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700'
-                  }`}
-                >
-                  {mins >= 60 ? `${mins / 60}h` : `${mins}m`}
-                </button>
-              ))}
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-400">Custom minutes:</span>
-              <input
-                type="number"
-                min="15"
-                max="720"
-                value={durationMins}
-                onChange={(e) => setDurationMins(Math.max(1, Number(e.target.value)))}
-                className="w-24 bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-white text-center focus:outline-none focus:border-blue-500"
-              />
-            </div>
-          </div>
-
-          {/* Pricing Preview Banner */}
-          <div className="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between text-xs">
-            <span className="text-slate-400">Estimated Base Package:</span>
-            <span className="text-base font-bold text-emerald-400">₹{estimatedCost}</span>
-          </div>
-
-          <div className="flex gap-2 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-xs font-semibold shadow-lg shadow-blue-600/30 flex items-center justify-center gap-1.5"
-            >
-              {isSubmitting ? 'Starting...' : 'Confirm & Start'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <div className="flex gap-2 pt-2">
+          <Button type="button" variant="tonal" onClick={onClose} className="flex-1">
+            Cancel
+          </Button>
+          <Button type="submit" variant="filled" disabled={isSubmitting} className="flex-1">
+            {isSubmitting ? 'Starting session...' : 'Start session'}
+          </Button>
+        </div>
+      </form>
+    </Modal>
   );
 }
 
@@ -137,65 +119,46 @@ export function ExtendSessionModal({ sessionId, stationName, onClose, onSubmit, 
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm p-6 shadow-2xl relative">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-slate-400 hover:text-slate-200 p-1 rounded-lg hover:bg-slate-800"
-        >
-          <X className="w-5 h-5" />
-        </button>
-
-        <div className="flex items-center gap-3 mb-5">
-          <div className="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
-            <PlusCircle className="w-5 h-5" />
-          </div>
-          <div>
-            <h3 className="text-lg font-bold text-white">Extend Session</h3>
-            <p className="text-xs text-slate-400">{stationName}</p>
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      maxWidth="max-w-sm"
+      title="Extend session"
+      subtitle={stationName}
+      icon={PlusCircle}
+      iconColor="text-primary bg-primary-container/40 border-primary/30"
+    >
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-xs font-semibold text-on-surface mb-2">Select extra time</label>
+          <div className="grid grid-cols-4 gap-2">
+            {options.map((mins) => (
+              <button
+                type="button"
+                key={mins}
+                onClick={() => setAddedMinutes(mins)}
+                className={`py-2.5 rounded-xl text-xs font-semibold border transition-all ${
+                  addedMinutes === mins
+                    ? 'bg-primary text-on-primary border-primary'
+                    : 'bg-surface-container-lowest text-on-surface-variant border-outline-variant hover:text-on-surface'
+                }`}
+              >
+                +{mins >= 60 ? `${mins / 60}h` : `${mins}m`}
+              </button>
+            ))}
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-2">Select Extra Time</label>
-            <div className="grid grid-cols-4 gap-2">
-              {options.map((mins) => (
-                <button
-                  type="button"
-                  key={mins}
-                  onClick={() => setAddedMinutes(mins)}
-                  className={`py-2.5 rounded-xl text-xs font-bold border transition-all ${
-                    addedMinutes === mins
-                      ? 'bg-blue-600 text-white border-blue-500'
-                      : 'bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700'
-                  }`}
-                >
-                  +{mins >= 60 ? `${mins / 60}h` : `${mins}m`}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex gap-2 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-xs font-semibold shadow-lg shadow-blue-600/30"
-            >
-              {isSubmitting ? 'Extending...' : `Add +${addedMinutes} Mins`}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <div className="flex gap-2 pt-2">
+          <Button type="button" variant="tonal" onClick={onClose} className="flex-1">
+            Cancel
+          </Button>
+          <Button type="submit" variant="filled" disabled={isSubmitting} className="flex-1">
+            {isSubmitting ? 'Extending...' : `Extend +${addedMinutes} minutes`}
+          </Button>
+        </div>
+      </form>
+    </Modal>
   );
 }
 
@@ -213,84 +176,60 @@ export function TransferSessionModal({ sessionId, currentStationName, availableS
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl relative">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-slate-400 hover:text-slate-200 p-1 rounded-lg hover:bg-slate-800"
-        >
-          <X className="w-5 h-5" />
-        </button>
-
-        <div className="flex items-center gap-3 mb-5">
-          <div className="w-10 h-10 rounded-xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-400">
-            <ArrowRightLeft className="w-5 h-5" />
-          </div>
-          <div>
-            <h3 className="text-lg font-bold text-white">Transfer Station</h3>
-            <p className="text-xs text-slate-400">Moving session from {currentStationName}</p>
-          </div>
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      maxWidth="max-w-md"
+      title="Transfer station"
+      subtitle={`Moving session from ${currentStationName}`}
+      icon={ArrowRightLeft}
+      iconColor="text-tertiary bg-tertiary-container/40 border-tertiary/30"
+    >
+      {availableStations.length === 0 ? (
+        <div className="text-center py-6">
+          <p className="text-sm text-amber-400 font-medium">No available stations for transfer.</p>
+          <p className="text-xs text-on-surface-variant mt-1">Please wait for another station to be released.</p>
+          <Button onClick={onClose} variant="tonal" className="mt-4">
+            Close
+          </Button>
         </div>
-
-        {availableStations.length === 0 ? (
-          <div className="text-center py-6">
-            <p className="text-sm text-amber-400 font-medium">No available stations for transfer.</p>
-            <p className="text-xs text-slate-500 mt-1">Please wait for another station to be released.</p>
-            <button
-              onClick={onClose}
-              className="mt-4 px-4 py-2 bg-slate-800 rounded-xl text-xs font-semibold text-slate-300"
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-semibold text-on-surface mb-1.5">Select destination station</label>
+            <Select
+              value={targetStationId}
+              onChange={(e) => setTargetStationId(e.target.value)}
             >
-              Close
-            </button>
+              {availableStations.map((st) => (
+                <option key={st._id} value={st._id} className="bg-surface-container text-on-surface">
+                  {st.name} ({st.type.replace('_', ' ')}) — ₹{st.hourlyRate}/hr
+                </option>
+              ))}
+            </Select>
           </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">Select Destination Station</label>
-              <select
-                value={targetStationId}
-                onChange={(e) => setTargetStationId(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500"
-              >
-                {availableStations.map((st) => (
-                  <option key={st._id} value={st._id}>
-                    {st.name} ({st.type.replace('_', ' ')}) — ₹{st.hourlyRate}/hr
-                  </option>
-                ))}
-              </select>
-            </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">Reason for Transfer</label>
-              <input
-                type="text"
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                placeholder="e.g. Mouse issue, moving closer to friends"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500"
-              />
-            </div>
+          <div>
+            <label className="block text-xs font-semibold text-on-surface mb-1.5">Reason for transfer</label>
+            <Input
+              type="text"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="e.g. Mouse issue, moving closer to friends"
+            />
+          </div>
 
-            <div className="flex gap-2 pt-2">
-              <button
-                type="button"
-                onClick={onClose}
-                className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="flex-1 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white text-xs font-semibold shadow-lg shadow-purple-600/30"
-              >
-                {isSubmitting ? 'Transferring...' : 'Confirm Transfer'}
-              </button>
-            </div>
-          </form>
-        )}
-      </div>
-    </div>
+          <div className="flex gap-2 pt-2">
+            <Button type="button" variant="tonal" onClick={onClose} className="flex-1">
+              Cancel
+            </Button>
+            <Button type="submit" variant="filled" disabled={isSubmitting} className="flex-1">
+              {isSubmitting ? 'Transferring...' : 'Transfer station'}
+            </Button>
+          </div>
+        </form>
+      )}
+    </Modal>
   );
 }
 
@@ -331,150 +270,131 @@ export function CheckoutModal({ sessionId, stationName, liveSession, onClose, on
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl relative">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-slate-400 hover:text-slate-200 p-1 rounded-lg hover:bg-slate-800"
-        >
-          <X className="w-5 h-5" />
-        </button>
-
-        <div className="flex items-center gap-3 mb-5">
-          <div className="w-10 h-10 rounded-xl bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-            <CreditCard className="w-5 h-5" />
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      maxWidth="max-w-md"
+      title="Checkout & Settle"
+      subtitle={`${stationName} • ${liveSession?.customerName || 'Guest'}`}
+      icon={CreditCard}
+      iconColor="text-emerald-400 bg-emerald-950/60 border-emerald-500/30"
+    >
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Itemized Breakdown Box */}
+        <Card variant="lowest" className="p-3.5 space-y-2 text-xs">
+          <div className="flex justify-between text-on-surface-variant">
+            <span>Base duration ({bookedMinutes}m):</span>
+            <span className="text-on-surface font-medium tabular-nums">₹{baseFee}</span>
           </div>
-          <div>
-            <h3 className="text-lg font-bold text-white">Checkout & Settle</h3>
-            <p className="text-xs text-slate-400">{stationName} • {liveSession?.customerName || 'Guest'}</p>
+
+          {overtimeFee > 0 ? (
+            <div className="flex justify-between text-error font-semibold">
+              <span>Overtime ({liveSession.billableOvertimeMinutes}m billable):</span>
+              <span className="tabular-nums">+₹{overtimeFee}</span>
+            </div>
+          ) : (
+            <div className="flex justify-between text-emerald-400">
+              <span>Overtime:</span>
+              <span>₹0 (Grace period)</span>
+            </div>
+          )}
+
+          <div className="flex items-center justify-between pt-1 border-t border-outline-variant/30">
+            <span className="text-on-surface-variant">Discount (₹):</span>
+            <input
+              type="number"
+              min="0"
+              max={subtotal}
+              value={discount}
+              onChange={(e) => setDiscount(Math.min(subtotal, Math.max(0, Number(e.target.value))))}
+              className="w-20 bg-surface-container border border-outline-variant rounded px-2 py-0.5 text-xs text-on-surface text-right focus:outline-none focus:border-primary"
+            />
+          </div>
+
+          <div className="flex justify-between text-base font-bold text-on-surface pt-2 border-t border-outline-variant/40">
+            <span>Total payable:</span>
+            <span className="text-emerald-400 tabular-nums">₹{totalPayable}</span>
+          </div>
+        </Card>
+
+        {/* Payment Method Selector */}
+        <div>
+          <label className="block text-xs font-semibold text-on-surface mb-2">Payment method</label>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setPaymentMethod('CASH')}
+              className={`py-2.5 rounded-xl text-xs font-semibold border flex items-center justify-center gap-2 transition-all ${
+                paymentMethod === 'CASH'
+                  ? 'bg-emerald-600 text-white border-emerald-500 shadow-sm'
+                  : 'bg-surface-container-lowest text-on-surface-variant border-outline-variant hover:text-on-surface'
+              }`}
+            >
+              <Banknote className="w-4 h-4" />
+              <span>Cash</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setPaymentMethod('UPI')}
+              className={`py-2.5 rounded-xl text-xs font-semibold border flex items-center justify-center gap-2 transition-all ${
+                paymentMethod === 'UPI'
+                  ? 'bg-primary text-on-primary border-primary shadow-sm'
+                  : 'bg-surface-container-lowest text-on-surface-variant border-outline-variant hover:text-on-surface'
+              }`}
+            >
+              <Smartphone className="w-4 h-4" />
+              <span>UPI (QR / GPay)</span>
+            </button>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Itemized Breakdown Box */}
-          <div className="bg-slate-950 border border-slate-800/80 rounded-xl p-3.5 space-y-2 text-xs">
-            <div className="flex justify-between text-slate-400">
-              <span>Base Duration ({bookedMinutes}m):</span>
-              <span className="text-white font-medium">₹{baseFee}</span>
-            </div>
-
-            {overtimeFee > 0 ? (
-              <div className="flex justify-between text-red-400 font-semibold">
-                <span>Overtime ({liveSession.billableOvertimeMinutes}m billable):</span>
-                <span>+₹{overtimeFee}</span>
-              </div>
-            ) : (
-              <div className="flex justify-between text-emerald-400">
-                <span>Overtime:</span>
-                <span>₹0 (Grace Period)</span>
-              </div>
-            )}
-
-            <div className="flex items-center justify-between pt-1 border-t border-slate-800/60">
-              <span className="text-slate-400">Discount (₹):</span>
+        {/* Cash Input */}
+        {paymentMethod === 'CASH' && (
+          <Card variant="lowest" className="p-3 space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-on-surface-variant">Cash tendered:</span>
               <input
                 type="number"
-                min="0"
-                max={subtotal}
-                value={discount}
-                onChange={(e) => setDiscount(Math.min(subtotal, Math.max(0, Number(e.target.value))))}
-                className="w-20 bg-slate-900 border border-slate-700 rounded px-2 py-0.5 text-xs text-white text-right focus:outline-none"
+                placeholder={String(totalPayable)}
+                value={cashTendered}
+                onChange={(e) => setCashTendered(e.target.value)}
+                className="w-28 bg-surface-container border border-outline-variant rounded-lg px-2.5 py-1 text-xs text-on-surface text-right focus:outline-none focus:border-primary tabular-nums"
               />
             </div>
-
-            <div className="flex justify-between text-base font-bold text-white pt-2 border-t border-slate-800">
-              <span>Total Payable:</span>
-              <span className="text-emerald-400">₹{totalPayable}</span>
-            </div>
-          </div>
-
-          {/* Payment Method Selector */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-2">Payment Method</label>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setPaymentMethod('CASH')}
-                className={`py-2.5 rounded-xl text-xs font-bold border flex items-center justify-center gap-2 transition-all ${
-                  paymentMethod === 'CASH'
-                    ? 'bg-emerald-600 text-white border-emerald-500'
-                    : 'bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700'
-                }`}
-              >
-                <Banknote className="w-4 h-4" />
-                <span>Cash</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setPaymentMethod('UPI')}
-                className={`py-2.5 rounded-xl text-xs font-bold border flex items-center justify-center gap-2 transition-all ${
-                  paymentMethod === 'UPI'
-                    ? 'bg-blue-600 text-white border-blue-500'
-                    : 'bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700'
-                }`}
-              >
-                <Smartphone className="w-4 h-4" />
-                <span>UPI (QR / GPay)</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Cash Input */}
-          {paymentMethod === 'CASH' && (
-            <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-3 space-y-2">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-400">Cash Tendered:</span>
-                <input
-                  type="number"
-                  placeholder={String(totalPayable)}
-                  value={cashTendered}
-                  onChange={(e) => setCashTendered(e.target.value)}
-                  className="w-28 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white text-right focus:outline-none focus:border-emerald-500"
-                />
+            {tendered > totalPayable && (
+              <div className="flex items-center justify-between text-xs pt-1 border-t border-outline-variant/30 font-semibold text-amber-400">
+                <span>Change to return:</span>
+                <span className="tabular-nums">₹{changeDue}</span>
               </div>
-              {tendered > totalPayable && (
-                <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-800 font-semibold text-amber-400">
-                  <span>Change to Return:</span>
-                  <span>₹{changeDue}</span>
-                </div>
-              )}
-            </div>
-          )}
+            )}
+          </Card>
+        )}
 
-          {/* UPI Reference Input */}
-          {paymentMethod === 'UPI' && (
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">UPI Ref / Transaction #</label>
-              <input
-                type="text"
-                placeholder="e.g. UPI3492840192"
-                value={upiRef}
-                onChange={(e) => setUpiRef(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-blue-500 font-mono"
-              />
-            </div>
-          )}
-
-          <div className="flex gap-2 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-xs font-semibold shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-1.5"
-            >
-              <CheckCircle className="w-4 h-4" />
-              <span>{isSubmitting ? 'Finalizing...' : `Settle & Release (₹${totalPayable})`}</span>
-            </button>
+        {/* UPI Reference Input */}
+        {paymentMethod === 'UPI' && (
+          <div>
+            <label className="block text-xs font-semibold text-on-surface mb-1.5">UPI Ref / Transaction #</label>
+            <Input
+              type="text"
+              placeholder="e.g. UPI3492840192"
+              value={upiRef}
+              onChange={(e) => setUpiRef(e.target.value)}
+              className="font-mono"
+            />
           </div>
-        </form>
-      </div>
-    </div>
+        )}
+
+        <div className="flex gap-2 pt-2">
+          <Button type="button" variant="tonal" onClick={onClose} className="flex-1">
+            Cancel
+          </Button>
+          <Button type="submit" variant="success" disabled={isSubmitting} className="flex-1">
+            <CheckCircle className="w-4 h-4" />
+            <span>{isSubmitting ? 'Finalizing...' : `Complete checkout (₹${totalPayable})`}</span>
+          </Button>
+        </div>
+      </form>
+    </Modal>
   );
 }
 
@@ -497,75 +417,58 @@ export function AddStationModal({ onClose, onSubmit, isSubmitting }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm p-6 shadow-2xl relative">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-slate-400 hover:text-slate-200 p-1 rounded-lg hover:bg-slate-800"
-        >
-          <X className="w-5 h-5" />
-        </button>
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      maxWidth="max-w-sm"
+      title="Add gaming station"
+    >
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-xs font-semibold text-on-surface mb-1.5">Station name / number</label>
+          <Input
+            type="text"
+            required
+            placeholder="e.g. PC-11, PS5-03"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </div>
 
-        <h3 className="text-lg font-bold text-white mb-4">Add Gaming Station</h3>
+        <div>
+          <label className="block text-xs font-semibold text-on-surface mb-1.5">Station type</label>
+          <Select
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+          >
+            <option value="PC_STANDARD" className="bg-surface-container text-on-surface">PC Standard</option>
+            <option value="PC_VIP" className="bg-surface-container text-on-surface">PC VIP (RTX 4080)</option>
+            <option value="PS5" className="bg-surface-container text-on-surface">PlayStation 5</option>
+            <option value="XBOX" className="bg-surface-container text-on-surface">Xbox Series X</option>
+            <option value="VR" className="bg-surface-container text-on-surface">VR Simulator</option>
+          </Select>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">Station Name / Number</label>
-            <input
-              type="text"
-              required
-              placeholder="e.g. PC-11, PS5-03"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500"
-            />
-          </div>
+        <div>
+          <label className="block text-xs font-semibold text-on-surface mb-1.5">Hourly rate (₹)</label>
+          <Input
+            type="number"
+            min="0"
+            required
+            value={hourlyRate}
+            onChange={(e) => setHourlyRate(e.target.value)}
+          />
+        </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">Station Type</label>
-            <select
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500"
-            >
-              <option value="PC_STANDARD">PC Standard</option>
-              <option value="PC_VIP">PC VIP (RTX 4080)</option>
-              <option value="PS5">PlayStation 5</option>
-              <option value="XBOX">Xbox Series X</option>
-              <option value="VR">VR Simulator</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">Hourly Rate (₹)</label>
-            <input
-              type="number"
-              min="0"
-              required
-              value={hourlyRate}
-              onChange={(e) => setHourlyRate(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500"
-            />
-          </div>
-
-          <div className="flex gap-2 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-xs font-semibold shadow-lg shadow-blue-600/30"
-            >
-              {isSubmitting ? 'Creating...' : 'Create Station'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <div className="flex gap-2 pt-2">
+          <Button type="button" variant="tonal" onClick={onClose} className="flex-1">
+            Cancel
+          </Button>
+          <Button type="submit" variant="filled" disabled={isSubmitting} className="flex-1">
+            {isSubmitting ? 'Creating station...' : 'Create station'}
+          </Button>
+        </div>
+      </form>
+    </Modal>
   );
 }

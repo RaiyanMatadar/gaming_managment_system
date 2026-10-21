@@ -7,28 +7,28 @@ import {
   Pause,
   ArrowRightLeft,
   Clock,
-  PlusCircle,
+  Plus,
   CreditCard,
   Wrench,
-  AlertTriangle,
   User,
-  CheckCircle2,
-  XCircle
+  XCircle,
+  Phone
 } from 'lucide-react';
+import { Button, Badge } from './ui';
 
-function getStationIcon(type) {
+function getHardwareBadge(type) {
   switch (type) {
     case 'PS5':
-      return <Tv className="w-5 h-5 text-indigo-400" />;
+      return { label: 'PlayStation 5', icon: Tv, color: 'text-tertiary bg-tertiary-container/30 border-tertiary/40' };
     case 'XBOX':
-      return <Tv className="w-5 h-5 text-emerald-400" />;
+      return { label: 'Xbox Series X', icon: Tv, color: 'text-emerald-400 bg-emerald-950/40 border-emerald-500/30' };
     case 'VR':
-      return <Glasses className="w-5 h-5 text-fuchsia-400" />;
+      return { label: 'VR Simulator', icon: Glasses, color: 'text-secondary bg-secondary-container/30 border-secondary/40' };
     case 'PC_VIP':
-      return <Monitor className="w-5 h-5 text-amber-400" />;
+      return { label: 'VIP PC', icon: Monitor, color: 'text-amber-400 bg-amber-950/40 border-amber-500/30' };
     case 'PC_STANDARD':
     default:
-      return <Monitor className="w-5 h-5 text-blue-400" />;
+      return { label: 'PC Standard', icon: Monitor, color: 'text-primary bg-primary-container/30 border-primary/30' };
   }
 }
 
@@ -75,6 +75,7 @@ export function StationCard({
   const transferSession = onTransfer || onTransferSession;
   const checkoutSession = onCheckout || onCheckoutSession;
   const cancelSession = onCancel || onCancelSession;
+
   const live = station.liveSession;
   const isOccupied = station.status === 'OCCUPIED' && live;
   const isMaintenance = station.status === 'MAINTENANCE';
@@ -118,95 +119,109 @@ export function StationCard({
     }
   }
 
-  // Card theme styling
-  let cardStyles = 'bg-slate-900 border-slate-800 hover:border-slate-700/80 shadow-sm';
-  let badgeStyles = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30';
-  let badgeLabel = 'Available';
+  const hardware = getHardwareBadge(station.type);
+  const HardwareIcon = hardware.icon;
+
+  // Station card terminal styling
+  let borderStyles = 'border-outline-variant/60 bg-surface-container';
+  let badgeStyles = 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30';
+  let badgeLabel = 'Ready for walk-in';
 
   if (isMaintenance) {
-    cardStyles = 'bg-slate-950/80 border-slate-800/80 opacity-80';
-    badgeStyles = 'bg-slate-800 text-slate-400 border-slate-700';
-    badgeLabel = 'Maintenance';
+    borderStyles = 'border-outline-variant/40 bg-surface-container-low opacity-75';
+    badgeStyles = 'bg-surface-container-high text-on-surface-variant border-outline-variant';
+    badgeLabel = 'Under maintenance';
   } else if (currentStatus === 'EXPIRED_UNSETTLED') {
-    cardStyles = 'bg-red-950/20 border-red-500/70 shadow-lg shadow-red-900/20 animate-pulse-glow';
-    badgeStyles = 'bg-red-500/20 text-red-300 border-red-500/50 font-bold';
-    badgeLabel = 'Overtime Active';
+    borderStyles = 'border-error/70 bg-error-container/30 shadow-sm';
+    badgeStyles = 'bg-error-container text-on-error-container border-error/40 font-semibold';
+    badgeLabel = 'Overtime accruing';
   } else if (currentStatus === 'WARNING') {
-    cardStyles = 'bg-amber-950/20 border-amber-500/70 shadow-lg shadow-amber-900/20';
-    badgeStyles = 'bg-amber-500/20 text-amber-300 border-amber-500/50 font-bold animate-pulse';
-    badgeLabel = 'Expiring in < 5m';
+    borderStyles = 'border-amber-500/70 bg-amber-950/40 shadow-sm';
+    badgeStyles = 'bg-amber-500/20 text-amber-300 border-amber-500/40 font-semibold';
+    badgeLabel = 'Expiring soon';
   } else if (currentStatus === 'PAUSED') {
-    cardStyles = 'bg-purple-950/20 border-purple-500/50';
-    badgeStyles = 'bg-purple-500/20 text-purple-300 border-purple-500/40 font-semibold';
-    badgeLabel = 'Timer Paused';
+    borderStyles = 'border-tertiary/50 bg-tertiary-container/20';
+    badgeStyles = 'bg-tertiary-container text-tertiary border-tertiary/40 font-semibold';
+    badgeLabel = 'Timer paused';
   } else if (isOccupied) {
-    cardStyles = 'bg-slate-900 border-blue-500/30 hover:border-blue-500/50 shadow-md shadow-blue-900/10';
-    badgeStyles = 'bg-blue-500/15 text-blue-300 border-blue-500/30 font-semibold';
-    badgeLabel = 'In Session';
+    borderStyles = 'border-primary/40 bg-surface-container-high';
+    badgeStyles = 'bg-primary-container text-on-primary-container border-primary/30 font-medium';
+    badgeLabel = 'In play';
   }
 
   return (
-    <div className={`rounded-2xl border p-4 sm:p-5 flex flex-col justify-between transition-all duration-200 ${cardStyles}`}>
+    <div className={`rounded-xl border p-4 sm:p-5 flex flex-col justify-between transition-colors ${borderStyles}`}>
       <div>
-        {/* Card Header */}
-        <div className="flex items-center justify-between mb-3.5">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center flex-shrink-0">
-              {getStationIcon(station.type)}
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-white tracking-tight flex items-center gap-1.5">
+        {/* Terminal Header: Station Name & Hardware Tag */}
+        <div className="flex items-start justify-between gap-3 pb-3 border-b border-outline-variant/40">
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-base font-bold text-on-surface tracking-tight">
                 {station.name}
-              </h2>
-              <p className="text-[11px] text-slate-400 font-medium">
-                ₹{station.hourlyRate}/hr • <span className="capitalize">{station.type.replace('_', ' ').toLowerCase()}</span>
-              </p>
+              </h3>
+              <span className={`text-[10px] font-medium px-2 py-0.5 rounded border inline-flex items-center gap-1 ${hardware.color}`}>
+                <HardwareIcon className="w-3 h-3" />
+                {hardware.label}
+              </span>
             </div>
+            <p className="text-xs text-on-surface-variant mt-0.5">
+              ₹{station.hourlyRate} per hour
+            </p>
           </div>
 
-          <span className={`text-[10px] px-2.5 py-1 rounded-full border font-semibold tracking-wide ${badgeStyles}`}>
+          <span className={`text-[11px] px-2.5 py-1 rounded-md border font-medium whitespace-nowrap ${badgeStyles}`}>
             {badgeLabel}
           </span>
         </div>
 
-        {/* Live Session Body */}
+        {/* Live Session Body (Occupied Station) */}
         {isOccupied && (
-          <div className="bg-slate-950/80 border border-slate-800/80 rounded-xl p-3 my-3 space-y-2.5">
-            {/* Customer Info */}
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-400 flex items-center gap-1">
-                <User className="w-3.5 h-3.5 text-slate-500" />
+          <div className="my-3.5 space-y-3">
+            {/* Player Information */}
+            <div className="flex items-center justify-between text-xs py-1 border-b border-outline-variant/40">
+              <span className="text-on-surface-variant flex items-center gap-1.5">
+                <User className="w-3.5 h-3.5 text-outline" />
                 Player:
               </span>
-              <span className="font-bold text-white truncate max-w-[150px]">
+              <span className="font-semibold text-on-surface truncate max-w-[150px]">
                 {live.customerName}
               </span>
             </div>
 
-            {/* Countdown / Overtime Meter */}
-            <div className="pt-2 border-t border-slate-800/60 flex items-center justify-between">
-              <div className="flex items-center gap-1.5 text-xs text-slate-400">
-                <Clock className="w-3.5 h-3.5 text-slate-400" />
+            {live.customerPhone && (
+              <div className="flex items-center justify-between text-xs text-on-surface-variant">
+                <span className="flex items-center gap-1.5">
+                  <Phone className="w-3.5 h-3.5 text-outline" />
+                  Phone:
+                </span>
+                <span className="font-mono tabular-nums text-on-surface">{live.customerPhone}</span>
+              </div>
+            )}
+
+            {/* Time Countdown / Overtime Meter */}
+            <div className="p-3 rounded-lg bg-surface-container-lowest border border-outline-variant/50 flex items-center justify-between">
+              <div className="text-xs text-on-surface-variant flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-outline" />
                 <span>{isOvertime ? 'Overtime:' : 'Remaining:'}</span>
               </div>
 
               {isOvertime ? (
                 <div className="text-right">
-                  <span className="font-mono text-base font-black text-red-400 tracking-tight">
+                  <span className="font-mono tabular-nums text-base font-bold text-error">
                     +{formatDuration(overtimeMs)}
                   </span>
                   {live.overtimeFee > 0 && (
-                    <span className="block text-[10px] text-red-300 font-bold">
-                      Fee: ₹{live.overtimeFee}
+                    <span className="block text-[11px] text-error font-semibold">
+                      Accrued: ₹{live.overtimeFee}
                     </span>
                   )}
                 </div>
               ) : currentStatus === 'PAUSED' ? (
-                <span className="font-mono text-xs font-bold text-purple-400">
-                  Timer Paused
+                <span className="text-xs font-semibold text-tertiary">
+                  Timer paused
                 </span>
               ) : (
-                <span className={`font-mono text-base font-black tracking-tight ${isWarning ? 'text-amber-400 animate-pulse' : 'text-emerald-400'}`}>
+                <span className={`font-mono tabular-nums text-lg font-bold ${isWarning ? 'text-amber-400' : 'text-primary'}`}>
                   {formatDuration(remainingMs)}
                 </span>
               )}
@@ -214,126 +229,138 @@ export function StationCard({
           </div>
         )}
 
-        {/* Maintenance Message */}
+        {/* Maintenance State */}
         {isMaintenance && (
-          <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-3 my-3 text-xs text-slate-400 flex items-center gap-2">
-            <Wrench className="w-4 h-4 text-amber-400 flex-shrink-0" />
-            <span className="truncate">Station down for service / maintenance</span>
+          <div className="p-3 rounded-lg bg-surface-container-lowest border border-outline-variant/50 my-3 text-xs text-on-surface-variant flex items-center gap-2">
+            <Wrench className="w-4 h-4 text-amber-400 shrink-0" />
+            <span>Station temporarily offline for service</span>
           </div>
         )}
 
-        {/* Available Empty Message */}
+        {/* Available State Ready Prompt */}
         {station.status === 'AVAILABLE' && (
-          <div className="bg-slate-950/40 border border-dashed border-slate-800/80 rounded-xl p-3 my-3 text-center">
-            <span className="text-[11px] text-emerald-400/90 font-medium flex items-center justify-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              Ready for immediate walk-in
-            </span>
+          <div className="py-5 my-2 text-center border border-dashed border-outline-variant/60 rounded-lg bg-surface-container-lowest/50">
+            <p className="text-xs text-on-surface-variant">
+              Ready for immediate player assignment
+            </p>
           </div>
         )}
       </div>
 
       {/* Action Footer */}
-      <div className="pt-3 border-t border-slate-800/60 flex flex-wrap gap-2">
+      <div className="pt-3 border-t border-outline-variant/40 flex flex-wrap gap-2">
         {/* Available Actions */}
         {station.status === 'AVAILABLE' && (
           <>
-            <button
+            <Button
+              variant="filled"
+              size="sm"
               onClick={() => startSession && startSession(station)}
-              className="flex-1 py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-md shadow-blue-600/20 transition-all flex items-center justify-center gap-1.5"
+              className="flex-1"
             >
               <Play className="w-3.5 h-3.5 fill-current" />
-              <span>Start Session</span>
-            </button>
-            <button
+              <span>Start session</span>
+            </Button>
+            <Button
+              variant="outlined"
+              size="sm"
               onClick={() => onToggleMaintenance(station._id, 'MAINTENANCE')}
-              title="Mark for maintenance"
-              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-200 text-xs transition-all border border-slate-700/60"
+              title="Set to maintenance"
+              aria-label="Maintenance toggle"
             >
-              <Wrench className="w-4 h-4" />
-            </button>
+              <Wrench className="w-3.5 h-3.5" />
+            </Button>
           </>
         )}
 
-        {/* Occupied Actions */}
+        {/* Occupied Actions: Extend, Pause, Transfer, Cancel, Checkout */}
         {isOccupied && (
           <>
             {/* Extend */}
-            <button
+            <Button
+              variant="outlined"
+              size="sm"
               onClick={() => extendSession && extendSession(live.sessionId, station.name)}
-              className="py-1.5 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition-all flex items-center gap-1 border border-slate-700/60"
               title="Add 15, 30, or 60 minutes"
             >
-              <PlusCircle className="w-3.5 h-3.5 text-blue-400" />
+              <Plus className="w-3.5 h-3.5 text-primary" />
               <span>Extend</span>
-            </button>
+            </Button>
 
             {/* Pause / Resume */}
             {currentStatus === 'PAUSED' ? (
-              <button
+              <Button
+                variant="success"
+                size="sm"
                 onClick={() => resumeSession && resumeSession(live.sessionId)}
-                className="py-1.5 px-2.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs font-semibold transition-all flex items-center gap-1"
               >
                 <Play className="w-3.5 h-3.5 fill-current" />
                 <span>Resume</span>
-              </button>
+              </Button>
             ) : (
-              <button
+              <Button
+                variant="outlined"
+                size="sm"
                 onClick={() => pauseSession && pauseSession(live.sessionId)}
-                className="py-1.5 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition-all flex items-center gap-1 border border-slate-700/60"
                 title="Pause billing timer"
               >
                 <Pause className="w-3.5 h-3.5" />
                 <span>Pause</span>
-              </button>
+              </Button>
             )}
 
             {/* Transfer */}
-            <button
+            <Button
+              variant="outlined"
+              size="sm"
               onClick={() => transferSession && transferSession(live.sessionId, station.name)}
-              className="py-1.5 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition-all flex items-center gap-1 border border-slate-700/60"
               title="Transfer customer to another PC"
             >
-              <ArrowRightLeft className="w-3.5 h-3.5 text-slate-400" />
+              <ArrowRightLeft className="w-3.5 h-3.5 text-on-surface-variant" />
               <span>Transfer</span>
-            </button>
+            </Button>
 
             {/* Cancel Session */}
             {cancelSession && (
-              <button
+              <Button
+                variant="error"
+                size="sm"
                 onClick={() => cancelSession(live.sessionId, station.name)}
-                className="py-1.5 px-2.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-medium transition-all flex items-center gap-1"
                 title="Cancel session if customer decides not to play"
               >
                 <XCircle className="w-3.5 h-3.5" />
                 <span>Cancel</span>
-              </button>
+              </Button>
             )}
 
-            {/* Checkout & Settle */}
-            <button
+            {/* Checkout */}
+            <Button
+              variant="filled"
+              size="sm"
               onClick={() => checkoutSession && checkoutSession(live.sessionId, station.name)}
-              className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold shadow-md transition-all flex items-center justify-center gap-1.5 ${
+              className={`flex-1 ${
                 isOvertime
-                  ? 'bg-red-600 hover:bg-red-500 text-white shadow-red-600/20'
-                  : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/20'
+                  ? 'bg-error text-on-error hover:opacity-90'
+                  : 'bg-emerald-600 hover:bg-emerald-500 text-white'
               }`}
             >
               <CreditCard className="w-3.5 h-3.5" />
               <span>Checkout</span>
-            </button>
+            </Button>
           </>
         )}
 
         {/* Maintenance Actions */}
         {isMaintenance && (
-          <button
+          <Button
+            variant="outlined"
+            size="sm"
+            fullWidth
             onClick={() => onToggleMaintenance(station._id, 'AVAILABLE')}
-            className="w-full py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-all flex items-center justify-center gap-1.5 border border-slate-700/60"
           >
             <Wrench className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Mark Ready (Available)</span>
-          </button>
+            <span>Mark ready for walk-in</span>
+          </Button>
         )}
       </div>
     </div>

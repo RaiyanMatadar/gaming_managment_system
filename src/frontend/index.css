@@ -1,22 +1,51 @@
+@import './styles/tokens.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   body {
-    @apply antialiased bg-slate-950 text-slate-100 font-sans;
+    @apply antialiased bg-background text-on-surface font-sans selection:bg-primary selection:text-on-primary;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 }
 
-@keyframes pulseGlow {
-  0%, 100% {
-    box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+@layer components {
+  .surface-panel {
+    @apply bg-surface-container border border-outline-variant/60 rounded-xl;
   }
-  50% {
-    box-shadow: 0 0 25px rgba(239, 68, 68, 0.8);
+  .surface-subpanel {
+    @apply bg-surface-container-lowest border border-outline-variant/40 rounded-lg;
+  }
+  .heading-view {
+    @apply text-base sm:text-lg font-bold text-on-surface tracking-tight;
+  }
+  .caption-muted {
+    @apply text-xs text-on-surface-variant font-medium;
   }
 }
 
-.animate-pulse-glow {
-  animation: pulseGlow 1.5s infinite ease-in-out;
+/* Tabular figures for timers, currencies, and clocks */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Custom scrollbars matching theme tokens */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--md-surface-container-lowest);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--md-outline-variant);
+  border-radius: var(--md-shape-sm);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--md-outline);
 }

@@ -1,0 +1,118 @@
+/* Generated from material.json Material Theme Builder Export */
+
+:root {
+  --md-primary: #415F91;
+  --md-surface-tint: #415F91;
+  --md-on-primary: #FFFFFF;
+  --md-primary-container: #D6E3FF;
+  --md-on-primary-container: #284777;
+  --md-secondary: #565F71;
+  --md-on-secondary: #FFFFFF;
+  --md-secondary-container: #DAE2F9;
+  --md-on-secondary-container: #3E4759;
+  --md-tertiary: #705575;
+  --md-on-tertiary: #FFFFFF;
+  --md-tertiary-container: #FAD8FD;
+  --md-on-tertiary-container: #573E5C;
+  --md-error: #BA1A1A;
+  --md-on-error: #FFFFFF;
+  --md-error-container: #FFDAD6;
+  --md-on-error-container: #93000A;
+  --md-background: #F9F9FF;
+  --md-on-background: #191C20;
+  --md-surface: #F9F9FF;
+  --md-on-surface: #191C20;
+  --md-surface-variant: #E0E2EC;
+  --md-on-surface-variant: #44474E;
+  --md-outline: #74777F;
+  --md-outline-variant: #C4C6D0;
+  --md-shadow: #000000;
+  --md-scrim: #000000;
+  --md-inverse-surface: #2E3036;
+  --md-inverse-on-surface: #F0F0F7;
+  --md-inverse-primary: #AAC7FF;
+  --md-primary-fixed: #D6E3FF;
+  --md-on-primary-fixed: #001B3E;
+  --md-primary-fixed-dim: #AAC7FF;
+  --md-on-primary-fixed-variant: #284777;
+  --md-secondary-fixed: #DAE2F9;
+  --md-on-secondary-fixed: #131C2B;
+  --md-secondary-fixed-dim: #BEC6DC;
+  --md-on-secondary-fixed-variant: #3E4759;
+  --md-tertiary-fixed: #FAD8FD;
+  --md-on-tertiary-fixed: #28132E;
+  --md-tertiary-fixed-dim: #DDBCE0;
+  --md-on-tertiary-fixed-variant: #573E5C;
+  --md-surface-dim: #D9D9E0;
+  --md-surface-bright: #F9F9FF;
+  --md-surface-container-lowest: #FFFFFF;
+  --md-surface-container-low: #F3F3FA;
+  --md-surface-container: #EDEDF4;
+  --md-surface-container-high: #E7E8EE;
+  --md-surface-container-highest: #E2E2E9;
+
+  /* Shape Tokens (derived from codebase audit) */
+  --md-shape-sm: 0.25rem;
+  --md-shape-md: 0.5rem;
+  --md-shape-lg: 0.75rem;
+  --md-shape-xl: 1rem;
+  --md-shape-full: 9999px;
+
+  /* Elevation Tokens (shadows) */
+  --md-elevation-1: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --md-elevation-2: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --md-elevation-3: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --md-elevation-5: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+}
+
+.dark {
+  --md-primary: #AAC7FF;
+  --md-surface-tint: #AAC7FF;
+  --md-on-primary: #0A305F;
+  --md-primary-container: #284777;
+  --md-on-primary-container: #D6E3FF;
+  --md-secondary: #BEC6DC;
+  --md-on-secondary: #283141;
+  --md-secondary-container: #3E4759;
+  --md-on-secondary-container: #DAE2F9;
+  --md-tertiary: #DDBCE0;
+  --md-on-tertiary: #3F2844;
+  --md-tertiary-container: #573E5C;
+  --md-on-tertiary-container: #FAD8FD;
+  --md-error: #FFB4AB;
+  --md-on-error: #690005;
+  --md-error-container: #93000A;
+  --md-on-error-container: #FFDAD6;
+  --md-background: #111318;
+  --md-on-background: #E2E2E9;
+  --md-surface: #111318;
+  --md-on-surface: #E2E2E9;
+  --md-surface-variant: #44474E;
+  --md-on-surface-variant: #C4C6D0;
+  --md-outline: #8E9099;
+  --md-outline-variant: #44474E;
+  --md-shadow: #000000;
+  --md-scrim: #000000;
+  --md-inverse-surface: #E2E2E9;
+  --md-inverse-on-surface: #2E3036;
+  --md-inverse-primary: #415F91;
+  --md-primary-fixed: #D6E3FF;
+  --md-on-primary-fixed: #001B3E;
+  --md-primary-fixed-dim: #AAC7FF;
+  --md-on-primary-fixed-variant: #284777;
+  --md-secondary-fixed: #DAE2F9;
+  --md-on-secondary-fixed: #131C2B;
+  --md-secondary-fixed-dim: #BEC6DC;
+  --md-on-secondary-fixed-variant: #3E4759;
+  --md-tertiary-fixed: #FAD8FD;
+  --md-on-tertiary-fixed: #28132E;
+  --md-tertiary-fixed-dim: #DDBCE0;
+  --md-on-tertiary-fixed-variant: #573E5C;
+  --md-surface-dim: #111318;
+  --md-surface-bright: #37393E;
+  --md-surface-container-lowest: #0C0E13;
+  --md-surface-container-low: #191C20;
+  --md-surface-container: #1D2024;
+  --md-surface-container-high: #282A2F;
+  --md-surface-container-highest: #33353A;
+}

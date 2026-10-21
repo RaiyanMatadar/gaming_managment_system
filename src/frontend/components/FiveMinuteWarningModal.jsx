@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { AlertTriangle, Clock, PlusCircle, CheckCircle, Monitor, User } from 'lucide-react';
+import { AlertTriangle, Clock, Plus, Check, Monitor, User } from 'lucide-react';
+import { Button, Card, Badge } from './ui';
 
 export function FiveMinuteWarningModal({ warnings = [], onDismiss, onExtend }) {
   if (!warnings || warnings.length === 0) return null;
@@ -25,16 +26,16 @@ export function FiveMinuteWarningModal({ warnings = [], onDismiss, onExtend }) {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(880, ctx.currentTime); // A5
-        gain.gain.setValueAtTime(0.1, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        gain.gain.setValueAtTime(0.08, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
         osc.connect(gain);
         gain.connect(ctx.destination);
         osc.start();
-        osc.stop(ctx.currentTime + 0.35);
+        osc.stop(ctx.currentTime + 0.3);
       }
     } catch (e) {
-      // Audio autoplay policy fallback
+      // Audio autoplay fallback
     }
   }, [warnings.length]);
 
@@ -47,44 +48,43 @@ export function FiveMinuteWarningModal({ warnings = [], onDismiss, onExtend }) {
   const timeFormatted = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="bg-slate-900 border-2 border-amber-500 rounded-3xl w-full max-w-lg p-6 shadow-2xl shadow-amber-500/20 relative animate-pulse-glow">
-        
-        {/* Header Banner */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+    <div className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-150">
+      <Card variant="container" className="w-full max-w-lg p-6 shadow-2xl relative border-amber-500/50">
+        {/* Header */}
+        <div className="flex items-center justify-between pb-3.5 border-b border-outline-variant/40">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
-              <AlertTriangle className="w-7 h-7 animate-bounce" />
+            <div className="w-10 h-10 rounded-lg bg-amber-950/60 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0">
+              <AlertTriangle className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-amber-400">
-                Staff Alert • 5-Minute Warning
+              <span className="text-xs font-semibold text-amber-400 block leading-tight">
+                Cashier alert
               </span>
-              <h2 className="text-xl font-black text-white">
-                Session Ending Soon
+              <h2 className="text-base font-bold text-on-surface tracking-tight mt-0.5">
+                Session ending soon
               </h2>
             </div>
           </div>
 
-          {/* Multiple Warnings Badge */}
+          {/* Multiple Warnings Count */}
           {warnings.length > 1 && (
-            <span className="px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-bold">
-              {warnings.length} Active Alerts
-            </span>
+            <Badge variant="warning" size="md">
+              {warnings.length} active warnings
+            </Badge>
           )}
         </div>
 
-        {/* Tab switcher if multiple customers have 5-min warnings */}
+        {/* Tab switcher if multiple stations have 5-min warnings */}
         {warnings.length > 1 && (
-          <div className="flex gap-2 overflow-x-auto py-3 border-b border-slate-800/80 scrollbar-none">
+          <div className="flex gap-1.5 overflow-x-auto py-2.5 border-b border-outline-variant/40 scrollbar-none">
             {warnings.map((w, idx) => (
               <button
                 key={w.sessionId}
                 onClick={() => setSelectedIndex(idx)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border ${
+                className={`px-3 py-1 rounded-lg text-xs font-medium whitespace-nowrap transition-colors border ${
                   idx === selectedIndex
-                    ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-md'
-                    : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+                    ? 'bg-amber-500/20 text-amber-200 border-amber-500/50 font-semibold'
+                    : 'bg-surface-container-lowest text-on-surface-variant border-outline-variant/40 hover:text-on-surface'
                 }`}
               >
                 {w.stationName} ({w.customerName})
@@ -93,71 +93,72 @@ export function FiveMinuteWarningModal({ warnings = [], onDismiss, onExtend }) {
           </div>
         )}
 
-        {/* Core Message Callout */}
-        <div className="my-5 bg-amber-950/30 border border-amber-500/40 rounded-2xl p-4 text-center">
-          <p className="text-lg font-extrabold text-amber-200">
-            "Only 5 minutes left for <span className="text-white underline decoration-amber-400">{activeWarning.customerName}</span> on PC <span className="text-white underline decoration-amber-400">{activeWarning.stationName}</span>."
+        {/* Warning Notification Message */}
+        <div className="my-4 bg-amber-950/20 border border-amber-500/30 rounded-lg p-3.5 text-center">
+          <p className="text-sm font-semibold text-amber-200">
+            Only 5 minutes left for <span className="text-on-surface underline">{activeWarning.customerName}</span> on PC <span className="text-on-surface underline">{activeWarning.stationName}</span>.
           </p>
         </div>
 
         {/* Detail Cards */}
-        <div className="grid grid-cols-3 gap-3 mb-6">
-          <div className="bg-slate-950 border border-slate-800 rounded-xl p-3 text-center">
-            <span className="text-[11px] text-slate-400 flex items-center justify-center gap-1 mb-1">
-              <Monitor className="w-3.5 h-3.5 text-blue-400" />
-              Station / PC
+        <div className="grid grid-cols-3 gap-2.5 mb-5">
+          <Card variant="lowest" className="p-3 text-center">
+            <span className="text-[11px] text-on-surface-variant flex items-center justify-center gap-1 mb-1">
+              <Monitor className="w-3.5 h-3.5 text-outline" />
+              Station
             </span>
-            <p className="text-sm font-bold text-white">{activeWarning.stationName}</p>
-          </div>
+            <p className="text-sm font-bold text-on-surface">{activeWarning.stationName}</p>
+          </Card>
 
-          <div className="bg-slate-950 border border-slate-800 rounded-xl p-3 text-center">
-            <span className="text-[11px] text-slate-400 flex items-center justify-center gap-1 mb-1">
-              <User className="w-3.5 h-3.5 text-blue-400" />
-              Customer
+          <Card variant="lowest" className="p-3 text-center">
+            <span className="text-[11px] text-on-surface-variant flex items-center justify-center gap-1 mb-1">
+              <User className="w-3.5 h-3.5 text-outline" />
+              Player
             </span>
-            <p className="text-sm font-bold text-white truncate">{activeWarning.customerName}</p>
-          </div>
+            <p className="text-sm font-bold text-on-surface truncate">{activeWarning.customerName}</p>
+          </Card>
 
-          <div className="bg-slate-950 border border-amber-900/40 rounded-xl p-3 text-center">
+          <div className="bg-amber-950/30 border border-amber-500/40 rounded-xl p-3 text-center">
             <span className="text-[11px] text-amber-400 flex items-center justify-center gap-1 mb-1">
               <Clock className="w-3.5 h-3.5 text-amber-400" />
-              Time Left
+              Time left
             </span>
-            <p className="text-sm font-black font-mono text-amber-400 animate-pulse">
+            <p className="text-base font-bold font-mono tabular-nums text-amber-300">
               {timeFormatted}
             </p>
           </div>
         </div>
 
-        <p className="text-xs text-slate-400 text-center mb-6">
-          An automated notification email has also been sent to the center owner. Please ask the customer if they wish to extend before overtime rules apply.
+        <p className="text-xs text-on-surface-variant text-center mb-5">
+          Notification has also been dispatched to the center owner. Ask the player if they wish to extend before overtime charges begin.
         </p>
 
         {/* Action Buttons */}
-        <div className="flex gap-3">
-          <button
+        <div className="flex gap-2">
+          <Button
+            variant="outlined"
             onClick={() => onDismiss(activeWarning.sessionId)}
-            className="flex-1 py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-all flex items-center justify-center gap-2"
+            className="flex-1"
           >
-            <CheckCircle className="w-4 h-4 text-slate-400" />
-            <span>Acknowledge</span>
-          </button>
+            <Check className="w-4 h-4 text-on-surface-variant" />
+            <span>Dismiss warning</span>
+          </Button>
 
-          <button
+          <Button
+            variant="filled"
             onClick={() => {
               const sessId = activeWarning.sessionId;
               const stName = activeWarning.stationName;
               onDismiss(sessId);
               onExtend(sessId, stName);
             }}
-            className="flex-1 py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold shadow-lg shadow-amber-500/20 transition-all flex items-center justify-center gap-2"
+            className="flex-1 bg-amber-500 text-slate-950 hover:bg-amber-400 border-none"
           >
-            <PlusCircle className="w-4 h-4" />
-            <span>Extend Session</span>
-          </button>
+            <Plus className="w-4 h-4" />
+            <span>Extend session</span>
+          </Button>
         </div>
-
-      </div>
+      </Card>
     </div>
   );
 }

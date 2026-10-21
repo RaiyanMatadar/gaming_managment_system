@@ -361,8 +361,8 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen flex bg-slate-950 text-slate-100 font-sans selection:bg-blue-600 selection:text-white">
-      {/* 1. SaaS Sidebar Navigation */}
+    <div className="min-h-screen flex bg-background text-on-surface font-sans selection:bg-primary selection:text-on-primary">
+      {/* 1. Terminal Sidebar Navigation */}
       <Sidebar
         currentView={currentView}
         onSelectView={setCurrentView}
@@ -373,7 +373,7 @@ export function App() {
       />
 
       {/* 2. Main Workspace Layout */}
-      <div className="flex-1 flex flex-col min-w-0 lg:pl-64">
+      <div className="flex-1 flex flex-col min-w-0 lg:pl-60">
         {/* Persistent App Header */}
         <AppHeader
           currentView={currentView}
@@ -388,17 +388,17 @@ export function App() {
 
         {/* Toast Alert Banner */}
         {toast && (
-          <div className="fixed top-20 right-6 z-50 animate-bounce">
+          <div className="fixed top-16 right-6 z-50">
             <div
-              className={`flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-2xl border text-xs sm:text-sm font-semibold ${
+              className={`flex items-center gap-2.5 px-4 py-2.5 rounded-lg shadow-xl border text-xs font-medium ${
                 toast.type === 'error'
-                  ? 'bg-red-950 border-red-500 text-red-200 shadow-red-900/50'
+                  ? 'bg-error-container border-error/50 text-on-error-container'
                   : toast.type === 'warning'
-                  ? 'bg-amber-950 border-amber-500 text-amber-200 shadow-amber-900/50'
-                  : 'bg-emerald-950 border-emerald-500 text-emerald-200 shadow-emerald-900/50'
+                  ? 'bg-amber-950/80 border-amber-500/50 text-amber-200'
+                  : 'bg-emerald-950/80 border-emerald-500/50 text-emerald-200'
               }`}
             >
-              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{toast.message}</span>
               <button onClick={() => setToast(null)} className="ml-2 hover:opacity-80">
                 <X className="w-3.5 h-3.5" />
@@ -411,8 +411,8 @@ export function App() {
         <main className="p-4 sm:p-6 lg:p-8 flex-1 w-full max-w-7xl mx-auto">
           {/* VIEW 1: Live Floor Grid */}
           {currentView === 'floor' && (
-            <div className="space-y-6">
-              {/* Key Fleet Metrics */}
+            <div className="space-y-5">
+              {/* Floor Overview Strip */}
               <StatsBar stations={stations} />
 
               {/* Floor Segment Filters */}
@@ -424,23 +424,23 @@ export function App() {
 
               {/* Loading & Error States */}
               {loading && (
-                <div className="text-center py-20">
-                  <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                  <p className="text-xs text-slate-400">Synchronizing floor status...</p>
+                <div className="text-center py-20 bg-surface-container border border-outline-variant/60 rounded-xl">
+                  <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                  <p className="text-xs text-on-surface-variant">Loading floor stations...</p>
                 </div>
               )}
 
               {error && (
-                <div className="p-4 rounded-2xl bg-red-950/40 border border-red-900 text-red-300 text-xs text-center mb-6">
+                <div className="p-4 rounded-xl bg-error-container/40 border border-error/40 text-on-error-container text-xs text-center mb-6">
                   {error}
                 </div>
               )}
 
-              {/* Station Grid */}
+              {/* Station Grid Empty State */}
               {!loading && filteredStations.length === 0 && (
-                <div className="text-center py-16 bg-slate-900 border border-slate-800 rounded-2xl">
-                  <p className="text-sm font-bold text-slate-300">No stations match the selected filter.</p>
-                  <p className="text-xs text-slate-500 mt-1">Switch filter to "All Stations" or click "+ Add Station".</p>
+                <div className="text-center py-16 bg-surface-container border border-outline-variant/60 rounded-xl">
+                  <p className="text-sm font-semibold text-on-surface">No stations match the selected filter</p>
+                  <p className="text-xs text-on-surface-variant mt-1">Switch filter to "All stations" or click "Add station"</p>
                 </div>
               )}
 

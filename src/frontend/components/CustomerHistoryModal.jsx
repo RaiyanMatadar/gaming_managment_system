@@ -8,6 +8,7 @@ import {
   RefreshCw,
   AlertCircle
 } from 'lucide-react';
+import { Card, Button, Badge } from './ui';
 
 export function CustomerLedgerView({ embedded = true }) {
   const [sessions, setSessions] = useState([]);
@@ -79,58 +80,58 @@ export function CustomerLedgerView({ embedded = true }) {
   return (
     <div className="space-y-4">
       {/* 30-Day Monthly Retention Notice Banner */}
-      <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
-        <div className="flex items-center gap-2 text-slate-300">
+      <Card variant="container" className="p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
+        <div className="flex items-center gap-2 text-on-surface-variant">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
-          <span className="font-semibold text-white">Monthly Retention Policy:</span>
-          <span className="text-slate-400">
+          <span className="font-semibold text-on-surface">Monthly Retention Policy:</span>
+          <span className="text-on-surface-variant">
             Only sessions within the active 30-day (1-month) window are preserved. Out-of-month records are automatically pruned.
           </span>
         </div>
-        <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 font-bold whitespace-nowrap">
+        <Badge variant="primary" size="pill">
           Auto-Purge 30d Active
-        </span>
-      </div>
+        </Badge>
+      </Card>
 
       {/* Top Analytics Summary Cards */}
       {analytics && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
-            <span className="text-xs font-semibold text-slate-400 block">Unique Customers</span>
-            <span className="text-2xl font-black text-white mt-1 block">{analytics.uniqueCustomers}</span>
-            <span className="text-[11px] text-slate-500 font-medium">Distinct Players</span>
-          </div>
+          <Card variant="container" className="p-4">
+            <span className="text-xs font-semibold text-on-surface-variant block">Unique Customers</span>
+            <span className="text-2xl font-black text-on-surface mt-1 block">{analytics.uniqueCustomers}</span>
+            <span className="text-[11px] text-on-surface-variant font-medium">Distinct Players</span>
+          </Card>
 
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
-            <span className="text-xs font-semibold text-blue-400 block">Total Sessions</span>
-            <span className="text-2xl font-black text-blue-300 mt-1 block">{analytics.totalSessions}</span>
-            <span className="text-[11px] text-slate-500 font-medium">Recorded Visits</span>
-          </div>
+          <Card variant="container" className="p-4">
+            <span className="text-xs font-semibold text-primary block">Total Sessions</span>
+            <span className="text-2xl font-black text-primary mt-1 block">{analytics.totalSessions}</span>
+            <span className="text-[11px] text-on-surface-variant font-medium">Recorded Visits</span>
+          </Card>
 
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+          <Card variant="container" className="p-4">
             <span className="text-xs font-semibold text-emerald-400 block">Hours Logged</span>
             <span className="text-2xl font-black text-emerald-300 mt-1 block">{analytics.totalHoursLogged} hrs</span>
-            <span className="text-[11px] text-slate-500 font-medium">Station Time</span>
-          </div>
+            <span className="text-[11px] text-on-surface-variant font-medium">Station Time</span>
+          </Card>
 
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
-            <span className="text-xs font-semibold text-slate-400 block">Total Revenue</span>
-            <span className="text-2xl font-black text-white mt-1 block">₹{analytics.totalSpend}</span>
-            <span className="text-[11px] text-slate-500 font-medium">30-Day Period</span>
-          </div>
+          <Card variant="container" className="p-4">
+            <span className="text-xs font-semibold text-on-surface-variant block">Total Revenue</span>
+            <span className="text-2xl font-black text-on-surface mt-1 block">₹{analytics.totalSpend}</span>
+            <span className="text-[11px] text-on-surface-variant font-medium">30-Day Period</span>
+          </Card>
         </div>
       )}
 
       {/* Search & Filter Toolbar */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-outline absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             placeholder="Search by customer name or phone..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-blue-500"
+            className="w-full bg-surface-container border border-outline-variant/60 rounded-xl pl-9 pr-4 py-2 text-xs text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary"
           />
         </div>
 
@@ -146,8 +147,8 @@ export function CustomerLedgerView({ embedded = true }) {
               onClick={() => setStatusFilter(tab.id)}
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all border ${
                 statusFilter === tab.id
-                  ? 'bg-blue-600 text-white border-blue-500 shadow-md shadow-blue-600/20'
-                  : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-slate-200'
+                  ? 'bg-primary-container text-on-primary-container border-primary/40'
+                  : 'bg-surface-container text-on-surface-variant border-outline-variant/60 hover:text-on-surface'
               }`}
             >
               {tab.label}
@@ -157,7 +158,7 @@ export function CustomerLedgerView({ embedded = true }) {
           <button
             onClick={fetchHistory}
             title="Refresh Records"
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-all border border-slate-700/60"
+            className="p-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-all border border-outline-variant/60"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
           </button>
@@ -166,42 +167,43 @@ export function CustomerLedgerView({ embedded = true }) {
 
       {/* Content Body */}
       {loading && (
-        <div className="text-center py-20 bg-slate-900 border border-slate-800 rounded-2xl">
-          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-xs text-slate-400">Loading customer history records...</p>
-        </div>
+        <Card variant="container" className="text-center py-20">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-xs text-on-surface-variant">Loading customer history records...</p>
+        </Card>
       )}
 
       {error && !loading && (
-        <div className="p-6 rounded-2xl bg-red-950/30 border border-red-900/60 text-center my-4 space-y-3">
-          <AlertCircle className="w-8 h-8 text-red-400 mx-auto" />
+        <div className="p-6 rounded-2xl bg-error-container/40 border border-error/40 text-center my-4 space-y-3">
+          <AlertCircle className="w-8 h-8 text-error mx-auto" />
           <div>
-            <p className="text-sm font-bold text-red-200">Unable to load customer history</p>
-            <p className="text-xs text-red-400 mt-1">{error}</p>
+            <p className="text-sm font-bold text-on-error-container">Unable to load customer history</p>
+            <p className="text-xs text-on-error-container/80 mt-1">{error}</p>
           </div>
-          <button
+          <Button
+            variant="filled"
+            size="sm"
             onClick={fetchHistory}
-            className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold transition-all shadow-md"
           >
             Retry Request
-          </button>
+          </Button>
         </div>
       )}
 
       {!loading && !error && sessions.length === 0 && (
-        <div className="text-center py-16 bg-slate-900 border border-slate-800 rounded-2xl">
-          <Users className="w-10 h-10 text-slate-600 mx-auto mb-2" />
-          <p className="text-sm font-semibold text-slate-300">No customer history records found</p>
-          <p className="text-xs text-slate-500 mt-1">
+        <Card variant="container" className="text-center py-16">
+          <Users className="w-10 h-10 text-outline mx-auto mb-2" />
+          <p className="text-sm font-semibold text-on-surface">No customer history records found</p>
+          <p className="text-xs text-on-surface-variant mt-1">
             {searchTerm ? 'Try adjusting your search criteria.' : 'Sessions completed this month will appear here.'}
           </p>
-        </div>
+        </Card>
       )}
 
       {!loading && !error && sessions.length > 0 && (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-inner">
+        <Card variant="container" className="overflow-hidden">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-950/80 text-slate-400 border-b border-slate-800">
+            <thead className="bg-surface-container-lowest text-on-surface-variant border-b border-outline-variant/40">
               <tr>
                 <th className="py-3.5 px-4 font-semibold">Customer</th>
                 <th className="py-3.5 px-4 font-semibold">Station / PC</th>
@@ -212,32 +214,32 @@ export function CustomerLedgerView({ embedded = true }) {
                 <th className="py-3.5 px-4 font-semibold text-center">Session Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60 text-slate-300">
+            <tbody className="divide-y divide-outline-variant/30 text-on-surface-variant">
               {sessions.map((s) => {
                 const elapsed = s.financials?.elapsedMinutes ?? s.bookedMinutes;
                 const payable = s.financials?.totalPayable ?? 0;
                 const payStatus = s.financials?.paymentStatus || 'UNPAID';
 
-                let payBadgeStyle = 'bg-slate-800 text-slate-400 border-slate-700';
+                let payBadgeStyle = 'bg-surface-container-high text-on-surface-variant border-outline-variant';
                 if (payStatus === 'PAID') payBadgeStyle = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 font-bold';
                 else if (payStatus === 'PARTIALLY_PAID') payBadgeStyle = 'bg-amber-500/10 text-amber-400 border-amber-500/30';
-                else if (payStatus === 'UNPAID') payBadgeStyle = 'bg-red-500/10 text-red-400 border-red-500/30';
+                else if (payStatus === 'UNPAID') payBadgeStyle = 'bg-error-container text-on-error-container border-error/30';
 
-                let sessBadgeStyle = 'bg-slate-800 text-slate-400 border-slate-700';
-                if (s.status === 'COMPLETED') sessBadgeStyle = 'bg-blue-500/10 text-blue-400 border-blue-500/30 font-medium';
+                let sessBadgeStyle = 'bg-surface-container-high text-on-surface-variant border-outline-variant';
+                if (s.status === 'COMPLETED') sessBadgeStyle = 'bg-primary-container text-on-primary-container border-primary/30 font-medium';
                 else if (s.status === 'ACTIVE') sessBadgeStyle = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 animate-pulse';
-                else if (s.status === 'CANCELLED') sessBadgeStyle = 'bg-red-500/10 text-red-400 border-red-500/30';
+                else if (s.status === 'CANCELLED') sessBadgeStyle = 'bg-error-container text-on-error-container border-error/30';
 
                 return (
-                  <tr key={s._id} className="hover:bg-slate-800/40 transition-colors">
+                  <tr key={s._id} className="hover:bg-surface-container-high transition-colors">
                     {/* Customer */}
                     <td className="py-3.5 px-4">
-                      <div className="font-bold text-white flex items-center gap-1.5">
+                      <div className="font-bold text-on-surface flex items-center gap-1.5">
                         {s.customerName || 'Guest'}
                       </div>
                       {s.customerPhone && (
-                        <span className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
-                          <Phone className="w-3 h-3 text-slate-500" />
+                        <span className="text-[11px] text-on-surface-variant flex items-center gap-1 mt-0.5">
+                          <Phone className="w-3 h-3 text-outline" />
                           {s.customerPhone}
                         </span>
                       )}
@@ -245,28 +247,28 @@ export function CustomerLedgerView({ embedded = true }) {
 
                     {/* Station */}
                     <td className="py-3.5 px-4">
-                      <span className="font-semibold text-white">{s.stationName || 'Station'}</span>
-                      <span className="block text-[10px] text-slate-400">
+                      <span className="font-semibold text-on-surface">{s.stationName || 'Station'}</span>
+                      <span className="block text-[10px] text-on-surface-variant">
                         {s.rateCardSnapshot?.hourlyRate ? `₹${s.rateCardSnapshot.hourlyRate}/hr` : ''}
                       </span>
                     </td>
 
                     {/* Date */}
-                    <td className="py-3.5 px-4 text-slate-300 font-mono text-[11px]">
+                    <td className="py-3.5 px-4 text-on-surface-variant font-mono text-[11px]">
                       {formatDateTime(s.startTime || s.createdAt)}
                     </td>
 
                     {/* Duration */}
                     <td className="py-3.5 px-4 text-center">
-                      <span className="font-semibold text-white">{formatMinutes(elapsed)}</span>
-                      <span className="block text-[10px] text-slate-400">Booked: {s.bookedMinutes}m</span>
+                      <span className="font-semibold text-on-surface">{formatMinutes(elapsed)}</span>
+                      <span className="block text-[10px] text-on-surface-variant">Booked: {s.bookedMinutes}m</span>
                     </td>
 
                     {/* Amount */}
                     <td className="py-3.5 px-4 text-right">
                       <span className="font-bold text-emerald-400 text-sm">₹{payable}</span>
                       {s.financials?.overtimeAmount > 0 && (
-                        <span className="block text-[10px] text-red-400">
+                        <span className="block text-[10px] text-error">
                           incl. ₹{s.financials.overtimeAmount} OT
                         </span>
                       )}
@@ -290,7 +292,7 @@ export function CustomerLedgerView({ embedded = true }) {
               })}
             </tbody>
           </table>
-        </div>
+        </Card>
       )}
     </div>
   );
@@ -299,17 +301,17 @@ export function CustomerLedgerView({ embedded = true }) {
 export function CustomerHistoryModal({ onClose }) {
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-5xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden relative">
-        <div className="p-6 border-b border-slate-800 flex items-center justify-between">
+      <Card variant="container" className="rounded-3xl w-full max-w-5xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden relative">
+        <div className="p-6 border-b border-outline-variant/40 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
+            <div className="w-10 h-10 rounded-2xl bg-primary-container text-primary flex items-center justify-center">
               <Users className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+              <h2 className="text-lg font-bold text-on-surface flex items-center gap-2">
                 Customer History & Session Ledger
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-on-surface-variant">
                 Detailed customer records, historical sessions, and monthly auto-purged ledger
               </p>
             </div>
@@ -317,7 +319,7 @@ export function CustomerHistoryModal({ onClose }) {
 
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-200 p-2 rounded-xl hover:bg-slate-800 transition-all"
+            className="text-on-surface-variant hover:text-on-surface p-2 rounded-xl hover:bg-surface-container-high transition-all"
           >
             <X className="w-5 h-5" />
           </button>
@@ -326,7 +328,7 @@ export function CustomerHistoryModal({ onClose }) {
         <div className="p-6 overflow-y-auto flex-1">
           <CustomerLedgerView embedded={false} />
         </div>
-      </div>
+      </Card>
     </div>
   );
 }
