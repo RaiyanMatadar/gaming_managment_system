@@ -185,7 +185,7 @@ export function App() {
 
   const cancelSession = async (sessionId, stationName) => {
     const confirmed = window.confirm(
-      `Are you sure you want to cancel the session on ${stationName || 'this station'}? The active timer will be stopped immediately and the station will become available.`
+      `Are you sure you want to cancel the session on ${stationName || 'this computer'}? The timer will stop immediately and the computer will become available.`
     );
     if (!confirmed) return;
 
@@ -199,7 +199,7 @@ export function App() {
       if (!res.ok) throw new Error(data.error || 'Failed to cancel session');
 
       setActiveWarnings((prev) => prev.filter((w) => String(w.sessionId) !== String(sessionId)));
-      showToast(`Session on ${stationName || 'station'} was cancelled.`, 'info');
+      showToast(`Session on ${stationName || 'computer'} was cancelled.`, 'info');
       fetchStations();
     } catch (err) {
       alert(`Error cancelling session: ${err.message}`);
@@ -337,7 +337,7 @@ export function App() {
     if (available) {
       setSelectedStation(available);
     } else {
-      showToast('All gaming stations are currently occupied or in service.', 'warning');
+      showToast('All computers are currently in use or under repair.', 'warning');
     }
   };
 
@@ -426,7 +426,7 @@ export function App() {
               {loading && (
                 <div className="text-center py-20 bg-surface-container border border-outline-variant/60 rounded-xl">
                   <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-                  <p className="text-xs text-on-surface-variant">Loading floor stations...</p>
+                  <p className="text-xs text-on-surface-variant">Loading computers...</p>
                 </div>
               )}
 
@@ -439,8 +439,8 @@ export function App() {
               {/* Station Grid Empty State */}
               {!loading && filteredStations.length === 0 && (
                 <div className="text-center py-16 bg-surface-container border border-outline-variant/60 rounded-xl">
-                  <p className="text-sm font-semibold text-on-surface">No stations match the selected filter</p>
-                  <p className="text-xs text-on-surface-variant mt-1">Switch filter to "All stations" or click "Add station"</p>
+                  <p className="text-sm font-semibold text-on-surface">No computers found in this category</p>
+                  <p className="text-xs text-on-surface-variant mt-1">Switch to "All" or click "Add Computer"</p>
                 </div>
               )}
 

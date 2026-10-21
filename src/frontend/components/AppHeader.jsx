@@ -30,28 +30,28 @@ export function AppHeader({
 
   const viewTitles = {
     floor: {
-      name: 'Floor grid',
-      desc: 'Real-time station status, active timers, and walk-in controls'
+      name: 'Computers & Floor',
+      desc: 'Live status of all computers, timers, and quick start controls'
     },
     sessions: {
-      name: 'Active sessions',
-      desc: 'Ongoing gaming sessions and overtime tracking'
+      name: 'Active Players',
+      desc: 'Current players, time left, and overtime tracking'
     },
     customers: {
-      name: 'Customer ledger',
-      desc: 'Player visits, logged time, and thirty-day history'
+      name: 'Customer History',
+      desc: 'Customer records, time played, and 30-day history'
     },
     reports: {
-      name: 'Shift reconciliation',
-      desc: 'Cash drawer totals, UPI collections, and daily revenue'
+      name: 'Daily Sales & Reports',
+      desc: 'Cash drawer totals, online UPI payments, and daily revenue'
     },
     audit: {
-      name: 'Audit trail',
-      desc: 'Chronological activity log of cashier actions and billing events'
+      name: 'Activity Log',
+      desc: 'History of actions taken by staff (starts, extensions, payments)'
     },
     inventory: {
-      name: 'Station inventory',
-      desc: 'Gaming hardware configurations, rates, and maintenance toggles'
+      name: 'Prices & Computers',
+      desc: 'List of computers, hourly rates, and maintenance toggles'
     }
   };
 
@@ -97,7 +97,7 @@ export function AppHeader({
           <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-surface-container border border-outline-variant/60 text-xs">
             <span className={`w-2 h-2 rounded-full ${isLiveConnected ? 'bg-emerald-400' : 'bg-amber-400'}`} />
             <span className={`text-[11px] font-medium hidden md:inline ${isLiveConnected ? 'text-emerald-400' : 'text-amber-400'}`}>
-              {isLiveConnected ? 'Live' : 'Connecting'}
+              {isLiveConnected ? 'Online' : 'Reconnecting'}
             </span>
           </div>
 
@@ -105,7 +105,7 @@ export function AppHeader({
           {urgentAlertsCount > 0 && (
             <div
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-amber-950/40 border border-amber-600/50 text-amber-300 text-xs font-semibold"
-              title={`${urgentAlertsCount} station(s) needing attention`}
+              title={`${urgentAlertsCount} computer(s) need attention`}
             >
               <Bell className="w-3.5 h-3.5 text-amber-400" />
               <span className="tabular-nums">{urgentAlertsCount}</span>
@@ -115,7 +115,7 @@ export function AppHeader({
           {/* Manual Refresh Button */}
           <button
             onClick={onRefresh}
-            title="Refresh station status"
+            title="Refresh status"
             className="p-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors border border-outline-variant/60"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-primary' : ''}`} />
@@ -130,7 +130,7 @@ export function AppHeader({
               className="hidden sm:inline-flex"
             >
               <Gamepad2 className="w-3.5 h-3.5" />
-              <span>Start session</span>
+              <span>Start Session</span>
             </Button>
           )}
 
@@ -141,7 +141,7 @@ export function AppHeader({
             onClick={onNewStationClick}
           >
             <Plus className="w-3.5 h-3.5 text-on-surface-variant" />
-            <span>Add station</span>
+            <span>Add Computer</span>
           </Button>
         </div>
       </div>

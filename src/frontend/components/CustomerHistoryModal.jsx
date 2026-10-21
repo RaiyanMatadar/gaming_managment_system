@@ -79,17 +79,17 @@ export function CustomerLedgerView({ embedded = true }) {
 
   return (
     <div className="space-y-4">
-      {/* 30-Day Monthly Retention Notice Banner */}
+      {/* 30-Day Retention Notice Banner */}
       <Card variant="container" className="p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
         <div className="flex items-center gap-2 text-on-surface-variant">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
-          <span className="font-semibold text-on-surface">Monthly Retention Policy:</span>
+          <span className="font-semibold text-on-surface">30-Day History:</span>
           <span className="text-on-surface-variant">
-            Only sessions within the active 30-day (1-month) window are preserved. Out-of-month records are automatically pruned.
+            Session records are kept for 30 days. Older records are automatically cleared.
           </span>
         </div>
         <Badge variant="primary" size="pill">
-          Auto-Purge 30d Active
+          Kept for 30 Days
         </Badge>
       </Card>
 
@@ -97,27 +97,27 @@ export function CustomerLedgerView({ embedded = true }) {
       {analytics && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <Card variant="container" className="p-4">
-            <span className="text-xs font-semibold text-on-surface-variant block">Unique Customers</span>
+            <span className="text-xs font-semibold text-on-surface-variant block">Customers</span>
             <span className="text-2xl font-black text-on-surface mt-1 block">{analytics.uniqueCustomers}</span>
-            <span className="text-[11px] text-on-surface-variant font-medium">Distinct Players</span>
+            <span className="text-[11px] text-on-surface-variant font-medium">Total unique players</span>
           </Card>
 
           <Card variant="container" className="p-4">
-            <span className="text-xs font-semibold text-primary block">Total Sessions</span>
+            <span className="text-xs font-semibold text-primary block">Sessions</span>
             <span className="text-2xl font-black text-primary mt-1 block">{analytics.totalSessions}</span>
-            <span className="text-[11px] text-on-surface-variant font-medium">Recorded Visits</span>
+            <span className="text-[11px] text-on-surface-variant font-medium">Total visits</span>
           </Card>
 
           <Card variant="container" className="p-4">
-            <span className="text-xs font-semibold text-emerald-400 block">Hours Logged</span>
+            <span className="text-xs font-semibold text-emerald-400 block">Hours Played</span>
             <span className="text-2xl font-black text-emerald-300 mt-1 block">{analytics.totalHoursLogged} hrs</span>
-            <span className="text-[11px] text-on-surface-variant font-medium">Station Time</span>
+            <span className="text-[11px] text-on-surface-variant font-medium">Total play time</span>
           </Card>
 
           <Card variant="container" className="p-4">
-            <span className="text-xs font-semibold text-on-surface-variant block">Total Revenue</span>
+            <span className="text-xs font-semibold text-on-surface-variant block">Total Sales</span>
             <span className="text-2xl font-black text-on-surface mt-1 block">₹{analytics.totalSpend}</span>
-            <span className="text-[11px] text-on-surface-variant font-medium">30-Day Period</span>
+            <span className="text-[11px] text-on-surface-variant font-medium">Past 30 days</span>
           </Card>
         </div>
       )}
@@ -137,9 +137,9 @@ export function CustomerLedgerView({ embedded = true }) {
 
         <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto pb-1 scrollbar-none">
           {[
-            { id: 'ALL', label: 'All Sessions' },
+            { id: 'ALL', label: 'All' },
             { id: 'COMPLETED', label: 'Completed' },
-            { id: 'ACTIVE', label: 'In-Play' },
+            { id: 'ACTIVE', label: 'In Use' },
             { id: 'CANCELLED', label: 'Cancelled' }
           ].map((tab) => (
             <button
@@ -169,7 +169,7 @@ export function CustomerLedgerView({ embedded = true }) {
       {loading && (
         <Card variant="container" className="text-center py-20">
           <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-xs text-on-surface-variant">Loading customer history records...</p>
+          <p className="text-xs text-on-surface-variant">Loading customer records...</p>
         </Card>
       )}
 
@@ -185,7 +185,7 @@ export function CustomerLedgerView({ embedded = true }) {
             size="sm"
             onClick={fetchHistory}
           >
-            Retry Request
+            Retry
           </Button>
         </div>
       )}
@@ -193,9 +193,9 @@ export function CustomerLedgerView({ embedded = true }) {
       {!loading && !error && sessions.length === 0 && (
         <Card variant="container" className="text-center py-16">
           <Users className="w-10 h-10 text-outline mx-auto mb-2" />
-          <p className="text-sm font-semibold text-on-surface">No customer history records found</p>
+          <p className="text-sm font-semibold text-on-surface">No customer records found</p>
           <p className="text-xs text-on-surface-variant mt-1">
-            {searchTerm ? 'Try adjusting your search criteria.' : 'Sessions completed this month will appear here.'}
+            {searchTerm ? 'Try a different search query.' : 'Past sessions will appear here.'}
           </p>
         </Card>
       )}
@@ -206,12 +206,12 @@ export function CustomerLedgerView({ embedded = true }) {
             <thead className="bg-surface-container-lowest text-on-surface-variant border-b border-outline-variant/40">
               <tr>
                 <th className="py-3.5 px-4 font-semibold">Customer</th>
-                <th className="py-3.5 px-4 font-semibold">Station / PC</th>
-                <th className="py-3.5 px-4 font-semibold">Session Date</th>
-                <th className="py-3.5 px-4 font-semibold text-center">Playing Duration</th>
-                <th className="py-3.5 px-4 font-semibold text-right">Amount Charged</th>
-                <th className="py-3.5 px-4 font-semibold text-center">Payment Status</th>
-                <th className="py-3.5 px-4 font-semibold text-center">Session Status</th>
+                <th className="py-3.5 px-4 font-semibold">Computer</th>
+                <th className="py-3.5 px-4 font-semibold">Date & Time</th>
+                <th className="py-3.5 px-4 font-semibold text-center">Time Played</th>
+                <th className="py-3.5 px-4 font-semibold text-right">Total Amount</th>
+                <th className="py-3.5 px-4 font-semibold text-center">Payment</th>
+                <th className="py-3.5 px-4 font-semibold text-center">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant/30 text-on-surface-variant">
@@ -221,14 +221,30 @@ export function CustomerLedgerView({ embedded = true }) {
                 const payStatus = s.financials?.paymentStatus || 'UNPAID';
 
                 let payBadgeStyle = 'bg-surface-container-high text-on-surface-variant border-outline-variant';
-                if (payStatus === 'PAID') payBadgeStyle = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 font-bold';
-                else if (payStatus === 'PARTIALLY_PAID') payBadgeStyle = 'bg-amber-500/10 text-amber-400 border-amber-500/30';
-                else if (payStatus === 'UNPAID') payBadgeStyle = 'bg-error-container text-on-error-container border-error/30';
+                let payLabel = payStatus.replace('_', ' ');
+                if (payStatus === 'PAID') {
+                  payBadgeStyle = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 font-bold';
+                  payLabel = 'Paid';
+                } else if (payStatus === 'PARTIALLY_PAID') {
+                  payBadgeStyle = 'bg-amber-500/10 text-amber-400 border-amber-500/30';
+                  payLabel = 'Partially Paid';
+                } else if (payStatus === 'UNPAID') {
+                  payBadgeStyle = 'bg-error-container text-on-error-container border-error/30';
+                  payLabel = 'Unpaid';
+                }
 
                 let sessBadgeStyle = 'bg-surface-container-high text-on-surface-variant border-outline-variant';
-                if (s.status === 'COMPLETED') sessBadgeStyle = 'bg-primary-container text-on-primary-container border-primary/30 font-medium';
-                else if (s.status === 'ACTIVE') sessBadgeStyle = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 animate-pulse';
-                else if (s.status === 'CANCELLED') sessBadgeStyle = 'bg-error-container text-on-error-container border-error/30';
+                let sessLabel = s.status;
+                if (s.status === 'COMPLETED') {
+                  sessBadgeStyle = 'bg-primary-container text-on-primary-container border-primary/30 font-medium';
+                  sessLabel = 'Completed';
+                } else if (s.status === 'ACTIVE') {
+                  sessBadgeStyle = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 animate-pulse';
+                  sessLabel = 'In Use';
+                } else if (s.status === 'CANCELLED') {
+                  sessBadgeStyle = 'bg-error-container text-on-error-container border-error/30';
+                  sessLabel = 'Cancelled';
+                }
 
                 return (
                   <tr key={s._id} className="hover:bg-surface-container-high transition-colors">
@@ -245,9 +261,9 @@ export function CustomerLedgerView({ embedded = true }) {
                       )}
                     </td>
 
-                    {/* Station */}
+                    {/* Computer */}
                     <td className="py-3.5 px-4">
-                      <span className="font-semibold text-on-surface">{s.stationName || 'Station'}</span>
+                      <span className="font-semibold text-on-surface">{s.stationName || 'Computer'}</span>
                       <span className="block text-[10px] text-on-surface-variant">
                         {s.rateCardSnapshot?.hourlyRate ? `₹${s.rateCardSnapshot.hourlyRate}/hr` : ''}
                       </span>
@@ -269,7 +285,7 @@ export function CustomerLedgerView({ embedded = true }) {
                       <span className="font-bold text-emerald-400 text-sm">₹{payable}</span>
                       {s.financials?.overtimeAmount > 0 && (
                         <span className="block text-[10px] text-error">
-                          incl. ₹{s.financials.overtimeAmount} OT
+                          incl. ₹{s.financials.overtimeAmount} extra
                         </span>
                       )}
                     </td>
@@ -277,14 +293,14 @@ export function CustomerLedgerView({ embedded = true }) {
                     {/* Payment Status */}
                     <td className="py-3.5 px-4 text-center">
                       <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] border ${payBadgeStyle}`}>
-                        {payStatus.replace('_', ' ')}
+                        {payLabel}
                       </span>
                     </td>
 
                     {/* Session Status */}
                     <td className="py-3.5 px-4 text-center">
                       <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] border ${sessBadgeStyle}`}>
-                        {s.status}
+                        {sessLabel}
                       </span>
                     </td>
                   </tr>
@@ -309,10 +325,10 @@ export function CustomerHistoryModal({ onClose }) {
             </div>
             <div>
               <h2 className="text-lg font-bold text-on-surface flex items-center gap-2">
-                Customer History & Session Ledger
+                Customer History & Sessions
               </h2>
               <p className="text-xs text-on-surface-variant">
-                Detailed customer records, historical sessions, and monthly auto-purged ledger
+                Customer records, past gaming sessions, and payment history
               </p>
             </div>
           </div>

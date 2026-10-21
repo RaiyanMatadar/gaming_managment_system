@@ -56,17 +56,17 @@ export function ShiftReportView({ embedded = true }) {
         <div>
           <h3 className="text-base font-bold text-on-surface flex items-center gap-2">
             <FileText className="w-5 h-5 text-primary" />
-            Shift Reconciliation & Register Closing
+            Daily Shift Report & Sales
           </h3>
           <p className="text-xs text-on-surface-variant mt-0.5">
-            Cash in drawer, UPI settlements, overtime surcharges & gaming station usage
+            Cash drawer, UPI online payments, extra time charges, and computer usage
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             onClick={fetchReportData}
-            title="Refresh Ledger"
+            title="Refresh Report"
             className="p-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-all border border-outline-variant/60"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
@@ -78,7 +78,7 @@ export function ShiftReportView({ embedded = true }) {
             onClick={handlePrint}
           >
             <Printer className="w-3.5 h-3.5 text-primary" />
-            <span>Print Register Closing</span>
+            <span>Print Report</span>
           </Button>
         </div>
       </Card>
@@ -94,7 +94,7 @@ export function ShiftReportView({ embedded = true }) {
           }`}
         >
           <DollarSign className="w-4 h-4" />
-          <span>Financials & Hours</span>
+          <span>Sales & Hours</span>
         </button>
         <button
           onClick={() => setActiveTab('STATIONS')}
@@ -105,7 +105,7 @@ export function ShiftReportView({ embedded = true }) {
           }`}
         >
           <BarChart3 className="w-4 h-4" />
-          <span>Station Utilization</span>
+          <span>Computer Usage</span>
         </button>
         <button
           onClick={() => setActiveTab('AUDIT')}
@@ -116,7 +116,7 @@ export function ShiftReportView({ embedded = true }) {
           }`}
         >
           <ShieldAlert className="w-4 h-4" />
-          <span>Shift Activity ({auditLogs.length})</span>
+          <span>Staff Activity ({auditLogs.length})</span>
         </button>
       </div>
 
@@ -124,7 +124,7 @@ export function ShiftReportView({ embedded = true }) {
       {loading && (
         <Card variant="container" className="text-center py-20">
           <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-xs text-on-surface-variant">Loading shift reconciliation...</p>
+          <p className="text-xs text-on-surface-variant">Loading shift report...</p>
         </Card>
       )}
 
@@ -134,9 +134,9 @@ export function ShiftReportView({ embedded = true }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {/* Total Revenue */}
             <Card variant="container" className="p-4">
-              <span className="text-xs font-semibold text-on-surface-variant">Total Shift Revenue</span>
+              <span className="text-xs font-semibold text-on-surface-variant">Total Sales</span>
               <p className="text-2xl font-black text-emerald-400 mt-1">₹{report.financialSummary.totalRevenue}</p>
-              <span className="text-[11px] text-on-surface-variant font-medium">All settled payments</span>
+              <span className="text-[11px] text-on-surface-variant font-medium">All payments collected</span>
             </Card>
 
             {/* Cash in Drawer */}
@@ -146,27 +146,27 @@ export function ShiftReportView({ embedded = true }) {
                 <Banknote className="w-4 h-4" />
               </div>
               <p className="text-2xl font-black text-on-surface mt-1">₹{report.financialSummary.cashTotal}</p>
-              <span className="text-[11px] text-emerald-400/80 font-medium">Physical cash collected</span>
+              <span className="text-[11px] text-emerald-400/80 font-medium">Cash in register</span>
             </Card>
 
             {/* UPI Settlements */}
             <Card variant="container" className="p-4 border-primary/30">
               <div className="flex items-center justify-between text-primary">
-                <span className="text-xs font-semibold">UPI Settlements</span>
+                <span className="text-xs font-semibold">Online / UPI</span>
                 <Smartphone className="w-4 h-4" />
               </div>
               <p className="text-2xl font-black text-on-surface mt-1">₹{report.financialSummary.upiTotal}</p>
-              <span className="text-[11px] text-primary/80 font-medium">QR / GPay transactions</span>
+              <span className="text-[11px] text-primary/80 font-medium">QR code & UPI total</span>
             </Card>
 
             {/* Overtime Revenue */}
             <Card variant="container" className="p-4 border-error/30">
               <div className="flex items-center justify-between text-error">
-                <span className="text-xs font-semibold">Overtime Surcharges</span>
+                <span className="text-xs font-semibold">Extra Time Charges</span>
                 <Clock className="w-4 h-4" />
               </div>
               <p className="text-2xl font-black text-on-surface mt-1">₹{report.financialSummary.overtimeRevenue}</p>
-              <span className="text-[11px] text-error/80 font-medium">Captured beyond package</span>
+              <span className="text-[11px] text-error/80 font-medium">Extra fees collected</span>
             </Card>
           </div>
 
@@ -174,15 +174,15 @@ export function ShiftReportView({ embedded = true }) {
           <Card variant="container" className="p-5">
             <h4 className="text-sm font-bold text-on-surface mb-4 flex items-center gap-2">
               <Clock className="w-4 h-4 text-primary" />
-              Gaming Hours & Session Breakdown
+              Hours Played & Sessions
             </h4>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
               <div>
-                <span className="text-on-surface-variant block font-medium">Gaming Hours Sold:</span>
+                <span className="text-on-surface-variant block font-medium">Hours Booked:</span>
                 <span className="text-lg font-bold text-on-surface mt-0.5 block">{report.gamingMetrics.hoursSold} hrs</span>
               </div>
               <div>
-                <span className="text-on-surface-variant block font-medium">Actual Hours Played:</span>
+                <span className="text-on-surface-variant block font-medium">Actual Hours Used:</span>
                 <span className="text-lg font-bold text-emerald-400 mt-0.5 block">{report.gamingMetrics.hoursConsumed} hrs</span>
               </div>
               <div>
@@ -190,7 +190,7 @@ export function ShiftReportView({ embedded = true }) {
                 <span className="text-lg font-bold text-on-surface mt-0.5 block">{report.gamingMetrics.completedSessions}</span>
               </div>
               <div>
-                <span className="text-on-surface-variant block font-medium">Cancelled / Voided:</span>
+                <span className="text-on-surface-variant block font-medium">Cancelled Sessions:</span>
                 <span className="text-lg font-bold text-amber-400 mt-0.5 block">{report.gamingMetrics.cancelledSessions}</span>
               </div>
             </div>
@@ -201,7 +201,7 @@ export function ShiftReportView({ embedded = true }) {
             <div className="bg-amber-950/20 border border-amber-500/40 rounded-2xl p-4 flex items-center justify-between text-xs">
               <div className="flex items-center gap-2 text-amber-300">
                 <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-                <span>Unsettled / Outstanding Customer Balance Due:</span>
+                <span>Unpaid Customer Balance:</span>
               </div>
               <span className="text-base font-bold text-amber-400">₹{report.financialSummary.outstandingBalance}</span>
             </div>
@@ -214,12 +214,12 @@ export function ShiftReportView({ embedded = true }) {
           <table className="w-full text-left text-xs">
             <thead className="bg-surface-container-lowest text-on-surface-variant border-b border-outline-variant/40">
               <tr>
-                <th className="py-3.5 px-4 font-semibold">Station</th>
-                <th className="py-3.5 px-4 font-semibold">Hardware Type</th>
+                <th className="py-3.5 px-4 font-semibold">Computer</th>
+                <th className="py-3.5 px-4 font-semibold">Type</th>
                 <th className="py-3.5 px-4 font-semibold text-center">Hourly Rate</th>
-                <th className="py-3.5 px-4 font-semibold text-center">Sessions Logged</th>
-                <th className="py-3.5 px-4 font-semibold text-center">Hours Consumed</th>
-                <th className="py-3.5 px-4 font-semibold text-right">Station Revenue</th>
+                <th className="py-3.5 px-4 font-semibold text-center">Sessions</th>
+                <th className="py-3.5 px-4 font-semibold text-center">Hours Used</th>
+                <th className="py-3.5 px-4 font-semibold text-right">Revenue</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant/30 text-on-surface-variant">
@@ -258,10 +258,10 @@ export function ShiftReportModal({ onClose }) {
             </div>
             <div>
               <h2 className="text-lg font-bold text-on-surface flex items-center gap-2">
-                Shift Reconciliation & Register Closing
+                Daily Shift Report & Sales
               </h2>
               <p className="text-xs text-on-surface-variant">
-                Daily Ledger • Cash vs UPI • Gaming Hours • Station Utilization
+                Daily sales totals • Cash vs UPI • Hours played • Computer usage
               </p>
             </div>
           </div>

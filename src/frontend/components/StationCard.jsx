@@ -19,16 +19,16 @@ import { Button, Badge } from './ui';
 function getHardwareBadge(type) {
   switch (type) {
     case 'PS5':
-      return { label: 'PlayStation 5', icon: Tv, color: 'text-tertiary bg-tertiary-container/30 border-tertiary/40' };
+      return { label: 'PS5', icon: Tv, color: 'text-tertiary bg-tertiary-container/30 border-tertiary/40' };
     case 'XBOX':
-      return { label: 'Xbox Series X', icon: Tv, color: 'text-emerald-400 bg-emerald-950/40 border-emerald-500/30' };
+      return { label: 'Xbox', icon: Tv, color: 'text-emerald-400 bg-emerald-950/40 border-emerald-500/30' };
     case 'VR':
-      return { label: 'VR Simulator', icon: Glasses, color: 'text-secondary bg-secondary-container/30 border-secondary/40' };
+      return { label: 'VR', icon: Glasses, color: 'text-secondary bg-secondary-container/30 border-secondary/40' };
     case 'PC_VIP':
       return { label: 'VIP PC', icon: Monitor, color: 'text-amber-400 bg-amber-950/40 border-amber-500/30' };
     case 'PC_STANDARD':
     default:
-      return { label: 'PC Standard', icon: Monitor, color: 'text-primary bg-primary-container/30 border-primary/30' };
+      return { label: 'Standard PC', icon: Monitor, color: 'text-primary bg-primary-container/30 border-primary/30' };
   }
 }
 
@@ -122,73 +122,76 @@ export function StationCard({
   const hardware = getHardwareBadge(station.type);
   const HardwareIcon = hardware.icon;
 
-  // Station card terminal styling
+  // Station card styling
   let borderStyles = 'border-outline-variant/60 bg-surface-container';
   let badgeStyles = 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30';
-  let badgeLabel = 'Ready for walk-in';
+  let badgeLabel = 'Available';
 
   if (isMaintenance) {
-    borderStyles = 'border-outline-variant/40 bg-surface-container-low opacity-75';
+    borderStyles = 'border-outline-variant/40 bg-surface-container-low opacity-80';
     badgeStyles = 'bg-surface-container-high text-on-surface-variant border-outline-variant';
-    badgeLabel = 'Under maintenance';
+    badgeLabel = 'In Repair';
   } else if (currentStatus === 'EXPIRED_UNSETTLED') {
     borderStyles = 'border-error/70 bg-error-container/30 shadow-sm';
     badgeStyles = 'bg-error-container text-on-error-container border-error/40 font-semibold';
-    badgeLabel = 'Overtime accruing';
+    badgeLabel = 'Extra Time';
   } else if (currentStatus === 'WARNING') {
     borderStyles = 'border-amber-500/70 bg-amber-950/40 shadow-sm';
     badgeStyles = 'bg-amber-500/20 text-amber-300 border-amber-500/40 font-semibold';
-    badgeLabel = 'Expiring soon';
+    badgeLabel = 'Ending Soon';
   } else if (currentStatus === 'PAUSED') {
     borderStyles = 'border-tertiary/50 bg-tertiary-container/20';
     badgeStyles = 'bg-tertiary-container text-tertiary border-tertiary/40 font-semibold';
-    badgeLabel = 'Timer paused';
+    badgeLabel = 'Paused';
   } else if (isOccupied) {
     borderStyles = 'border-primary/40 bg-surface-container-high';
     badgeStyles = 'bg-primary-container text-on-primary-container border-primary/30 font-medium';
-    badgeLabel = 'In play';
+    badgeLabel = 'In Use';
   }
 
   return (
-    <div className={`rounded-xl border p-4 sm:p-5 flex flex-col justify-between transition-colors ${borderStyles}`}>
+    <div className={`rounded-xl border p-4 sm:p-5 flex flex-col justify-between h-full transition-colors ${borderStyles}`}>
       <div>
-        {/* Terminal Header: Station Name & Hardware Tag */}
-        <div className="flex items-start justify-between gap-3 pb-3 border-b border-outline-variant/40">
-          <div>
-            <div className="flex items-center gap-2">
-              <h3 className="text-base font-bold text-on-surface tracking-tight">
-                {station.name}
-              </h3>
-              <span className={`text-[10px] font-medium px-2 py-0.5 rounded border inline-flex items-center gap-1 ${hardware.color}`}>
-                <HardwareIcon className="w-3 h-3" />
-                {hardware.label}
-              </span>
-            </div>
-            <p className="text-xs text-on-surface-variant mt-0.5">
-              ₹{station.hourlyRate} per hour
-            </p>
+        {/* Header: Station Name, Type, Price, Status */}
+        <div className="pb-3 border-b border-outline-variant/40">
+          <div className="flex items-center justify-between gap-2">
+            <h3
+              className="text-base font-bold text-on-surface tracking-tight truncate flex-1 min-w-0"
+              title={station.name}
+            >
+              {station.name}
+            </h3>
+            <span className={`text-[11px] px-2 py-0.5 rounded-md border font-semibold whitespace-nowrap shrink-0 ${badgeStyles}`}>
+              {badgeLabel}
+            </span>
           </div>
 
-          <span className={`text-[11px] px-2.5 py-1 rounded-md border font-medium whitespace-nowrap ${badgeStyles}`}>
-            {badgeLabel}
-          </span>
+          <div className="flex items-center justify-between gap-2 mt-1.5 text-xs text-on-surface-variant">
+            <span className={`text-[10px] font-medium px-2 py-0.5 rounded border inline-flex items-center gap-1 ${hardware.color}`}>
+              <HardwareIcon className="w-3 h-3" />
+              <span>{hardware.label}</span>
+            </span>
+            <span className="font-semibold text-on-surface">
+              ₹{station.hourlyRate}/hr
+            </span>
+          </div>
         </div>
 
         {/* Live Session Body (Occupied Station) */}
         {isOccupied && (
-          <div className="my-3.5 space-y-3">
+          <div className="my-3 space-y-2.5 min-h-[105px] flex flex-col justify-center">
             {/* Player Information */}
-            <div className="flex items-center justify-between text-xs py-1 border-b border-outline-variant/40">
+            <div className="flex items-center justify-between text-xs py-1 border-b border-outline-variant/30">
               <span className="text-on-surface-variant flex items-center gap-1.5">
                 <User className="w-3.5 h-3.5 text-outline" />
                 Player:
               </span>
-              <span className="font-semibold text-on-surface truncate max-w-[150px]">
+              <span className="font-semibold text-on-surface truncate max-w-[130px]" title={live.customerName}>
                 {live.customerName}
               </span>
             </div>
 
-            {live.customerPhone && (
+            {live.customerPhone ? (
               <div className="flex items-center justify-between text-xs text-on-surface-variant">
                 <span className="flex items-center gap-1.5">
                   <Phone className="w-3.5 h-3.5 text-outline" />
@@ -196,32 +199,40 @@ export function StationCard({
                 </span>
                 <span className="font-mono tabular-nums text-on-surface">{live.customerPhone}</span>
               </div>
+            ) : (
+              <div className="flex items-center justify-between text-xs text-on-surface-variant/50">
+                <span className="flex items-center gap-1.5">
+                  <Phone className="w-3.5 h-3.5 text-outline/50" />
+                  Phone:
+                </span>
+                <span>Not set</span>
+              </div>
             )}
 
             {/* Time Countdown / Overtime Meter */}
-            <div className="p-3 rounded-lg bg-surface-container-lowest border border-outline-variant/50 flex items-center justify-between">
+            <div className="p-2.5 rounded-lg bg-surface-container-lowest border border-outline-variant/50 flex items-center justify-between">
               <div className="text-xs text-on-surface-variant flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5 text-outline" />
-                <span>{isOvertime ? 'Overtime:' : 'Remaining:'}</span>
+                <span>{isOvertime ? 'Extra time:' : 'Time left:'}</span>
               </div>
 
               {isOvertime ? (
                 <div className="text-right">
-                  <span className="font-mono tabular-nums text-base font-bold text-error">
+                  <span className="font-mono tabular-nums text-sm font-bold text-error">
                     +{formatDuration(overtimeMs)}
                   </span>
                   {live.overtimeFee > 0 && (
-                    <span className="block text-[11px] text-error font-semibold">
-                      Accrued: ₹{live.overtimeFee}
+                    <span className="block text-[10px] text-error font-semibold">
+                      Extra: ₹{live.overtimeFee}
                     </span>
                   )}
                 </div>
               ) : currentStatus === 'PAUSED' ? (
                 <span className="text-xs font-semibold text-tertiary">
-                  Timer paused
+                  Paused
                 </span>
               ) : (
-                <span className={`font-mono tabular-nums text-lg font-bold ${isWarning ? 'text-amber-400' : 'text-primary'}`}>
+                <span className={`font-mono tabular-nums text-base font-bold ${isWarning ? 'text-amber-400' : 'text-primary'}`}>
                   {formatDuration(remainingMs)}
                 </span>
               )}
@@ -231,27 +242,28 @@ export function StationCard({
 
         {/* Maintenance State */}
         {isMaintenance && (
-          <div className="p-3 rounded-lg bg-surface-container-lowest border border-outline-variant/50 my-3 text-xs text-on-surface-variant flex items-center gap-2">
-            <Wrench className="w-4 h-4 text-amber-400 shrink-0" />
-            <span>Station temporarily offline for service</span>
+          <div className="my-3 py-6 px-3 text-center border border-outline-variant/50 rounded-xl bg-surface-container-lowest/40 flex flex-col items-center justify-center min-h-[105px] text-xs text-on-surface-variant">
+            <Wrench className="w-5 h-5 text-amber-400 mb-1" />
+            <p className="text-xs font-medium text-amber-400">In Repair</p>
+            <p className="text-[11px] text-on-surface-variant mt-0.5">Currently offline for service</p>
           </div>
         )}
 
-        {/* Available State Ready Prompt */}
+        {/* Available State Prompt */}
         {station.status === 'AVAILABLE' && (
-          <div className="py-5 my-2 text-center border border-dashed border-outline-variant/60 rounded-lg bg-surface-container-lowest/50">
-            <p className="text-xs text-on-surface-variant">
-              Ready for immediate player assignment
-            </p>
+          <div className="my-3 py-6 px-3 text-center border border-dashed border-outline-variant/60 rounded-xl bg-surface-container-lowest/40 flex flex-col items-center justify-center min-h-[105px]">
+            <Monitor className="w-5 h-5 text-outline mb-1 opacity-60" />
+            <p className="text-xs font-medium text-on-surface">Ready to Play</p>
+            <p className="text-[11px] text-on-surface-variant mt-0.5">Click Start to assign player</p>
           </div>
         )}
       </div>
 
       {/* Action Footer */}
-      <div className="pt-3 border-t border-outline-variant/40 flex flex-wrap gap-2">
+      <div className="pt-3 border-t border-outline-variant/40 space-y-2">
         {/* Available Actions */}
         {station.status === 'AVAILABLE' && (
-          <>
+          <div className="flex gap-2">
             <Button
               variant="filled"
               size="sm"
@@ -259,93 +271,101 @@ export function StationCard({
               className="flex-1"
             >
               <Play className="w-3.5 h-3.5 fill-current" />
-              <span>Start session</span>
+              <span>Start Session</span>
             </Button>
             <Button
               variant="outlined"
               size="sm"
               onClick={() => onToggleMaintenance(station._id, 'MAINTENANCE')}
-              title="Set to maintenance"
+              title="Mark for repair"
               aria-label="Maintenance toggle"
             >
               <Wrench className="w-3.5 h-3.5" />
             </Button>
-          </>
+          </div>
         )}
 
-        {/* Occupied Actions: Extend, Pause, Transfer, Cancel, Checkout */}
+        {/* Occupied Actions: Row 1 = Controls, Row 2 = Checkout */}
         {isOccupied && (
           <>
-            {/* Extend */}
-            <Button
-              variant="outlined"
-              size="sm"
-              onClick={() => extendSession && extendSession(live.sessionId, station.name)}
-              title="Add 15, 30, or 60 minutes"
-            >
-              <Plus className="w-3.5 h-3.5 text-primary" />
-              <span>Extend</span>
-            </Button>
-
-            {/* Pause / Resume */}
-            {currentStatus === 'PAUSED' ? (
-              <Button
-                variant="success"
-                size="sm"
-                onClick={() => resumeSession && resumeSession(live.sessionId)}
-              >
-                <Play className="w-3.5 h-3.5 fill-current" />
-                <span>Resume</span>
-              </Button>
-            ) : (
+            <div className="grid grid-cols-4 gap-1.5">
+              {/* Extend */}
               <Button
                 variant="outlined"
                 size="sm"
-                onClick={() => pauseSession && pauseSession(live.sessionId)}
-                title="Pause billing timer"
+                onClick={() => extendSession && extendSession(live.sessionId, station.name)}
+                title="Add 15, 30, or 60 minutes"
+                className="px-1 text-[11px]"
               >
-                <Pause className="w-3.5 h-3.5" />
-                <span>Pause</span>
+                <Plus className="w-3 h-3 text-primary shrink-0" />
+                <span className="truncate">Add</span>
               </Button>
-            )}
 
-            {/* Transfer */}
-            <Button
-              variant="outlined"
-              size="sm"
-              onClick={() => transferSession && transferSession(live.sessionId, station.name)}
-              title="Transfer customer to another PC"
-            >
-              <ArrowRightLeft className="w-3.5 h-3.5 text-on-surface-variant" />
-              <span>Transfer</span>
-            </Button>
+              {/* Pause / Resume */}
+              {currentStatus === 'PAUSED' ? (
+                <Button
+                  variant="success"
+                  size="sm"
+                  onClick={() => resumeSession && resumeSession(live.sessionId)}
+                  className="px-1 text-[11px]"
+                >
+                  <Play className="w-3 h-3 fill-current shrink-0" />
+                  <span className="truncate">Play</span>
+                </Button>
+              ) : (
+                <Button
+                  variant="outlined"
+                  size="sm"
+                  onClick={() => pauseSession && pauseSession(live.sessionId)}
+                  title="Pause time"
+                  className="px-1 text-[11px]"
+                >
+                  <Pause className="w-3 h-3 shrink-0" />
+                  <span className="truncate">Pause</span>
+                </Button>
+              )}
 
-            {/* Cancel Session */}
-            {cancelSession && (
+              {/* Move / Transfer */}
               <Button
-                variant="error"
+                variant="outlined"
                 size="sm"
-                onClick={() => cancelSession(live.sessionId, station.name)}
-                title="Cancel session if customer decides not to play"
+                onClick={() => transferSession && transferSession(live.sessionId, station.name)}
+                title="Move player to another computer"
+                className="px-1 text-[11px]"
               >
-                <XCircle className="w-3.5 h-3.5" />
-                <span>Cancel</span>
+                <ArrowRightLeft className="w-3 h-3 text-on-surface-variant shrink-0" />
+                <span className="truncate">Move</span>
               </Button>
-            )}
 
-            {/* Checkout */}
+              {/* Cancel Session */}
+              {cancelSession && (
+                <Button
+                  variant="error"
+                  size="sm"
+                  onClick={() => cancelSession(live.sessionId, station.name)}
+                  title="Cancel session if customer doesn't want to play"
+                  className="px-1 text-[11px]"
+                >
+                  <XCircle className="w-3 h-3 shrink-0" />
+                  <span className="truncate">Cancel</span>
+                </Button>
+              )}
+            </div>
+
+            {/* Checkout & Pay */}
             <Button
               variant="filled"
               size="sm"
+              fullWidth
               onClick={() => checkoutSession && checkoutSession(live.sessionId, station.name)}
-              className={`flex-1 ${
+              className={
                 isOvertime
                   ? 'bg-error text-on-error hover:opacity-90'
                   : 'bg-emerald-600 hover:bg-emerald-500 text-white'
-              }`}
+              }
             >
               <CreditCard className="w-3.5 h-3.5" />
-              <span>Checkout</span>
+              <span>Checkout & Settle</span>
             </Button>
           </>
         )}
@@ -359,7 +379,7 @@ export function StationCard({
             onClick={() => onToggleMaintenance(station._id, 'AVAILABLE')}
           >
             <Wrench className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Mark ready for walk-in</span>
+            <span>Mark as Available</span>
           </Button>
         )}
       </div>

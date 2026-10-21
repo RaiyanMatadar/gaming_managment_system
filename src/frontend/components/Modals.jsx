@@ -3,7 +3,7 @@ import { Play, ArrowRightLeft, CreditCard, PlusCircle, CheckCircle, Smartphone, 
 import { Modal, Button, Input, Select, Card } from './ui/index.js';
 
 /**
- * Modal to initiate a new gaming session
+ * Modal to start a new gaming session
  */
 export function StartSessionModal({ station, onClose, onSubmit, isSubmitting }) {
   const [customerName, setCustomerName] = useState('');
@@ -28,14 +28,14 @@ export function StartSessionModal({ station, onClose, onSubmit, isSubmitting }) 
       isOpen={true}
       onClose={onClose}
       maxWidth="max-w-md"
-      title="Start new session"
-      subtitle={`${station.name} • ₹${station.hourlyRate}/hour`}
+      title="Start Session"
+      subtitle={`${station.name} • ₹${station.hourlyRate}/hr`}
       icon={Play}
       iconColor="text-primary bg-primary-container/40 border-primary/30"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-xs font-semibold text-on-surface mb-1.5">Customer name</label>
+          <label className="block text-xs font-semibold text-on-surface mb-1.5">Customer Name</label>
           <Input
             type="text"
             placeholder="e.g. Alex (or leave blank for Guest)"
@@ -45,7 +45,7 @@ export function StartSessionModal({ station, onClose, onSubmit, isSubmitting }) 
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-on-surface mb-1.5">Customer phone (optional)</label>
+          <label className="block text-xs font-semibold text-on-surface mb-1.5">Phone Number (optional)</label>
           <Input
             type="tel"
             placeholder="e.g. 9876543210"
@@ -55,7 +55,7 @@ export function StartSessionModal({ station, onClose, onSubmit, isSubmitting }) 
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-on-surface mb-1.5">Session duration</label>
+          <label className="block text-xs font-semibold text-on-surface mb-1.5">Play Time</label>
           <div className="grid grid-cols-4 gap-2 mb-2">
             {durationOptions.map((mins) => (
               <button
@@ -89,7 +89,7 @@ export function StartSessionModal({ station, onClose, onSubmit, isSubmitting }) 
 
         {/* Pricing Preview Banner */}
         <Card variant="lowest" className="p-3 flex items-center justify-between text-xs">
-          <span className="text-on-surface-variant">Estimated base package:</span>
+          <span className="text-on-surface-variant">Estimated Price:</span>
           <span className="text-base font-bold text-emerald-400 tabular-nums">₹{estimatedCost}</span>
         </Card>
 
@@ -98,7 +98,7 @@ export function StartSessionModal({ station, onClose, onSubmit, isSubmitting }) 
             Cancel
           </Button>
           <Button type="submit" variant="filled" disabled={isSubmitting} className="flex-1">
-            {isSubmitting ? 'Starting session...' : 'Start session'}
+            {isSubmitting ? 'Starting...' : 'Start Session'}
           </Button>
         </div>
       </form>
@@ -123,14 +123,14 @@ export function ExtendSessionModal({ sessionId, stationName, onClose, onSubmit, 
       isOpen={true}
       onClose={onClose}
       maxWidth="max-w-sm"
-      title="Extend session"
+      title="Add More Time"
       subtitle={stationName}
       icon={PlusCircle}
       iconColor="text-primary bg-primary-container/40 border-primary/30"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-xs font-semibold text-on-surface mb-2">Select extra time</label>
+          <label className="block text-xs font-semibold text-on-surface mb-2">Choose how much time to add</label>
           <div className="grid grid-cols-4 gap-2">
             {options.map((mins) => (
               <button
@@ -154,7 +154,7 @@ export function ExtendSessionModal({ sessionId, stationName, onClose, onSubmit, 
             Cancel
           </Button>
           <Button type="submit" variant="filled" disabled={isSubmitting} className="flex-1">
-            {isSubmitting ? 'Extending...' : `Extend +${addedMinutes} minutes`}
+            {isSubmitting ? 'Adding...' : `Add +${addedMinutes} mins`}
           </Button>
         </div>
       </form>
@@ -163,7 +163,7 @@ export function ExtendSessionModal({ sessionId, stationName, onClose, onSubmit, 
 }
 
 /**
- * Modal to transfer session to another station
+ * Modal to move session to another computer
  */
 export function TransferSessionModal({ sessionId, currentStationName, availableStations = [], onClose, onSubmit, isSubmitting }) {
   const [targetStationId, setTargetStationId] = useState(availableStations[0]?._id || '');
@@ -180,15 +180,15 @@ export function TransferSessionModal({ sessionId, currentStationName, availableS
       isOpen={true}
       onClose={onClose}
       maxWidth="max-w-md"
-      title="Transfer station"
-      subtitle={`Moving session from ${currentStationName}`}
+      title="Move to Another Computer"
+      subtitle={`Moving player from ${currentStationName}`}
       icon={ArrowRightLeft}
       iconColor="text-tertiary bg-tertiary-container/40 border-tertiary/30"
     >
       {availableStations.length === 0 ? (
         <div className="text-center py-6">
-          <p className="text-sm text-amber-400 font-medium">No available stations for transfer.</p>
-          <p className="text-xs text-on-surface-variant mt-1">Please wait for another station to be released.</p>
+          <p className="text-sm text-amber-400 font-medium">No computers available to move to.</p>
+          <p className="text-xs text-on-surface-variant mt-1">Please wait for another computer to become free.</p>
           <Button onClick={onClose} variant="tonal" className="mt-4">
             Close
           </Button>
@@ -196,7 +196,7 @@ export function TransferSessionModal({ sessionId, currentStationName, availableS
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-on-surface mb-1.5">Select destination station</label>
+            <label className="block text-xs font-semibold text-on-surface mb-1.5">Choose new computer</label>
             <Select
               value={targetStationId}
               onChange={(e) => setTargetStationId(e.target.value)}
@@ -210,12 +210,12 @@ export function TransferSessionModal({ sessionId, currentStationName, availableS
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-on-surface mb-1.5">Reason for transfer</label>
+            <label className="block text-xs font-semibold text-on-surface mb-1.5">Reason for moving</label>
             <Input
               type="text"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="e.g. Mouse issue, moving closer to friends"
+              placeholder="e.g. Mouse issue, sitting next to friends"
             />
           </div>
 
@@ -224,7 +224,7 @@ export function TransferSessionModal({ sessionId, currentStationName, availableS
               Cancel
             </Button>
             <Button type="submit" variant="filled" disabled={isSubmitting} className="flex-1">
-              {isSubmitting ? 'Transferring...' : 'Transfer station'}
+              {isSubmitting ? 'Moving...' : 'Move Computer'}
             </Button>
           </div>
         </form>
@@ -234,7 +234,7 @@ export function TransferSessionModal({ sessionId, currentStationName, availableS
 }
 
 /**
- * Modal to checkout, settle itemized bill, record Cash/UPI payment, and release station
+ * Modal to checkout, settle payment, record Cash/UPI, and release computer
  */
 export function CheckoutModal({ sessionId, stationName, liveSession, onClose, onSubmit, isSubmitting }) {
   const [paymentMethod, setPaymentMethod] = useState('CASH');
@@ -274,7 +274,7 @@ export function CheckoutModal({ sessionId, stationName, liveSession, onClose, on
       isOpen={true}
       onClose={onClose}
       maxWidth="max-w-md"
-      title="Checkout & Settle"
+      title="Checkout & Payment"
       subtitle={`${stationName} • ${liveSession?.customerName || 'Guest'}`}
       icon={CreditCard}
       iconColor="text-emerald-400 bg-emerald-950/60 border-emerald-500/30"
@@ -283,19 +283,19 @@ export function CheckoutModal({ sessionId, stationName, liveSession, onClose, on
         {/* Itemized Breakdown Box */}
         <Card variant="lowest" className="p-3.5 space-y-2 text-xs">
           <div className="flex justify-between text-on-surface-variant">
-            <span>Base duration ({bookedMinutes}m):</span>
+            <span>Booked time ({bookedMinutes}m):</span>
             <span className="text-on-surface font-medium tabular-nums">₹{baseFee}</span>
           </div>
 
           {overtimeFee > 0 ? (
             <div className="flex justify-between text-error font-semibold">
-              <span>Overtime ({liveSession.billableOvertimeMinutes}m billable):</span>
+              <span>Extra time ({liveSession.billableOvertimeMinutes}m):</span>
               <span className="tabular-nums">+₹{overtimeFee}</span>
             </div>
           ) : (
             <div className="flex justify-between text-emerald-400">
-              <span>Overtime:</span>
-              <span>₹0 (Grace period)</span>
+              <span>Extra time:</span>
+              <span>₹0 (On time)</span>
             </div>
           )}
 
@@ -312,14 +312,14 @@ export function CheckoutModal({ sessionId, stationName, liveSession, onClose, on
           </div>
 
           <div className="flex justify-between text-base font-bold text-on-surface pt-2 border-t border-outline-variant/40">
-            <span>Total payable:</span>
+            <span>Total to pay:</span>
             <span className="text-emerald-400 tabular-nums">₹{totalPayable}</span>
           </div>
         </Card>
 
         {/* Payment Method Selector */}
         <div>
-          <label className="block text-xs font-semibold text-on-surface mb-2">Payment method</label>
+          <label className="block text-xs font-semibold text-on-surface mb-2">How did they pay?</label>
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
@@ -352,7 +352,7 @@ export function CheckoutModal({ sessionId, stationName, liveSession, onClose, on
         {paymentMethod === 'CASH' && (
           <Card variant="lowest" className="p-3 space-y-2">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-on-surface-variant">Cash tendered:</span>
+              <span className="text-on-surface-variant">Cash given by customer:</span>
               <input
                 type="number"
                 placeholder={String(totalPayable)}
@@ -373,7 +373,7 @@ export function CheckoutModal({ sessionId, stationName, liveSession, onClose, on
         {/* UPI Reference Input */}
         {paymentMethod === 'UPI' && (
           <div>
-            <label className="block text-xs font-semibold text-on-surface mb-1.5">UPI Ref / Transaction #</label>
+            <label className="block text-xs font-semibold text-on-surface mb-1.5">UPI Transaction ID (optional)</label>
             <Input
               type="text"
               placeholder="e.g. UPI3492840192"
@@ -390,7 +390,7 @@ export function CheckoutModal({ sessionId, stationName, liveSession, onClose, on
           </Button>
           <Button type="submit" variant="success" disabled={isSubmitting} className="flex-1">
             <CheckCircle className="w-4 h-4" />
-            <span>{isSubmitting ? 'Finalizing...' : `Complete checkout (₹${totalPayable})`}</span>
+            <span>{isSubmitting ? 'Processing...' : `Complete Payment (₹${totalPayable})`}</span>
           </Button>
         </div>
       </form>
@@ -399,7 +399,7 @@ export function CheckoutModal({ sessionId, stationName, liveSession, onClose, on
 }
 
 /**
- * Modal to add a new station
+ * Modal to add a new computer or console
  */
 export function AddStationModal({ onClose, onSubmit, isSubmitting }) {
   const [name, setName] = useState('');
@@ -421,11 +421,11 @@ export function AddStationModal({ onClose, onSubmit, isSubmitting }) {
       isOpen={true}
       onClose={onClose}
       maxWidth="max-w-sm"
-      title="Add gaming station"
+      title="Add New Computer"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-xs font-semibold text-on-surface mb-1.5">Station name / number</label>
+          <label className="block text-xs font-semibold text-on-surface mb-1.5">Computer or Console Name</label>
           <Input
             type="text"
             required
@@ -436,13 +436,13 @@ export function AddStationModal({ onClose, onSubmit, isSubmitting }) {
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-on-surface mb-1.5">Station type</label>
+          <label className="block text-xs font-semibold text-on-surface mb-1.5">Device Type</label>
           <Select
             value={type}
             onChange={(e) => setType(e.target.value)}
           >
-            <option value="PC_STANDARD" className="bg-surface-container text-on-surface">PC Standard</option>
-            <option value="PC_VIP" className="bg-surface-container text-on-surface">PC VIP (RTX 4080)</option>
+            <option value="PC_STANDARD" className="bg-surface-container text-on-surface">Standard PC</option>
+            <option value="PC_VIP" className="bg-surface-container text-on-surface">VIP PC (High-end)</option>
             <option value="PS5" className="bg-surface-container text-on-surface">PlayStation 5</option>
             <option value="XBOX" className="bg-surface-container text-on-surface">Xbox Series X</option>
             <option value="VR" className="bg-surface-container text-on-surface">VR Simulator</option>
@@ -450,7 +450,7 @@ export function AddStationModal({ onClose, onSubmit, isSubmitting }) {
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-on-surface mb-1.5">Hourly rate (₹)</label>
+          <label className="block text-xs font-semibold text-on-surface mb-1.5">Price per hour (₹)</label>
           <Input
             type="number"
             min="0"
@@ -465,7 +465,7 @@ export function AddStationModal({ onClose, onSubmit, isSubmitting }) {
             Cancel
           </Button>
           <Button type="submit" variant="filled" disabled={isSubmitting} className="flex-1">
-            {isSubmitting ? 'Creating station...' : 'Create station'}
+            {isSubmitting ? 'Adding...' : 'Add Computer'}
           </Button>
         </div>
       </form>

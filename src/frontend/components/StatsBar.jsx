@@ -22,38 +22,38 @@ export function StatsBar({ stations = [] }) {
 
   return (
     <Card variant="container" className="p-4 sm:p-5 mb-6">
-      {/* Top Floor Summary Heading & Status Strip */}
+      {/* Top Summary Heading & Status Strip */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-outline-variant/40">
         <div>
           <h2 className="text-sm font-bold text-on-surface tracking-tight flex items-center gap-2">
             <Monitor className="w-4 h-4 text-primary" />
-            <span>Floor capacity overview</span>
+            <span>Computers & Stations Overview</span>
           </h2>
           <p className="text-xs text-on-surface-variant mt-0.5">
-            {total} total gaming rigs configured in arena fleet
+            {total} total computers and consoles
           </p>
         </div>
 
-        {/* Operational Attention Badge */}
+        {/* Attention Badge */}
         {hasAlerts ? (
           <Badge variant="warning" size="md" className="self-start sm:self-auto">
             <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
             <span>
-              {overtime > 0 ? `${overtime} session in overtime` : `${expiring} session expiring within 5 minutes`}
+              {overtime > 0 ? `${overtime} in extra time` : `${expiring} ending in 5 minutes`}
             </span>
           </Badge>
         ) : (
           <Badge variant="success" size="md" className="self-start sm:self-auto">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-            <span>All sessions running on schedule</span>
+            <span>All sessions running on time</span>
           </Badge>
         )}
       </div>
 
-      {/* Capacity Breakdown Gauge Strip */}
+      {/* Breakdown Strip */}
       {total > 0 && (
         <div className="pt-4">
-          {/* Segmented Capacity Bar */}
+          {/* Segmented Bar */}
           <div className="h-2 w-full bg-surface-container-high rounded-full overflow-hidden flex gap-0.5">
             {available > 0 && (
               <div
@@ -66,19 +66,19 @@ export function StatsBar({ stations = [] }) {
               <div
                 className="bg-primary h-full rounded-sm transition-all"
                 style={{ width: `${(occupied / total) * 100}%` }}
-                title={`${occupied} in play`}
+                title={`${occupied} in use`}
               />
             )}
             {maintenance > 0 && (
               <div
                 className="bg-outline h-full rounded-sm transition-all"
                 style={{ width: `${(maintenance / total) * 100}%` }}
-                title={`${maintenance} in maintenance`}
+                title={`${maintenance} in repair`}
               />
             )}
           </div>
 
-          {/* Operational Metrics Row */}
+          {/* Metrics Row */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4 pt-2">
             {/* Available */}
             <div className="flex items-start gap-2.5">
@@ -87,7 +87,7 @@ export function StatsBar({ stations = [] }) {
                 <span className="text-lg font-bold text-on-surface tabular-nums leading-none block">
                   {available}
                 </span>
-                <span className="text-[11px] text-on-surface-variant font-medium">Ready for walk-in</span>
+                <span className="text-[11px] text-on-surface-variant font-medium">Available</span>
               </div>
             </div>
 
@@ -96,9 +96,9 @@ export function StatsBar({ stations = [] }) {
               <span className="w-2.5 h-2.5 rounded-full bg-primary mt-1 shrink-0" />
               <div>
                 <span className="text-lg font-bold text-on-surface tabular-nums leading-none block">
-                  {occupied} <span className="text-xs font-normal text-on-surface-variant">({occupancyRate}% load)</span>
+                  {occupied} <span className="text-xs font-normal text-on-surface-variant">({occupancyRate}%)</span>
                 </span>
-                <span className="text-[11px] text-on-surface-variant font-medium">Active gaming sessions</span>
+                <span className="text-[11px] text-on-surface-variant font-medium">Currently In Use</span>
               </div>
             </div>
 
@@ -109,7 +109,7 @@ export function StatsBar({ stations = [] }) {
                 <span className={`text-lg font-bold tabular-nums leading-none block ${hasAlerts ? 'text-amber-300' : 'text-on-surface-variant'}`}>
                   {expiring + overtime}
                 </span>
-                <span className="text-[11px] text-on-surface-variant font-medium">Alerts (5m warning / overtime)</span>
+                <span className="text-[11px] text-on-surface-variant font-medium">Ending Soon / Extra Time</span>
               </div>
             </div>
 
@@ -120,7 +120,7 @@ export function StatsBar({ stations = [] }) {
                 <span className="text-lg font-bold text-on-surface tabular-nums leading-none block">
                   {maintenance}
                 </span>
-                <span className="text-[11px] text-on-surface-variant font-medium">Under maintenance</span>
+                <span className="text-[11px] text-on-surface-variant font-medium">In Repair</span>
               </div>
             </div>
           </div>

@@ -60,7 +60,7 @@ export function StationInventoryView({
       {/* Top Metrics Row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3">
         <Card variant="container" className="p-4">
-          <span className="text-xs font-semibold text-on-surface-variant">Total Fleet</span>
+          <span className="text-xs font-semibold text-on-surface-variant">Total Computers</span>
           <p className="text-2xl font-black text-on-surface mt-1">{stations.length}</p>
           <span className="text-[11px] text-on-surface-variant font-medium">All Gaming Units</span>
         </Card>
@@ -68,13 +68,13 @@ export function StationInventoryView({
         <Card variant="container" className="p-4 border-primary/30">
           <span className="text-xs font-semibold text-primary">Standard PCs</span>
           <p className="text-2xl font-black text-on-surface mt-1">{pcStandard}</p>
-          <span className="text-[11px] text-on-surface-variant font-medium">Competitions / LAN</span>
+          <span className="text-[11px] text-on-surface-variant font-medium">Regular PCs</span>
         </Card>
 
         <Card variant="container" className="p-4 border-amber-500/30">
           <span className="text-xs font-semibold text-amber-400">VIP PCs</span>
           <p className="text-2xl font-black text-on-surface mt-1">{pcVip}</p>
-          <span className="text-[11px] text-on-surface-variant font-medium">High-FPS / 240Hz</span>
+          <span className="text-[11px] text-on-surface-variant font-medium">High-end Rigs</span>
         </Card>
 
         <Card variant="container" className="p-4 border-tertiary/30">
@@ -84,9 +84,9 @@ export function StationInventoryView({
         </Card>
 
         <Card variant="container" className="p-4 border-emerald-500/30 col-span-2 sm:col-span-1">
-          <span className="text-xs font-semibold text-emerald-400">Avg. Rate</span>
+          <span className="text-xs font-semibold text-emerald-400">Average Rate</span>
           <p className="text-2xl font-black text-emerald-300 mt-1">₹{avgRate}/hr</p>
-          <span className="text-[11px] text-on-surface-variant font-medium">Base Hourly Mean</span>
+          <span className="text-[11px] text-on-surface-variant font-medium">Average per hour</span>
         </Card>
       </div>
 
@@ -97,7 +97,7 @@ export function StationInventoryView({
           <Search className="w-4 h-4 text-outline absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search by station name (e.g. PC-01)..."
+            placeholder="Search by computer name (e.g. PC-01)..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full bg-surface-container border border-outline-variant/60 rounded-xl pl-9 pr-4 py-2 text-xs text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary"
@@ -112,8 +112,8 @@ export function StationInventoryView({
             className="bg-surface-container border border-outline-variant/60 rounded-xl px-3 py-2 text-xs text-on-surface focus:outline-none focus:border-primary"
           >
             <option value="ALL">All Types</option>
-            <option value="PC_STANDARD">PC Standard</option>
-            <option value="PC_VIP">PC VIP</option>
+            <option value="PC_STANDARD">Standard PC</option>
+            <option value="PC_VIP">VIP PC</option>
             <option value="PS5">PlayStation 5</option>
             <option value="XBOX">Xbox Series X</option>
             <option value="VR">VR Simulator</option>
@@ -126,7 +126,7 @@ export function StationInventoryView({
             className="whitespace-nowrap"
           >
             <Plus className="w-4 h-4" />
-            <span>Add Station</span>
+            <span>Add Computer</span>
           </Button>
         </div>
       </div>
@@ -136,10 +136,10 @@ export function StationInventoryView({
         <table className="w-full text-left text-xs">
           <thead className="bg-surface-container-lowest text-on-surface-variant border-b border-outline-variant/40">
             <tr>
-              <th className="py-3.5 px-4 font-semibold">Station Name</th>
-              <th className="py-3.5 px-4 font-semibold">Hardware Type</th>
+              <th className="py-3.5 px-4 font-semibold">Computer</th>
+              <th className="py-3.5 px-4 font-semibold">Type</th>
               <th className="py-3.5 px-4 font-semibold text-center">Hourly Rate</th>
-              <th className="py-3.5 px-4 font-semibold text-center">Current Status</th>
+              <th className="py-3.5 px-4 font-semibold text-center">Status</th>
               <th className="py-3.5 px-4 font-semibold">Current Activity</th>
               <th className="py-3.5 px-4 font-semibold text-right">Actions</th>
             </tr>
@@ -154,10 +154,10 @@ export function StationInventoryView({
 
               if (isMaintenance) {
                 badgeStyle = 'bg-surface-container-high text-on-surface-variant border-outline-variant';
-                badgeText = 'Maintenance';
+                badgeText = 'In Repair';
               } else if (isOccupied) {
                 badgeStyle = 'bg-primary-container text-on-primary-container border-primary/30';
-                badgeText = 'In Session';
+                badgeText = 'In Use';
               }
 
               return (
@@ -194,10 +194,10 @@ export function StationInventoryView({
                     ) : isMaintenance ? (
                       <span className="text-amber-400/90 text-[11px] font-medium flex items-center gap-1">
                         <Wrench className="w-3 h-3" />
-                        Down for service
+                        Down for repair
                       </span>
                     ) : (
-                      <span className="text-emerald-400/80 text-[11px]">Ready to allocate</span>
+                      <span className="text-emerald-400/80 text-[11px]">Ready to play</span>
                     )}
                   </td>
 
@@ -220,7 +220,7 @@ export function StationInventoryView({
                           size="sm"
                           onClick={() => onToggleMaintenance(st._id, 'AVAILABLE')}
                         >
-                          Mark Ready
+                          Mark Available
                         </Button>
                       ) : (
                         <Button
@@ -228,9 +228,9 @@ export function StationInventoryView({
                           size="sm"
                           disabled={isOccupied}
                           onClick={() => onToggleMaintenance(st._id, 'MAINTENANCE')}
-                          title={isOccupied ? 'Cannot put occupied station in maintenance' : 'Put in maintenance'}
+                          title={isOccupied ? 'Cannot put occupied computer in repair' : 'Put in repair'}
                         >
-                          Service
+                          Repair
                         </Button>
                       )}
                     </div>

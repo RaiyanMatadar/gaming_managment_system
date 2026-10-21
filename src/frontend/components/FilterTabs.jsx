@@ -2,11 +2,11 @@ import React from 'react';
 
 export function FilterTabs({ activeFilter, onSelectFilter, counts }) {
   const tabs = [
-    { id: 'ALL', label: 'All stations', count: counts.all },
+    { id: 'ALL', label: 'All', count: counts.all },
     { id: 'AVAILABLE', label: 'Available', count: counts.available, dot: 'bg-emerald-400' },
-    { id: 'ACTIVE', label: 'In play', count: counts.occupied, dot: 'bg-primary' },
+    { id: 'ACTIVE', label: 'In Use', count: counts.occupied, dot: 'bg-primary' },
     { id: 'ALERTS', label: 'Alerts', count: counts.alerts, isAlert: counts.alerts > 0, dot: 'bg-amber-400' },
-    { id: 'MAINTENANCE', label: 'Maintenance', count: counts.maintenance, dot: 'bg-outline' }
+    { id: 'MAINTENANCE', label: 'In Repair', count: counts.maintenance, dot: 'bg-outline' }
   ];
 
   return (

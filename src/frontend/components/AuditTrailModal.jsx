@@ -20,44 +20,44 @@ function getActionBadge(action) {
   switch (action) {
     case 'START_SESSION':
       return {
-        label: 'Session Started',
+        label: 'Started Session',
         style: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
         icon: <Play className="w-3.5 h-3.5 fill-current" />
       };
     case 'PAUSE_SESSION':
       return {
-        label: 'Session Paused',
+        label: 'Paused Session',
         style: 'bg-tertiary-container text-tertiary border-tertiary/30',
         icon: <Pause className="w-3.5 h-3.5" />
       };
     case 'RESUME_SESSION':
       return {
-        label: 'Session Resumed',
+        label: 'Resumed Session',
         style: 'bg-primary-container text-primary border-primary/30',
         icon: <Play className="w-3.5 h-3.5 fill-current" />
       };
     case 'EXTEND_SESSION':
       return {
-        label: 'Session Extended',
+        label: 'Added Time',
         style: 'bg-primary-container/40 text-primary border-primary/40',
         icon: <PlusCircle className="w-3.5 h-3.5" />
       };
     case 'TRANSFER_STATION':
       return {
-        label: 'Station Transferred',
+        label: 'Moved Computer',
         style: 'bg-secondary-container/50 text-on-secondary-container border-secondary/30',
         icon: <ArrowRightLeft className="w-3.5 h-3.5" />
       };
     case 'CHECKOUT_SESSION':
     case 'RECORD_PAYMENT':
       return {
-        label: 'Checkout / Paid',
+        label: 'Checked Out & Paid',
         style: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 font-bold',
         icon: <CreditCard className="w-3.5 h-3.5" />
       };
     case 'CANCEL_SESSION':
       return {
-        label: 'Session Cancelled',
+        label: 'Cancelled Session',
         style: 'bg-error-container text-on-error-container border-error/40 font-bold',
         icon: <AlertTriangle className="w-3.5 h-3.5" />
       };
@@ -112,11 +112,11 @@ export function AuditTrailView({ embedded = true }) {
 
   const renderDetailText = (log) => {
     if (log.action === 'EXTEND_SESSION' && log.metadata) {
-      return `+${log.metadata.addedMinutes}m extended (Fee: ₹${log.metadata.extensionFee || 0})`;
+      return `+${log.metadata.addedMinutes}m added (Fee: ₹${log.metadata.extensionFee || 0})`;
     }
     if (log.action === 'CHECKOUT_SESSION' && log.metadata?.financials) {
       const fin = log.metadata.financials;
-      return `Total: ₹${fin.totalPayable} (${fin.paymentStatus})${fin.overtimeAmount > 0 ? ` • incl. ₹${fin.overtimeAmount} OT` : ''}`;
+      return `Total: ₹${fin.totalPayable} (${fin.paymentStatus})${fin.overtimeAmount > 0 ? ` • incl. ₹${fin.overtimeAmount} extra` : ''}`;
     }
     if (log.action === 'RECORD_PAYMENT' && log.metadata) {
       return `Collected ₹${log.metadata.amount} via ${log.metadata.method}`;
@@ -127,7 +127,7 @@ export function AuditTrailView({ embedded = true }) {
     if (log.metadata && Object.keys(log.metadata).length > 0) {
       return JSON.stringify(log.metadata);
     }
-    return 'Operation recorded';
+    return 'Action recorded';
   };
 
   return (
@@ -149,12 +149,12 @@ export function AuditTrailView({ embedded = true }) {
         <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto pb-1 scrollbar-none">
           {[
             { id: 'ALL', label: 'All Actions' },
-            { id: 'START_SESSION', label: 'Started' },
-            { id: 'CHECKOUT_SESSION', label: 'Checkout' },
-            { id: 'EXTEND_SESSION', label: 'Extended' },
-            { id: 'TRANSFER_STATION', label: 'Transferred' },
-            { id: 'PAUSE_SESSION', label: 'Paused' },
-            { id: 'CANCEL_SESSION', label: 'Cancelled' }
+            { id: 'START_SESSION', label: 'Starts' },
+            { id: 'CHECKOUT_SESSION', label: 'Checkouts' },
+            { id: 'EXTEND_SESSION', label: 'Added Time' },
+            { id: 'TRANSFER_STATION', label: 'Moves' },
+            { id: 'PAUSE_SESSION', label: 'Pauses' },
+            { id: 'CANCEL_SESSION', label: 'Cancellations' }
           ].map((tab) => (
             <button
               key={tab.id}
@@ -182,15 +182,15 @@ export function AuditTrailView({ embedded = true }) {
       {loading && (
         <Card variant="container" className="text-center py-20">
           <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-xs text-on-surface-variant">Loading audit trail records...</p>
+          <p className="text-xs text-on-surface-variant">Loading activity log...</p>
         </Card>
       )}
 
       {!loading && logs.length === 0 && (
         <Card variant="container" className="text-center py-16">
           <ShieldCheck className="w-10 h-10 text-outline mx-auto mb-2" />
-          <p className="text-sm font-semibold text-on-surface">No matching audit logs found</p>
-          <p className="text-xs text-on-surface-variant mt-1">Actions performed by staff are tracked here automatically.</p>
+          <p className="text-sm font-semibold text-on-surface">No activity logs found</p>
+          <p className="text-xs text-on-surface-variant mt-1">Actions performed by staff are automatically tracked here.</p>
         </Card>
       )}
 
@@ -271,10 +271,10 @@ export function AuditTrailModal({ onClose }) {
             </div>
             <div>
               <h2 className="text-lg font-bold text-on-surface flex items-center gap-2">
-                Operational Audit Trail & Activity Log
+                Staff Activity Log
               </h2>
               <p className="text-xs text-on-surface-variant">
-                Authoritative staff log tracking session starts, extensions, payments, and cancellations
+                History of staff actions: session starts, extensions, payments, and cancellations
               </p>
             </div>
           </div>

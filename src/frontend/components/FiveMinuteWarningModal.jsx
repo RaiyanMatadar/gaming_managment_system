@@ -58,10 +58,10 @@ export function FiveMinuteWarningModal({ warnings = [], onDismiss, onExtend }) {
             </div>
             <div>
               <span className="text-xs font-semibold text-amber-400 block leading-tight">
-                Cashier alert
+                Staff Alert
               </span>
               <h2 className="text-base font-bold text-on-surface tracking-tight mt-0.5">
-                Session ending soon
+                Session Ending Soon
               </h2>
             </div>
           </div>
@@ -69,7 +69,7 @@ export function FiveMinuteWarningModal({ warnings = [], onDismiss, onExtend }) {
           {/* Multiple Warnings Count */}
           {warnings.length > 1 && (
             <Badge variant="warning" size="md">
-              {warnings.length} active warnings
+              {warnings.length} ending soon
             </Badge>
           )}
         </div>
@@ -96,7 +96,7 @@ export function FiveMinuteWarningModal({ warnings = [], onDismiss, onExtend }) {
         {/* Warning Notification Message */}
         <div className="my-4 bg-amber-950/20 border border-amber-500/30 rounded-lg p-3.5 text-center">
           <p className="text-sm font-semibold text-amber-200">
-            Only 5 minutes left for <span className="text-on-surface underline">{activeWarning.customerName}</span> on PC <span className="text-on-surface underline">{activeWarning.stationName}</span>.
+            Only 5 minutes left for <span className="text-on-surface underline">{activeWarning.customerName}</span> on <span className="text-on-surface underline">{activeWarning.stationName}</span>.
           </p>
         </div>
 
@@ -105,7 +105,7 @@ export function FiveMinuteWarningModal({ warnings = [], onDismiss, onExtend }) {
           <Card variant="lowest" className="p-3 text-center">
             <span className="text-[11px] text-on-surface-variant flex items-center justify-center gap-1 mb-1">
               <Monitor className="w-3.5 h-3.5 text-outline" />
-              Station
+              Computer
             </span>
             <p className="text-sm font-bold text-on-surface">{activeWarning.stationName}</p>
           </Card>
@@ -121,7 +121,7 @@ export function FiveMinuteWarningModal({ warnings = [], onDismiss, onExtend }) {
           <div className="bg-amber-950/30 border border-amber-500/40 rounded-xl p-3 text-center">
             <span className="text-[11px] text-amber-400 flex items-center justify-center gap-1 mb-1">
               <Clock className="w-3.5 h-3.5 text-amber-400" />
-              Time left
+              Time Left
             </span>
             <p className="text-base font-bold font-mono tabular-nums text-amber-300">
               {timeFormatted}
@@ -130,7 +130,7 @@ export function FiveMinuteWarningModal({ warnings = [], onDismiss, onExtend }) {
         </div>
 
         <p className="text-xs text-on-surface-variant text-center mb-5">
-          Notification has also been dispatched to the center owner. Ask the player if they wish to extend before overtime charges begin.
+          Ask the customer if they wish to add more time before extra time charges begin.
         </p>
 
         {/* Action Buttons */}
@@ -141,7 +141,7 @@ export function FiveMinuteWarningModal({ warnings = [], onDismiss, onExtend }) {
             className="flex-1"
           >
             <Check className="w-4 h-4 text-on-surface-variant" />
-            <span>Dismiss warning</span>
+            <span>Dismiss</span>
           </Button>
 
           <Button
@@ -152,10 +152,10 @@ export function FiveMinuteWarningModal({ warnings = [], onDismiss, onExtend }) {
               onDismiss(sessId);
               onExtend(sessId, stName);
             }}
-            className="flex-1 bg-amber-500 text-slate-950 hover:bg-amber-400 border-none"
+            className="flex-1 bg-amber-500 text-slate-950 hover:bg-amber-400 border-none font-bold"
           >
             <Plus className="w-4 h-4" />
-            <span>Extend session</span>
+            <span>Add More Time</span>
           </Button>
         </div>
       </Card>

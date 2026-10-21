@@ -134,8 +134,8 @@ export function ActiveSessionsView({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <Card variant="container" className="p-4 flex items-center justify-between">
           <div>
-            <span className="text-xs font-medium text-on-surface-variant">Total in play</span>
-            <div className="text-xl font-bold text-on-surface tabular-nums mt-0.5">{activeStations.length} sessions</div>
+            <span className="text-xs font-medium text-on-surface-variant">Currently Playing</span>
+            <div className="text-xl font-bold text-on-surface tabular-nums mt-0.5">{activeStations.length} players</div>
           </div>
           <div className="w-9 h-9 rounded-lg bg-primary-container/40 border border-primary/30 flex items-center justify-center text-primary">
             <Gamepad2 className="w-4 h-4" />
@@ -148,9 +148,9 @@ export function ActiveSessionsView({
             : 'bg-surface-container border-outline-variant/60'
         }`}>
           <div>
-            <span className="text-xs font-medium text-on-surface-variant">Expiring in 5 minutes</span>
+            <span className="text-xs font-medium text-on-surface-variant">Ending Soon (5 mins)</span>
             <div className={`text-xl font-bold tabular-nums mt-0.5 ${warningCount > 0 ? 'text-amber-300' : 'text-on-surface'}`}>
-              {warningCount} sessions
+              {warningCount} players
             </div>
           </div>
           <div className="w-9 h-9 rounded-lg bg-amber-950/60 border border-amber-500/30 flex items-center justify-center text-amber-400">
@@ -164,9 +164,9 @@ export function ActiveSessionsView({
             : 'bg-surface-container border-outline-variant/60'
         }`}>
           <div>
-            <span className="text-xs font-medium text-on-surface-variant">In overtime</span>
+            <span className="text-xs font-medium text-on-surface-variant">In Extra Time</span>
             <div className={`text-xl font-bold tabular-nums mt-0.5 ${overtimeCount > 0 ? 'text-on-error-container' : 'text-on-surface'}`}>
-              {overtimeCount} sessions
+              {overtimeCount} players
             </div>
           </div>
           <div className="w-9 h-9 rounded-lg bg-error-container/60 border border-error/40 flex items-center justify-center text-error">
@@ -186,7 +186,7 @@ export function ActiveSessionsView({
                 : 'bg-surface-container text-on-surface-variant border border-outline-variant/60 hover:text-on-surface'
             }`}
           >
-            All active ({activeStations.length})
+            All Active ({activeStations.length})
           </button>
           <button
             onClick={() => setFilterType('WARNING')}
@@ -197,7 +197,7 @@ export function ActiveSessionsView({
             }`}
           >
             <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-            5m warning ({warningCount})
+            Ending Soon ({warningCount})
           </button>
           <button
             onClick={() => setFilterType('OVERTIME')}
@@ -208,7 +208,7 @@ export function ActiveSessionsView({
             }`}
           >
             <span className="w-1.5 h-1.5 rounded-full bg-error" />
-            Overtime ({overtimeCount})
+            Extra Time ({overtimeCount})
           </button>
           <button
             onClick={() => setFilterType('PAUSED')}
@@ -223,14 +223,14 @@ export function ActiveSessionsView({
         </div>
 
         {/* Search Input */}
-        <div className="relative min-w-[220px]">
+        <div className="relative w-full sm:w-80">
           <Search className="w-3.5 h-3.5 text-outline absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search by player or PC..."
+            placeholder="Search by player or computer..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-8 pr-3 py-1.5 bg-surface-container border border-outline-variant/60 rounded-lg text-xs text-on-surface placeholder-on-surface-variant focus:outline-none focus:border-primary"
+            className="w-full pl-8 pr-3 py-1.5 bg-surface-container border border-outline-variant/60 rounded-lg text-xs text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary"
           />
         </div>
       </div>
@@ -239,9 +239,9 @@ export function ActiveSessionsView({
       {filtered.length === 0 ? (
         <Card variant="container" className="p-10 text-center">
           <Gamepad2 className="w-8 h-8 text-outline mx-auto mb-2" />
-          <p className="text-sm font-semibold text-on-surface">No active sessions match the filter</p>
+          <p className="text-sm font-semibold text-on-surface">No active players found</p>
           <p className="text-xs text-on-surface-variant mt-1">
-            {searchTerm ? 'Try a different search query' : 'Assign a walk-in player from the floor grid'}
+            {searchTerm ? 'Try a different search query' : 'Start a session from the Computers tab'}
           </p>
           {onQuickStart && (
             <Button
@@ -251,7 +251,7 @@ export function ActiveSessionsView({
               className="mt-3"
             >
               <Play className="w-3.5 h-3.5 fill-current" />
-              <span>Start session</span>
+              <span>Start Session</span>
             </Button>
           )}
         </Card>
@@ -268,23 +268,23 @@ export function ActiveSessionsView({
             return (
               <div
                 key={live.sessionId}
-                className={`rounded-xl border p-4 sm:p-5 flex flex-col justify-between transition-colors ${cardBorder}`}
+                className={`rounded-xl border p-4 sm:p-5 flex flex-col justify-between h-full transition-colors ${cardBorder}`}
               >
                 <div>
                   {/* Header: Station & Status */}
                   <div className="flex items-center justify-between pb-3 border-b border-outline-variant/40">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-surface-container-lowest border border-outline-variant/40 flex items-center justify-center text-primary">
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      <div className="w-8 h-8 rounded-lg bg-surface-container-lowest border border-outline-variant/40 flex items-center justify-center text-primary shrink-0">
                         <Monitor className="w-4 h-4" />
                       </div>
-                      <div>
-                        <h4 className="text-sm font-bold text-on-surface tracking-tight">{station.name}</h4>
-                        <span className="text-[11px] text-on-surface-variant font-medium">₹{station.hourlyRate}/hour</span>
+                      <div className="min-w-0">
+                        <h4 className="text-sm font-bold text-on-surface tracking-tight truncate" title={station.name}>{station.name}</h4>
+                        <span className="text-[11px] text-on-surface-variant font-medium">₹{station.hourlyRate}/hr</span>
                       </div>
                     </div>
 
                     <span
-                      className={`text-[10px] font-medium px-2 py-0.5 rounded border ${
+                      className={`text-[10px] font-medium px-2 py-0.5 rounded border shrink-0 ${
                         isOvertime
                           ? 'bg-error-container text-on-error-container border-error/40 font-semibold'
                           : isWarning
@@ -294,7 +294,7 @@ export function ActiveSessionsView({
                           : 'bg-primary-container text-on-primary-container border-primary/30'
                       }`}
                     >
-                      {isOvertime ? 'Overtime accruing' : isWarning ? 'Expiring soon' : computedStatus === 'PAUSED' ? 'Paused' : 'In play'}
+                      {isOvertime ? 'Extra Time' : isWarning ? 'Ending Soon' : computedStatus === 'PAUSED' ? 'Paused' : 'In Use'}
                     </span>
                   </div>
 
@@ -305,7 +305,7 @@ export function ActiveSessionsView({
                         <User className="w-3.5 h-3.5 text-outline" />
                         Player:
                       </span>
-                      <span className="font-semibold text-on-surface">{live.customerName}</span>
+                      <span className="font-semibold text-on-surface truncate max-w-[130px]">{live.customerName}</span>
                     </div>
 
                     {live.customerPhone && (
@@ -319,8 +319,8 @@ export function ActiveSessionsView({
                     )}
 
                     <div className="flex items-center justify-between text-on-surface-variant">
-                      <span>Booked duration:</span>
-                      <span className="font-semibold text-on-surface">{live.bookedMinutes} minutes</span>
+                      <span>Booked Time:</span>
+                      <span className="font-semibold text-on-surface">{live.bookedMinutes} mins</span>
                     </div>
                   </div>
 
@@ -328,7 +328,7 @@ export function ActiveSessionsView({
                   <div className="p-3 rounded-lg bg-surface-container-lowest border border-outline-variant/50 my-3 flex items-center justify-between">
                     <span className="text-xs text-on-surface-variant flex items-center gap-1.5">
                       <Clock className="w-3.5 h-3.5 text-outline" />
-                      {isOvertime ? 'Overtime:' : 'Time remaining:'}
+                      {isOvertime ? 'Extra time:' : 'Time left:'}
                     </span>
 
                     {isOvertime ? (
@@ -337,14 +337,14 @@ export function ActiveSessionsView({
                           +{formatDuration(overtimeMs)}
                         </span>
                         {live.overtimeFee > 0 && (
-                          <span className="block text-[11px] text-error font-semibold">
-                            Accrued: ₹{live.overtimeFee}
+                          <span className="block text-[11px] text-error font-medium">
+                            Extra: ₹{live.overtimeFee}
                           </span>
                         )}
                       </div>
                     ) : computedStatus === 'PAUSED' ? (
                       <span className="text-xs font-semibold text-tertiary">
-                        Timer paused
+                        Paused
                       </span>
                     ) : (
                       <span className={`font-mono tabular-nums text-base font-bold ${isWarning ? 'text-amber-400' : 'text-primary'}`}>
@@ -355,70 +355,80 @@ export function ActiveSessionsView({
                 </div>
 
                 {/* Session Action Controls */}
-                <div className="pt-3 border-t border-outline-variant/40 flex flex-wrap gap-2">
-                  <Button
-                    variant="outlined"
-                    size="sm"
-                    onClick={() => extendSession && extendSession(live.sessionId, station.name)}
-                  >
-                    <Plus className="w-3.5 h-3.5 text-primary" />
-                    <span>Extend</span>
-                  </Button>
-
-                  {computedStatus === 'PAUSED' ? (
-                    <Button
-                      variant="success"
-                      size="sm"
-                      onClick={() => resumeSession && resumeSession(live.sessionId)}
-                    >
-                      <Play className="w-3.5 h-3.5 fill-current" />
-                      <span>Resume</span>
-                    </Button>
-                  ) : (
+                <div className="pt-3 border-t border-outline-variant/40 space-y-2">
+                  <div className="grid grid-cols-4 gap-1.5">
                     <Button
                       variant="outlined"
                       size="sm"
-                      onClick={() => pauseSession && pauseSession(live.sessionId)}
+                      onClick={() => extendSession && extendSession(live.sessionId, station.name)}
+                      className="px-1 text-[11px]"
+                      title="Add 15, 30, or 60 minutes"
                     >
-                      <Pause className="w-3.5 h-3.5" />
-                      <span>Pause</span>
+                      <Plus className="w-3 h-3 text-primary shrink-0" />
+                      <span className="truncate">Add</span>
                     </Button>
-                  )}
 
-                  <Button
-                    variant="outlined"
-                    size="sm"
-                    onClick={() => transferSession && transferSession(live.sessionId, station.name)}
-                  >
-                    <ArrowRightLeft className="w-3.5 h-3.5 text-on-surface-variant" />
-                    <span>Transfer</span>
-                  </Button>
+                    {computedStatus === 'PAUSED' ? (
+                      <Button
+                        variant="success"
+                        size="sm"
+                        onClick={() => resumeSession && resumeSession(live.sessionId)}
+                        className="px-1 text-[11px]"
+                      >
+                        <Play className="w-3 h-3 fill-current shrink-0" />
+                        <span className="truncate">Play</span>
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outlined"
+                        size="sm"
+                        onClick={() => pauseSession && pauseSession(live.sessionId)}
+                        className="px-1 text-[11px]"
+                        title="Pause time"
+                      >
+                        <Pause className="w-3 h-3 shrink-0" />
+                        <span className="truncate">Pause</span>
+                      </Button>
+                    )}
 
-                  {/* Cancel Session */}
-                  {cancelSession && (
                     <Button
-                      variant="error"
+                      variant="outlined"
                       size="sm"
-                      onClick={() => cancelSession(live.sessionId, station.name)}
-                      title="Cancel session if customer decides not to play"
+                      onClick={() => transferSession && transferSession(live.sessionId, station.name)}
+                      className="px-1 text-[11px]"
+                      title="Move to another computer"
                     >
-                      <XCircle className="w-3.5 h-3.5" />
-                      <span>Cancel</span>
+                      <ArrowRightLeft className="w-3 h-3 text-on-surface-variant shrink-0" />
+                      <span className="truncate">Move</span>
                     </Button>
-                  )}
+
+                    {cancelSession && (
+                      <Button
+                        variant="error"
+                        size="sm"
+                        onClick={() => cancelSession(live.sessionId, station.name)}
+                        title="Cancel session if customer doesn't want to play"
+                        className="px-1 text-[11px]"
+                      >
+                        <XCircle className="w-3 h-3 shrink-0" />
+                        <span className="truncate">Cancel</span>
+                      </Button>
+                    )}
+                  </div>
 
                   <Button
                     variant="filled"
                     size="sm"
+                    fullWidth
                     onClick={() => checkoutSession && checkoutSession(live.sessionId, station.name)}
-                    className={`flex-1 ${
+                    className={
                       isOvertime
                         ? 'bg-error text-on-error hover:opacity-90'
                         : 'bg-emerald-600 hover:bg-emerald-500 text-white'
-                    }`}
+                    }
                   >
                     <CreditCard className="w-3.5 h-3.5" />
-                    <span>Checkout</span>
+                    <span>Checkout & Settle</span>
                   </Button>
                 </div>
               </div>
