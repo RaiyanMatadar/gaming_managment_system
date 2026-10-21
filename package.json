@@ -1,0 +1,37 @@
+{
+  "name": "gaming-management-system",
+  "version": "1.0.0",
+  "description": "Gaming Center Management System with deterministic time tracking, overtime billing, and session controls",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "node src/server.js",
+    "test": "node --test src/tests/*.test.js"
+  },
+  "keywords": [
+    "gaming-center",
+    "billing",
+    "session-management"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "lucide-react": "^0.475.0",
+    "mongoose": "^8.10.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.5.2",
+    "supertest": "^7.0.0",
+    "tailwindcss": "^3.4.17",
+    "vite": "^6.1.0"
+  }
+}
