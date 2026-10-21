@@ -18,14 +18,21 @@ Designed specifically for physical gaming cafes to eliminate unbilled overtime, 
 3. **Hardware & Concurrency Protection:**
    - Strict decoupling of Station status (`AVAILABLE`, `OCCUPIED`, `MAINTENANCE`, `RESERVED`) from Session status (`ACTIVE`, `PAUSED`, `EXPIRED_UNSETTLED`, `COMPLETED`, `CANCELLED`).
    - Atomic conditional reservation prevents concurrent collisions when two cashiers assign the same station.
-4. **Real-time Live Sync (SSE):**
-   - Server-Sent Events push instant visual and audio alerts for 5-minute warnings and immediate session expiration.
-5. **Payment Reconciliation & Idempotency:**
+4. **5-Minute Warning Popup & Automated Owner Email:**
+   - Real-time overlay popup modal displaying: **"Only 5 minutes left for [Customer Name] on PC [PC Number]."**
+   - Dispatches automated email notification to the gaming center owner's inbox with session details.
+   - Deduplicated across server restarts and multiple concurrent players.
+5. **Customer History & Player Ledger:**
+   - Real-time search and filter by customer name, phone number, and session status.
+   - Displays booked vs actual playing duration, amounts charged, overtime surcharges, and payment statuses.
+6. **Redesigned Operational Audit Trail:**
+   - Clean, high-contrast visual timeline of all staff actions (`Session Started`, `Extended`, `Paid`, `Transferred`, `Cancelled`).
+   - Clearly highlights Customer Name, PC Number, exact timestamp, cashier actor, and justification notes.
+7. **Payment Reconciliation & Idempotency:**
    - Separate tracking for Cash in drawer and UPI transaction reference numbers.
    - Idempotency key protection prevents double-charging on network retries or double-clicks.
-6. **Shift Reports & Audit Trail:**
+8. **Shift Reports & Daily Register Closing:**
    - Shift reconciliation with Cash vs UPI splits, gaming hours sold vs played, and station utilization table.
-   - Chronological audit logs recording every cashier action with actor ID and reason.
 
 ---
 
@@ -37,7 +44,7 @@ npm install
 ```
 
 ### 2. Run Automated Test Suite
-Executes all 41 unit, integration, concurrency, state machine, and billing tests:
+Executes all 43 unit, integration, concurrency, state machine, warning, and billing tests:
 ```bash
 npm test
 ```
@@ -72,8 +79,13 @@ Open `http://localhost:3000`.
 | Variable | Default | Description |
 | :--- | :--- | :--- |
 | `PORT` | `4000` | Port for the backend API and static frontend |
-| `MONGO_URI` | `undefined` | MongoDB connection string (e.g. `mongodb+srv://...`). When omitted, operates in high-performance in-memory mode for offline dev and testing |
-| `NODE_ENV` | `development` | Environment mode (`development`, `production`, `test`) |
+| `MONGO_URI` | `undefined` | MongoDB connection string. When omitted, operates in high-performance in-memory mode for offline dev and testing |
+| `OWNER_EMAIL` | `owner@gamingcenter.com` | Email address of the gaming center owner receiving 5-minute warning alerts |
+| `SMTP_HOST` | `undefined` | SMTP server host (e.g. `smtp.gmail.com`) for sending owner alerts |
+| `SMTP_PORT` | `587` | SMTP server port |
+| `SMTP_USER` | `undefined` | SMTP account username / email |
+| `SMTP_PASS` | `undefined` | SMTP account password / app password |
+| `EMAIL_FROM` | `"CyberArena" <notifications@gamingcenter.com>` | Sender email header |
 
 ---
 
@@ -81,6 +93,7 @@ Open `http://localhost:3000`.
 
 ```
 ├── PROJECT_SPEC.md              # Complete 10-section system specification
+├── USER_GUIDE.md                # Full user manual and operating guide
 ├── dist/                        # Production-compiled frontend build
 ├── src/
 │   ├── app.js                   # Express application setup & middleware
@@ -91,30 +104,29 @@ Open `http://localhost:3000`.
 │   │   └── stationStateMachine.js
 │   ├── models/                  # Mongoose data schemas
 │   │   ├── Station.js
-│   │   ├── Session.js
+│   │   ├── Session.js           # Includes persistent warning sent flags
 │   │   ├── Payment.js
-│   │   └── AuditLog.js
+│   │   └── AuditLog.js          # Includes customerName & stationName
 │   ├── storage/                 # Data layer (MongoDB + Memory store)
 │   ├── services/
 │   │   ├── sessionService.js    # Session lifecycle & atomic locking
 │   │   ├── eventBroadcaster.js  # Server-Sent Events (SSE) push engine
-│   │   ├── expiryPoller.js      # Background scanning worker
+│   │   ├── expiryPoller.js      # Background scanning worker & 5-min warning dispatcher
+│   │   ├── emailService.js      # Owner email notification service
 │   │   └── reportService.js     # Shift reconciliation & ledger analytics
 │   ├── controllers/             # REST route handlers
 │   ├── routes/                  # Express API routers
 │   ├── frontend/                # React + Tailwind CSS client
-│   │   ├── App.jsx              # Main dashboard
+│   │   ├── App.jsx              # Main dashboard with warning queue
 │   │   ├── components/
-│   │   │   ├── Navbar.jsx       # Header & live status indicator
+│   │   │   ├── Navbar.jsx       # Header & navigation links
 │   │   │   ├── StatsBar.jsx     # Operational KPI cards
 │   │   │   ├── FilterTabs.jsx   # Quick station filters
 │   │   │   ├── StationCard.jsx  # Station card with live countdown/overtime
 │   │   │   ├── Modals.jsx       # Session start, extend, transfer, checkout
-│   │   │   └── ShiftReportModal.jsx # Shift summary & audit trail drawer
-│   └── tests/                   # Automated test suites
-│       ├── billingCalculator.test.js
-│       ├── stateMachine.test.js
-│       ├── sessionApi.test.js
-│       ├── expiryPoller.test.js
-│       └── report.test.js
+│   │   │   ├── FiveMinuteWarningModal.jsx # 5-min warning popup modal
+│   │   │   ├── CustomerHistoryModal.jsx   # Customer history & player ledger
+│   │   │   ├── AuditTrailModal.jsx        # Redesigned audit trail & activity log
+│   │   │   └── ShiftReportModal.jsx       # Shift summary & register closing
+│   └── tests/                   # Automated test suites (43 tests passing)
 ```

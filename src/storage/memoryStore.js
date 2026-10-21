@@ -139,6 +139,23 @@ export class MemoryStore {
     return { ...updated };
   }
 
+  /**
+   * Automatically deletes completed and cancelled sessions older than 30 days (1 month).
+   */
+  async pruneOldSessions(cutoffDate) {
+    const cutoff = cutoffDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const cutoffMs = new Date(cutoff).getTime();
+    let deletedCount = 0;
+    for (const [id, session] of this.sessions.entries()) {
+      const sessionMs = new Date(session.startTime || session.createdAt).getTime();
+      if ((session.status === 'COMPLETED' || session.status === 'CANCELLED') && sessionMs < cutoffMs) {
+        this.sessions.delete(id);
+        deletedCount++;
+      }
+    }
+    return deletedCount;
+  }
+
   // --- PAYMENTS ---
   async getPaymentByIdempotencyKey(key) {
     return Array.from(this.payments.values()).find(p => p.idempotencyKey === key) || null;
@@ -180,8 +197,26 @@ export class MemoryStore {
     return log;
   }
 
-  async getAuditLogs(limit = 100) {
-    return this.auditLogs.slice(-limit).reverse();
+  async getAuditLogs(options = 100) {
+    let logs = [...this.auditLogs];
+    const limit = typeof options === 'number' ? options : (options.limit || 100);
+    const search = typeof options === 'object' ? options.search : null;
+    const action = typeof options === 'object' ? options.action : null;
+
+    if (action && action !== 'ALL') {
+      logs = logs.filter(l => l.action === action);
+    }
+    if (search) {
+      const q = search.toLowerCase();
+      logs = logs.filter(l =>
+        (l.customerName && l.customerName.toLowerCase().includes(q)) ||
+        (l.stationName && l.stationName.toLowerCase().includes(q)) ||
+        (l.action && l.action.toLowerCase().includes(q)) ||
+        (l.reason && l.reason.toLowerCase().includes(q)) ||
+        (l.actorId && l.actorId.toLowerCase().includes(q))
+      );
+    }
+    return logs.slice(-limit).reverse();
   }
 }
 

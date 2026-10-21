@@ -14,11 +14,14 @@ Welcome to the **CyberArena Gaming Center Management System**. This software is 
    - [C. Pausing and Resuming a Session](#c-pausing-and-resuming-a-session)
    - [D. Transferring a Session to Another Station](#d-transferring-a-session-to-another-station)
    - [E. Checking Out & Collecting Payment (Cash & UPI)](#e-checking-out--collecting-payment-cash--upi)
+   - [F. 5-Minute Warning Popup & Owner Email Notifications](#f-5-minute-warning-popup--owner-email-notifications)
+   - [G. Customer History Dashboard & Player Ledger](#g-customer-history-dashboard--player-ledger)
 5. [Understanding Overtime & Grace Period Rules](#5-understanding-overtime--grace-period-rules)
 6. [Hardware Maintenance Workflow](#6-hardware-maintenance-workflow)
 7. [Shift Reconciliation & Register Closing](#7-shift-reconciliation--register-closing)
 8. [Audit Trail & Accountability](#8-audit-trail--accountability)
-9. [Edge Cases & Fail-Safe Recovery](#9-edge-cases--fail-safe-recovery)
+9. [Email Configuration for Owner Alerts](#9-email-configuration-for-owner-alerts)
+10. [Edge Cases & Fail-Safe Recovery](#10-edge-cases--fail-safe-recovery)
 
 ---
 
@@ -29,7 +32,7 @@ Welcome to the **CyberArena Gaming Center Management System**. This software is 
 - A web browser (Google Chrome, Microsoft Edge, Brave, or Safari).
 
 ### Launching the Application
-Open a terminal (PowerShell or Command Prompt) in the project directory:
+Open a terminal in the project directory:
 
 ```bash
 # 1. Start the unified production server
@@ -84,14 +87,6 @@ The main dashboard is the cashier's control tower. Every station card displays r
 | **Red / Pulsing Glow** | <span style="color:#f87171">🚨 Overtime Alert</span> | Scheduled time has elapsed! The timer flips to a positive overtime count (`+00:12:45`) and calculates the accrued overtime fee in real time. |
 | **Purple Accent** | <span style="color:#c084fc">⏸ Paused</span> | Session is temporarily paused (snack break, game update). Countdown is frozen; station remains occupied. |
 | **Muted Grey / Wrench** | <span style="color:#94a3b8">🔧 Maintenance</span> | Station is out of service (hardware repair, cleaning, peripheral issue). New sessions are blocked. |
-
-### Top Operational Metrics Bar
-The top metrics bar summarizes live room occupancy:
-- **Total Stations:** Total hardware registered.
-- **Available:** Unoccupied stations ready for immediate walk-ins.
-- **In Play:** Currently occupied stations generating revenue.
-- **Alerts (Warn / Over):** Count of sessions in 5-minute warning window / actively in overtime.
-- **Maintenance:** Stations flagged for service.
 
 ---
 
@@ -160,6 +155,56 @@ When a customer finishes playing:
 
 ---
 
+### F. 5-Minute Warning Popup & Owner Email Notifications
+
+When any active gaming session has **exactly 5 minutes remaining**, the system automatically performs two actions:
+
+1. **Staff Dashboard Warning Modal (High Priority Overlay):**
+   - Automatically pops up on the cashier's screen, even if the cashier is currently looking at another section (such as Shift Report or Customer History).
+   - Prominently displays:
+     > **"Only 5 minutes left for [Customer Name] on PC [PC Number]."**
+   - Displays a live ticking countdown (`04:59`, `04:58`, ...).
+   - Allows the cashier to either **Acknowledge** or directly click **Extend Session (+30m)** with 1 click.
+   - If multiple customers reach the 5-minute mark at the same time, each warning is displayed separately with selector tabs so no customer is missed.
+   - Automatically cleans up if a session is extended, checked out, or cancelled.
+   - Audio alert ping plays through the browser.
+
+2. **Automated Email to the Center Owner:**
+   - The backend immediately dispatches an email to the owner's email address (`OWNER_EMAIL`).
+   - Subject: `Gaming Session Ending Soon - PC [PC Number]`
+   - Body contains:
+     - Customer Name
+     - PC Number / Name
+     - Session Start Time & Scheduled End Time
+     - Remaining Time (5 minutes)
+   - Deduplicated: An email is sent only once per session warning.
+   - Fail-safe: If the email server is offline or fails, the cashier popup still works seamlessly.
+
+---
+
+### G. Customer History Dashboard & Player Ledger
+
+In the top navigation bar, click the **`Customer History`** button to open the full player ledger:
+- **Top Analytics Cards:**
+  - Unique Customers Count
+  - Total Sessions Logged
+  - Total Gaming Hours Consumed
+  - Total Revenue Spent
+- **Real-Time Search & Filters:**
+  - Search by customer name (e.g. `Alex`) or phone number (`9898123456`).
+  - Filter pills: `All Sessions`, `Completed`, `In-Play (Active)`, `Cancelled`.
+- **Itemized History Table:**
+  - Customer name and phone.
+  - PC / Station used and hourly rate.
+  - Session date & start time.
+  - Playing duration (booked minutes vs. actual elapsed time).
+  - Amount charged (including base fee, overtime, and discounts).
+  - Payment status badge: `PAID` (green), `PARTIALLY_PAID` (amber), `UNPAID` (red).
+  - Session status badge: `COMPLETED`, `ACTIVE`, `CANCELLED`.
+  - Responsive design with smooth scrolling on mobile, tablet, and desktop.
+
+---
+
 ## 5. Understanding Overtime & Grace Period Rules
 
 The software applies strict, fair, deterministic business rules to ensure customer satisfaction while protecting business revenue:
@@ -212,17 +257,42 @@ At the end of a cashier's shift or at daily business closing:
 ## 8. Audit Trail & Accountability
 
 To eliminate cashier discrepancies, unrecorded cash handoffs, unauthorized price overrides, or suspicious cancellations:
-1. Open the **`Shift Report`** modal.
-2. Click the **`Audit Trail`** tab.
-3. Review the live ledger of all operational actions:
-   - **Timestamp:** Exact date and time of the action.
-   - **Action Type:** `START_SESSION`, `PAUSE_SESSION`, `RESUME_SESSION`, `EXTEND_SESSION`, `TRANSFER_STATION`, `CHECKOUT_SESSION`, `CANCEL_SESSION`.
-   - **Staff / Actor:** Cashier terminal ID.
-   - **Reason / Metadata:** Mandatory notes entered when transferring, pausing, or cancelling.
+1. In the navigation bar, click the **`Audit Trail`** button (or open the **Audit Trail** tab in Shift Report).
+2. The redesigned Audit Trail features:
+   - **Search Bar:** Real-time search by customer name, PC number, cashier, action, or reason.
+   - **Action Filter Pills:** Filter by `Started`, `Checkout`, `Extended`, `Transferred`, `Paused`, `Cancelled`.
+   - **Clear Operational Cards:**
+     - Action badge with color and icon (`Session Started`, `Session Extended`, `Checkout / Paid`, `Station Transferred`, etc.).
+     - Station / PC number (e.g. `PC-01` or `PC-01 -> PS5-02`).
+     - Customer name (e.g. `Alex` or `Guest`).
+     - Exact timestamp (date and time down to the second).
+     - Staff / Cashier actor identifier.
+     - Action reason and financial details (e.g. `+30m extended (Fee: ₹50)`, `Tendered ₹150 via UPI`, `Transferred: Mouse issue`).
 
 ---
 
-## 9. Edge Cases & Fail-Safe Recovery
+## 9. Email Configuration for Owner Alerts
+
+To configure real email delivery to the gaming center owner, update the `.env` file in the project root:
+
+```env
+# Owner Notification Email
+OWNER_EMAIL=owner@gamingcenter.com
+
+# SMTP Provider Settings (Gmail, SendGrid, Amazon SES, Brevo, or cPanel)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
+SMTP_SECURE=false
+EMAIL_FROM="CyberArena Gaming Center" <notifications@gamingcenter.com>
+```
+
+> **Note:** If SMTP credentials are not configured, the system logs simulated mock deliveries to the server console and the cashier 5-minute warning popup continues to function normally.
+
+---
+
+## 10. Edge Cases & Fail-Safe Recovery
 
 | Potential Operational Risk | How the Software Protects You |
 | :--- | :--- |
@@ -230,9 +300,4 @@ To eliminate cashier discrepancies, unrecorded cash handoffs, unauthorized price
 | **Browser accidental refresh / close** | Reopening `http://localhost:4000` immediately re-syncs state via Server-Sent Events (SSE) with zero data loss. |
 | **Two cashiers book the same station at the same time** | The database executes an atomic lock (`findOneAndUpdate` with `status: AVAILABLE`). The first cashier succeeds; the second cashier receives an instant `409 Conflict: Station already claimed` error. |
 | **Cashier double-clicks "Confirm Payment"** | The frontend generates a unique `idempotencyKey` per checkout. Retried or duplicate submissions return the existing receipt without double-charging or corrupting the financial ledger. |
-
----
-
-### Need Quick Assistance?
-- **Verify System Health:** Check `http://localhost:4000/api/health` (should return `{"status":"OK"}`).
-- **Run Diagnostic Self-Test:** Run `npm test` in the terminal to verify all 41 business rules, billing formulas, and state machines are passing.
+| **Server restarts during active session** | Session records in the database store `warningNotificationSent: true` so the 5-minute warning and owner email are never sent twice after a restart. |

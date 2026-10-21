@@ -251,6 +251,47 @@ describe('Gaming Center Management System — REST API & Lifecycle', () => {
       assert.equal(s1.liveSession.status, 'ACTIVE');
       assert.ok(typeof s1.liveSession.remainingMinutes === 'number');
     });
+
+    it('GET /api/sessions/history returns customer history with search and analytics', async () => {
+      // Create session with customer phone
+      await request(app)
+        .post('/api/sessions')
+        .send({
+          stationId: station1._id,
+          customerName: 'Samir Khan',
+          customerPhone: '9898123456',
+          bookedMinutes: 60
+        });
+
+      const res = await request(app).get('/api/sessions/history?search=Samir');
+      assert.equal(res.status, 200);
+      assert.equal(res.body.success, true);
+      assert.equal(res.body.data.length, 1);
+      assert.equal(res.body.data[0].customerName, 'Samir Khan');
+      assert.equal(res.body.data[0].customerPhone, '9898123456');
+      assert.equal(res.body.data[0].stationName, 'PC-01');
+      assert.ok(res.body.analytics);
+      assert.ok(res.body.analytics.uniqueCustomers >= 1);
+    });
+
+    it('GET /api/audit returns enriched customer and PC details', async () => {
+      await request(app)
+        .post('/api/sessions')
+        .send({
+          stationId: station1._id,
+          customerName: 'Audit Test User',
+          bookedMinutes: 60,
+          staffId: 'Cashier-9'
+        });
+
+      const res = await request(app).get('/api/audit?search=Audit Test User');
+      assert.equal(res.status, 200);
+      assert.equal(res.body.success, true);
+      assert.ok(res.body.data.length >= 1);
+      assert.equal(res.body.data[0].customerName, 'Audit Test User');
+      assert.equal(res.body.data[0].stationName, 'PC-01');
+      assert.equal(res.body.data[0].action, 'START_SESSION');
+    });
   });
 
 });

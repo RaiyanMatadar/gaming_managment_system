@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Gamepad2, Radio, User, Clock, FileText } from 'lucide-react';
+import { Gamepad2, Radio, User, Clock, FileText, Users, ShieldCheck } from 'lucide-react';
 
-export function Navbar({ isLiveConnected, onNewStationClick, onShiftReportClick }) {
+export function Navbar({
+  isLiveConnected,
+  onNewStationClick,
+  onShiftReportClick,
+  onCustomerHistoryClick,
+  onAuditTrailClick
+}) {
   const [time, setTime] = useState(new Date());
 
   useEffect(() => {
@@ -29,7 +35,7 @@ export function Navbar({ isLiveConnected, onNewStationClick, onShiftReportClick 
         </div>
 
         {/* Live Status, Clock & Actions */}
-        <div className="flex items-center gap-3 flex-wrap justify-center sm:justify-end">
+        <div className="flex items-center gap-2.5 flex-wrap justify-center sm:justify-end">
           {/* Live Stream Indicator */}
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700/60 text-xs">
             <Radio className={`w-3.5 h-3.5 ${isLiveConnected ? 'text-emerald-400 animate-pulse' : 'text-amber-400'}`} />
@@ -43,6 +49,24 @@ export function Navbar({ isLiveConnected, onNewStationClick, onShiftReportClick 
             <Clock className="w-3.5 h-3.5 text-blue-400" />
             <span className="font-mono">{time.toLocaleTimeString()}</span>
           </div>
+
+          {/* Customer History Button */}
+          <button
+            onClick={onCustomerHistoryClick}
+            className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 flex items-center gap-1.5 transition-all"
+          >
+            <Users className="w-3.5 h-3.5 text-blue-400" />
+            <span>Customer History</span>
+          </button>
+
+          {/* Audit Trail Button */}
+          <button
+            onClick={onAuditTrailClick}
+            className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 flex items-center gap-1.5 transition-all"
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
+            <span>Audit Trail</span>
+          </button>
 
           {/* Shift Report Button */}
           <button

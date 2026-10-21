@@ -98,6 +98,8 @@ export class SessionService {
       actorId: staffId,
       targetType: 'SESSION',
       targetId: String(session._id),
+      customerName: session.customerName,
+      stationName: station.name,
       after: session,
       reason: 'Session initiated'
     });
@@ -140,6 +142,8 @@ export class SessionService {
       actorId: staffId,
       targetType: 'SESSION',
       targetId: String(sessionId),
+      customerName: session.customerName,
+      stationName: session.stationName,
       before: { status: session.status },
       after: { status: SessionStatus.PAUSED, currentPauseStartTime: now },
       reason
@@ -201,6 +205,8 @@ export class SessionService {
       actorId: staffId,
       targetType: 'SESSION',
       targetId: String(sessionId),
+      customerName: session.customerName,
+      stationName: session.stationName,
       after: {
         status: SessionStatus.ACTIVE,
         totalPausedMs: newTotalPausedMs,
@@ -270,6 +276,8 @@ export class SessionService {
       actorId: staffId,
       targetType: 'SESSION',
       targetId: String(sessionId),
+      customerName: session.customerName,
+      stationName: session.stationName,
       metadata: { addedMinutes: mins, extensionFee, newScheduledEndTime }
     });
 
@@ -344,6 +352,8 @@ export class SessionService {
       actorId: staffId,
       targetType: 'SESSION',
       targetId: String(sessionId),
+      customerName: session.customerName,
+      stationName: `${session.stationName} -> ${targetStation.name}`,
       before: { stationId: session.stationId },
       after: { stationId: targetStation._id },
       reason
@@ -453,6 +463,8 @@ export class SessionService {
       actorId: staffId,
       targetType: 'SESSION',
       targetId: String(sessionId),
+      customerName: session.customerName,
+      stationName: session.stationName,
       metadata: { financials }
     });
 
@@ -514,6 +526,8 @@ export class SessionService {
       actorId: staffId,
       targetType: 'SESSION',
       targetId: String(sessionId),
+      customerName: session.customerName,
+      stationName: session.stationName,
       reason
     });
 

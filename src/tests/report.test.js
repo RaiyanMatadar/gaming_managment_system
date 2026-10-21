@@ -117,4 +117,58 @@ describe('Milestone 6: Shift Reconciliation & Reporting Engine', () => {
     assert.equal(pauseLog.reason, 'Network testing');
     assert.equal(pauseLog.actorId, 'Cashier-Alice');
   });
+
+  it('pruneOldSessions auto-deletes closed sessions older than 30 days', async () => {
+    const station = await memoryStore.createStation({
+      name: 'PC-PRUNE-01',
+      type: 'PC_STANDARD',
+      hourlyRate: 100
+    });
+
+    const fortyDaysAgo = new Date(Date.now() - 40 * 24 * 60 * 60 * 1000);
+    const tenDaysAgo = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);
+
+    // Old closed session (40 days ago) - should be pruned
+    await memoryStore.createSession({
+      stationId: station._id,
+      stationName: station.name,
+      customerName: 'Old Gamer',
+      status: 'COMPLETED',
+      startTime: fortyDaysAgo,
+      createdAt: fortyDaysAgo,
+      bookedMinutes: 60
+    });
+
+    // Recent closed session (10 days ago) - should be kept
+    await memoryStore.createSession({
+      stationId: station._id,
+      stationName: station.name,
+      customerName: 'Recent Gamer',
+      status: 'COMPLETED',
+      startTime: tenDaysAgo,
+      createdAt: tenDaysAgo,
+      bookedMinutes: 60
+    });
+
+    // Old ACTIVE session - should NEVER be pruned
+    await memoryStore.createSession({
+      stationId: station._id,
+      stationName: station.name,
+      customerName: 'Active Old Gamer',
+      status: 'ACTIVE',
+      startTime: fortyDaysAgo,
+      createdAt: fortyDaysAgo,
+      bookedMinutes: 60
+    });
+
+    // Execute prune
+    const pruned = await memoryStore.pruneOldSessions();
+    assert.equal(pruned, 1);
+
+    const remaining = await memoryStore.getAllSessions();
+    const names = remaining.map(s => s.customerName);
+    assert.ok(!names.includes('Old Gamer')); // Deleted!
+    assert.ok(names.includes('Recent Gamer')); // Kept!
+    assert.ok(names.includes('Active Old Gamer')); // Active sessions kept!
+  });
 });

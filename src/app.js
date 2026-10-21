@@ -5,6 +5,7 @@ import fs from 'fs';
 import stationRoutes from './routes/stationRoutes.js';
 import sessionRoutes from './routes/sessionRoutes.js';
 import reportRoutes from './routes/reportRoutes.js';
+import { getCustomerHistory } from './controllers/sessionController.js';
 import { store } from './storage/index.js';
 import { eventBroadcaster } from './services/eventBroadcaster.js';
 
@@ -28,15 +29,23 @@ export function createApp() {
     eventBroadcaster.handleSSEConnection(req, res);
   });
 
-  // Audit logs endpoint for shift verification
+  // Audit logs endpoint for shift verification and audit trail
   app.get('/api/audit', async (req, res, next) => {
     try {
-      const logs = await store.getAuditLogs(Number(req.query.limit) || 100);
+      const { limit, search, action } = req.query;
+      const logs = await store.getAuditLogs({
+        limit: Number(limit) || 100,
+        search: search || '',
+        action: action || ''
+      });
       res.json({ success: true, count: logs.length, data: logs });
     } catch (err) {
       next(err);
     }
   });
+
+  // Customer history direct endpoint
+  app.get('/api/customers/history', getCustomerHistory);
 
   // Main feature routes
   app.use('/api/stations', stationRoutes);

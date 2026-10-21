@@ -22,6 +22,16 @@ const auditLogSchema = new mongoose.Schema(
       required: true,
       index: true
     },
+    customerName: {
+      type: String,
+      default: '',
+      trim: true
+    },
+    stationName: {
+      type: String,
+      default: '',
+      trim: true
+    },
     before: {
       type: mongoose.Schema.Types.Mixed,
       default: null

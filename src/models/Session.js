@@ -121,6 +121,10 @@ const sessionSchema = new mongoose.Schema(
     createdBy: {
       type: String,
       default: 'Cashier'
+    },
+    warningNotificationSent: {
+      type: Boolean,
+      default: false
     }
   },
   {
@@ -130,5 +134,14 @@ const sessionSchema = new mongoose.Schema(
 
 // Compound index to quickly find active sessions per station
 sessionSchema.index({ stationId: 1, status: 1 });
+
+// Automatic 30-day (1-month) retention: auto-deletes closed sessions older than 30 days
+sessionSchema.index(
+  { createdAt: 1 },
+  {
+    expireAfterSeconds: 30 * 24 * 60 * 60,
+    partialFilterExpression: { status: { $in: ['COMPLETED', 'CANCELLED'] } }
+  }
+);
 
 export const Session = mongoose.models.Session || mongoose.model('Session', sessionSchema);

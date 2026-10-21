@@ -94,6 +94,21 @@ export const store = {
     return await memoryStore.updateSession(id, updates);
   },
 
+  async pruneOldSessions(cutoffDate) {
+    const cutoff = cutoffDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    if (isMongoConnected()) {
+      const res = await Session.deleteMany({
+        status: { $in: ['COMPLETED', 'CANCELLED'] },
+        $or: [
+          { createdAt: { $lt: cutoff } },
+          { startTime: { $lt: cutoff } }
+        ]
+      });
+      return res.deletedCount || 0;
+    }
+    return await memoryStore.pruneOldSessions(cutoff);
+  },
+
   // --- PAYMENTS ---
   async getPaymentByIdempotencyKey(key) {
     if (isMongoConnected()) {
@@ -124,10 +139,27 @@ export const store = {
     return await memoryStore.createAuditLog(data);
   },
 
-  async getAuditLogs(limit = 100) {
+  async getAuditLogs(options = 100) {
     if (isMongoConnected()) {
-      return await AuditLog.find().sort({ createdAt: -1 }).limit(limit).lean();
+      const limit = typeof options === 'number' ? options : (options.limit || 100);
+      const query = {};
+      if (typeof options === 'object') {
+        if (options.action && options.action !== 'ALL') {
+          query.action = options.action;
+        }
+        if (options.search) {
+          const regex = new RegExp(options.search, 'i');
+          query.$or = [
+            { customerName: regex },
+            { stationName: regex },
+            { action: regex },
+            { reason: regex },
+            { actorId: regex }
+          ];
+        }
+      }
+      return await AuditLog.find(query).sort({ createdAt: -1 }).limit(limit).lean();
     }
-    return await memoryStore.getAuditLogs(limit);
+    return await memoryStore.getAuditLogs(options);
   }
 };

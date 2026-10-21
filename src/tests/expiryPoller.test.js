@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { memoryStore } from '../storage/memoryStore.js';
 import { expiryPoller } from '../services/expiryPoller.js';
 import { eventBroadcaster } from '../services/eventBroadcaster.js';
+import { emailService } from '../services/emailService.js';
 import { sessionService } from '../services/sessionService.js';
 import { SessionStatus } from '../domain/sessionStateMachine.js';
 
@@ -10,12 +11,14 @@ describe('Milestone 3: Expiry Poller & Event Broadcaster', () => {
   beforeEach(() => {
     memoryStore.reset();
     eventBroadcaster.reset();
+    emailService.reset();
     expiryPoller.stop();
   });
 
   afterEach(() => {
     expiryPoller.stop();
     eventBroadcaster.reset();
+    emailService.reset();
   });
 
   it('detects an expired session and transitions it to EXPIRED_UNSETTLED', async () => {
@@ -96,12 +99,23 @@ describe('Milestone 3: Expiry Poller & Event Broadcaster', () => {
     assert.equal(result.expired, 0);
     assert.equal(warningFired, true);
     assert.equal(warningPayload.remainingMinutes, 3);
+    assert.equal(warningPayload.customerName, 'Warning Gamer');
+    assert.equal(warningPayload.stationName, 'PC-WARN-01');
+    assert.equal(warningPayload.message, 'Only 5 minutes left for Warning Gamer on PC PC-WARN-01.');
+
+    // Verify owner notification email was dispatched
+    const sentEmails = emailService.getSentEmails();
+    assert.equal(sentEmails.length, 1);
+    assert.equal(sentEmails[0].subject, 'Gaming Session Ending Soon - PC PC-WARN-01');
+    assert.equal(sentEmails[0].customerName, 'Warning Gamer');
+    assert.equal(sentEmails[0].stationName, 'PC-WARN-01');
 
     // Verify session remains ACTIVE
     const sessionInDb = await memoryStore.getSessionById(session._id);
     assert.equal(sessionInDb.status, SessionStatus.ACTIVE);
+    assert.equal(sessionInDb.warningNotificationSent, true);
 
-    // Running checkActiveSessions a second time should deduplicate and NOT emit warning again
+    // Running checkActiveSessions a second time should deduplicate and NOT emit warning or email again
     let duplicateFired = false;
     eventBroadcaster.once('SESSION_EXPIRY_WARNING', () => {
       duplicateFired = true;
@@ -110,6 +124,7 @@ describe('Milestone 3: Expiry Poller & Event Broadcaster', () => {
     const secondCycle = await expiryPoller.checkActiveSessions(now);
     assert.equal(secondCycle.warned, 0);
     assert.equal(duplicateFired, false);
+    assert.equal(emailService.getSentEmails().length, 1); // Still 1, no duplicate email
   });
 
   it('broadcasts real-time events on session lifecycle actions', async () => {

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {
   getLiveOverview,
+  getCustomerHistory,
   startSession,
   pauseSession,
   resumeSession,
@@ -14,6 +15,8 @@ import {
 const router = Router();
 
 router.get('/live', getLiveOverview);
+router.get('/history', getCustomerHistory);
+router.get('/customer-history', getCustomerHistory);
 router.get('/:id', getSessionById);
 router.post('/', startSession);
 router.post('/:id/pause', pauseSession);
