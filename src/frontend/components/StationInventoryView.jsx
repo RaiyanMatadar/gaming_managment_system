@@ -18,11 +18,11 @@ function getStationIcon(type) {
     case 'PS5':
       return <Tv className="w-5 h-5 text-tertiary" />;
     case 'XBOX':
-      return <Tv className="w-5 h-5 text-emerald-400" />;
+      return <Tv className="w-5 h-5 text-success" />;
     case 'VR':
       return <Glasses className="w-5 h-5 text-secondary" />;
     case 'PC_VIP':
-      return <Monitor className="w-5 h-5 text-amber-400" />;
+      return <Monitor className="w-5 h-5 text-warning" />;
     case 'PC_STANDARD':
     default:
       return <Monitor className="w-5 h-5 text-primary" />;
@@ -71,21 +71,21 @@ export function StationInventoryView({
           <span className="text-[11px] text-on-surface-variant font-medium">Regular PCs</span>
         </Card>
 
-        <Card variant="container" className="p-4 border-amber-500/30">
-          <span className="text-xs font-semibold text-amber-400">VIP PCs</span>
+        <Card variant="container" className="p-4 border border-warning/30">
+          <span className="text-xs font-semibold text-warning">VIP PCs</span>
           <p className="text-2xl font-black text-on-surface mt-1">{pcVip}</p>
           <span className="text-[11px] text-on-surface-variant font-medium">High-end Rigs</span>
         </Card>
 
-        <Card variant="container" className="p-4 border-tertiary/30">
+        <Card variant="container" className="p-4 border border-tertiary/30">
           <span className="text-xs font-semibold text-tertiary">Consoles & VR</span>
           <p className="text-2xl font-black text-on-surface mt-1">{consoles + vrUnits}</p>
           <span className="text-[11px] text-on-surface-variant font-medium">PS5, Xbox & VR</span>
         </Card>
 
-        <Card variant="container" className="p-4 border-emerald-500/30 col-span-2 sm:col-span-1">
-          <span className="text-xs font-semibold text-emerald-400">Average Rate</span>
-          <p className="text-2xl font-black text-emerald-300 mt-1">₹{avgRate}/hr</p>
+        <Card variant="container" className="p-4 border border-success/30 col-span-2 sm:col-span-1">
+          <span className="text-xs font-semibold text-success">Average Rate</span>
+          <p className="text-2xl font-black text-success mt-1">₹{avgRate}/hr</p>
           <span className="text-[11px] text-on-surface-variant font-medium">Average per hour</span>
         </Card>
       </div>
@@ -149,14 +149,14 @@ export function StationInventoryView({
               const isOccupied = st.status === 'OCCUPIED' && st.liveSession;
               const isMaintenance = st.status === 'MAINTENANCE';
 
-              let badgeStyle = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30';
+              let badgeVariant = 'success';
               let badgeText = 'Available';
 
               if (isMaintenance) {
-                badgeStyle = 'bg-surface-container-high text-on-surface-variant border-outline-variant';
+                badgeVariant = 'neutral';
                 badgeText = 'In Repair';
               } else if (isOccupied) {
-                badgeStyle = 'bg-primary-container text-on-primary-container border-primary/30';
+                badgeVariant = 'primary';
                 badgeText = 'In Use';
               }
 
@@ -175,14 +175,14 @@ export function StationInventoryView({
                     {st.type.replace('_', ' ')}
                   </td>
 
-                  <td className="py-3.5 px-4 text-center font-bold text-emerald-400 text-sm">
+                  <td className="py-3.5 px-4 text-center font-bold text-success text-sm">
                     ₹{st.hourlyRate}/hr
                   </td>
 
                   <td className="py-3.5 px-4 text-center">
-                    <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${badgeStyle}`}>
+                    <Badge variant={badgeVariant} size="sm">
                       {badgeText}
-                    </span>
+                    </Badge>
                   </td>
 
                   <td className="py-3.5 px-4">
@@ -192,12 +192,12 @@ export function StationInventoryView({
                         <span className="block text-[10px] text-on-surface-variant">{st.liveSession.bookedMinutes}m booked</span>
                       </div>
                     ) : isMaintenance ? (
-                      <span className="text-amber-400/90 text-[11px] font-medium flex items-center gap-1">
+                      <span className="text-warning text-[11px] font-medium flex items-center gap-1">
                         <Wrench className="w-3 h-3" />
                         Down for repair
                       </span>
                     ) : (
-                      <span className="text-emerald-400/80 text-[11px]">Ready to play</span>
+                      <span className="text-success text-[11px]">Ready to play</span>
                     )}
                   </td>
 

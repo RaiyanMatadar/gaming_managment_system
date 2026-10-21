@@ -82,7 +82,7 @@ export function CustomerLedgerView({ embedded = true }) {
       {/* 30-Day Retention Notice Banner */}
       <Card variant="container" className="p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
         <div className="flex items-center gap-2 text-on-surface-variant">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
+          <span className="w-2 h-2 rounded-full bg-success animate-pulse flex-shrink-0" />
           <span className="font-semibold text-on-surface">30-Day History:</span>
           <span className="text-on-surface-variant">
             Session records are kept for 30 days. Older records are automatically cleared.
@@ -109,8 +109,8 @@ export function CustomerLedgerView({ embedded = true }) {
           </Card>
 
           <Card variant="container" className="p-4">
-            <span className="text-xs font-semibold text-emerald-400 block">Hours Played</span>
-            <span className="text-2xl font-black text-emerald-300 mt-1 block">{analytics.totalHoursLogged} hrs</span>
+            <span className="text-xs font-semibold text-success block">Hours Played</span>
+            <span className="text-2xl font-black text-success mt-1 block">{analytics.totalHoursLogged} hrs</span>
             <span className="text-[11px] text-on-surface-variant font-medium">Total play time</span>
           </Card>
 
@@ -223,10 +223,10 @@ export function CustomerLedgerView({ embedded = true }) {
                 let payBadgeStyle = 'bg-surface-container-high text-on-surface-variant border-outline-variant';
                 let payLabel = payStatus.replace('_', ' ');
                 if (payStatus === 'PAID') {
-                  payBadgeStyle = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 font-bold';
+                  payBadgeStyle = 'bg-success-container text-on-success-container border border-success/30 font-bold';
                   payLabel = 'Paid';
                 } else if (payStatus === 'PARTIALLY_PAID') {
-                  payBadgeStyle = 'bg-amber-500/10 text-amber-400 border-amber-500/30';
+                  payBadgeStyle = 'bg-warning-container text-on-warning-container border border-warning/30';
                   payLabel = 'Partially Paid';
                 } else if (payStatus === 'UNPAID') {
                   payBadgeStyle = 'bg-error-container text-on-error-container border-error/30';
@@ -239,7 +239,7 @@ export function CustomerLedgerView({ embedded = true }) {
                   sessBadgeStyle = 'bg-primary-container text-on-primary-container border-primary/30 font-medium';
                   sessLabel = 'Completed';
                 } else if (s.status === 'ACTIVE') {
-                  sessBadgeStyle = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 animate-pulse';
+                  sessBadgeStyle = 'bg-success-container text-on-success-container border border-success/30';
                   sessLabel = 'In Use';
                 } else if (s.status === 'CANCELLED') {
                   sessBadgeStyle = 'bg-error-container text-on-error-container border-error/30';
@@ -282,7 +282,7 @@ export function CustomerLedgerView({ embedded = true }) {
 
                     {/* Amount */}
                     <td className="py-3.5 px-4 text-right">
-                      <span className="font-bold text-emerald-400 text-sm">₹{payable}</span>
+                      <span className="font-bold text-success text-sm">₹{payable}</span>
                       {s.financials?.overtimeAmount > 0 && (
                         <span className="block text-[10px] text-error">
                           incl. ₹{s.financials.overtimeAmount} extra

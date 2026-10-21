@@ -1,20 +1,21 @@
 import React from 'react';
 
 const variantClasses = {
-  filled: 'bg-primary text-on-primary hover:opacity-90 active:scale-[0.99] shadow-sm',
-  tonal: 'bg-secondary-container text-on-secondary-container hover:opacity-90 active:scale-[0.99]',
-  outlined: 'border border-outline-variant text-on-surface hover:bg-surface-container-high active:scale-[0.99]',
-  text: 'text-primary hover:bg-surface-container-high active:scale-[0.99]',
-  error: 'bg-error-container text-on-error-container border border-error/30 hover:opacity-90 active:scale-[0.99]',
-  success: 'bg-emerald-950/60 text-emerald-300 border border-emerald-500/40 hover:opacity-90 active:scale-[0.99]'
+  filled: 'bg-primary text-on-primary shadow-none hover:shadow-m3-1 active:shadow-none',
+  tonal: 'bg-secondary-container text-on-secondary-container shadow-none hover:shadow-m3-1 active:shadow-none',
+  outlined: 'border border-outline text-primary bg-transparent hover:bg-primary/8 active:bg-primary/10',
+  text: 'text-primary bg-transparent hover:bg-primary/8 active:bg-primary/10',
+  error: 'bg-error text-on-error shadow-none hover:shadow-m3-1 active:shadow-none',
+  success: 'bg-success text-on-success shadow-none hover:shadow-m3-1 active:shadow-none'
 };
 
 const sizeClasses = {
-  sm: 'px-2.5 py-1.5 text-xs rounded-lg',
-  md: 'px-3.5 py-2 text-xs font-semibold rounded-xl',
-  lg: 'px-4 py-2.5 text-sm font-semibold rounded-xl',
-  icon: 'p-1.5 rounded-lg',
-  'icon-md': 'p-2 rounded-xl'
+  sm: 'h-8 px-3 text-label-small gap-1.5',
+  md: 'h-10 px-4 text-label-large gap-2',
+  lg: 'h-12 px-6 text-label-large gap-2.5',
+  icon: 'w-8 h-8 p-0 text-center',
+  'icon-md': 'w-10 h-10 p-0 text-center',
+  'icon-lg': 'w-12 h-12 p-0 text-center'
 };
 
 export function Button({
@@ -26,7 +27,7 @@ export function Button({
   children,
   ...props
 }) {
-  const base = 'inline-flex items-center justify-center gap-1.5 font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50 disabled:pointer-events-none select-none';
+  const base = 'm3-state-layer inline-flex items-center justify-center font-medium rounded-full transition-all duration-200 ease-m3-standard select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:opacity-38 disabled:pointer-events-none cursor-pointer';
   const vClass = variantClasses[variant] || variantClasses.filled;
   const sClass = sizeClasses[size] || sizeClasses.md;
   const wClass = fullWidth ? 'w-full' : '';

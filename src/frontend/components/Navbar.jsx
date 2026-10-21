@@ -38,9 +38,9 @@ export function Navbar({
         {/* Live Status, Clock & Actions */}
         <div className="flex items-center gap-2.5 flex-wrap justify-center sm:justify-end">
           {/* Live Stream Indicator */}
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container border border-outline-variant/60 text-xs">
-            <Radio className={`w-3.5 h-3.5 ${isLiveConnected ? 'text-emerald-400 animate-pulse' : 'text-amber-400'}`} />
-            <span className={isLiveConnected ? 'text-emerald-300' : 'text-amber-300'}>
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container border border-outline-variant/60 text-xs">
+            <Radio className={`w-3.5 h-3.5 ${isLiveConnected ? 'text-success animate-pulse' : 'text-warning'}`} />
+            <span className={isLiveConnected ? 'text-success' : 'text-warning'}>
               {isLiveConnected ? 'Live' : 'Connecting...'}
             </span>
           </div>
@@ -77,7 +77,7 @@ export function Navbar({
             size="sm"
             onClick={onShiftReportClick}
           >
-            <FileText className="w-3.5 h-3.5 text-emerald-400" />
+            <FileText className="w-3.5 h-3.5 text-success" />
             <span>Shift Report</span>
           </Button>
 

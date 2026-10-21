@@ -21,7 +21,7 @@ function getActionBadge(action) {
     case 'START_SESSION':
       return {
         label: 'Started Session',
-        style: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
+        style: 'bg-success-container text-on-success-container border border-success/30',
         icon: <Play className="w-3.5 h-3.5 fill-current" />
       };
     case 'PAUSE_SESSION':
@@ -52,7 +52,7 @@ function getActionBadge(action) {
     case 'RECORD_PAYMENT':
       return {
         label: 'Checked Out & Paid',
-        style: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 font-bold',
+        style: 'bg-success-container text-on-success-container border border-success/30 font-bold',
         icon: <CreditCard className="w-3.5 h-3.5" />
       };
     case 'CANCEL_SESSION':

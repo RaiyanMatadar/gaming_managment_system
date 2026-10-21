@@ -135,18 +135,18 @@ export function ShiftReportView({ embedded = true }) {
             {/* Total Revenue */}
             <Card variant="container" className="p-4">
               <span className="text-xs font-semibold text-on-surface-variant">Total Sales</span>
-              <p className="text-2xl font-black text-emerald-400 mt-1">₹{report.financialSummary.totalRevenue}</p>
+              <p className="text-2xl font-black text-success mt-1">₹{report.financialSummary.totalRevenue}</p>
               <span className="text-[11px] text-on-surface-variant font-medium">All payments collected</span>
             </Card>
 
             {/* Cash in Drawer */}
-            <Card variant="container" className="p-4 border-emerald-500/30">
-              <div className="flex items-center justify-between text-emerald-400">
+            <Card variant="container" className="p-4 border border-success/30">
+              <div className="flex items-center justify-between text-success">
                 <span className="text-xs font-semibold">Cash in Drawer</span>
                 <Banknote className="w-4 h-4" />
               </div>
               <p className="text-2xl font-black text-on-surface mt-1">₹{report.financialSummary.cashTotal}</p>
-              <span className="text-[11px] text-emerald-400/80 font-medium">Cash in register</span>
+              <span className="text-[11px] text-success font-medium">Cash in register</span>
             </Card>
 
             {/* UPI Settlements */}
@@ -183,7 +183,7 @@ export function ShiftReportView({ embedded = true }) {
               </div>
               <div>
                 <span className="text-on-surface-variant block font-medium">Actual Hours Used:</span>
-                <span className="text-lg font-bold text-emerald-400 mt-0.5 block">{report.gamingMetrics.hoursConsumed} hrs</span>
+                <span className="text-lg font-bold text-success mt-0.5 block">{report.gamingMetrics.hoursConsumed} hrs</span>
               </div>
               <div>
                 <span className="text-on-surface-variant block font-medium">Completed Sessions:</span>
@@ -191,19 +191,19 @@ export function ShiftReportView({ embedded = true }) {
               </div>
               <div>
                 <span className="text-on-surface-variant block font-medium">Cancelled Sessions:</span>
-                <span className="text-lg font-bold text-amber-400 mt-0.5 block">{report.gamingMetrics.cancelledSessions}</span>
+                <span className="text-lg font-bold text-warning mt-0.5 block">{report.gamingMetrics.cancelledSessions}</span>
               </div>
             </div>
           </Card>
 
           {/* Outstanding Balance Banner */}
           {report.financialSummary.outstandingBalance > 0 && (
-            <div className="bg-amber-950/20 border border-amber-500/40 rounded-2xl p-4 flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2 text-amber-300">
+            <div className="bg-warning-container text-on-warning-container border border-warning/40 rounded-[16px] p-4 flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4 flex-shrink-0" />
                 <span>Unpaid Customer Balance:</span>
               </div>
-              <span className="text-base font-bold text-amber-400">₹{report.financialSummary.outstandingBalance}</span>
+              <span className="text-base font-bold text-warning">₹{report.financialSummary.outstandingBalance}</span>
             </div>
           )}
         </div>
@@ -230,7 +230,7 @@ export function ShiftReportView({ embedded = true }) {
                   <td className="py-3.5 px-4 text-center">₹{st.hourlyRate}/hr</td>
                   <td className="py-3.5 px-4 text-center font-bold text-primary">{st.sessionCount}</td>
                   <td className="py-3.5 px-4 text-center">{st.gamingHours} hrs</td>
-                  <td className="py-3.5 px-4 text-right font-bold text-emerald-400 text-sm">₹{st.revenue}</td>
+                  <td className="py-3.5 px-4 text-right font-bold text-success text-sm">₹{st.revenue}</td>
                 </tr>
               ))}
             </tbody>

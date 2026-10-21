@@ -48,19 +48,19 @@ export function FiveMinuteWarningModal({ warnings = [], onDismiss, onExtend }) {
   const timeFormatted = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-150">
-      <Card variant="container" className="w-full max-w-lg p-6 shadow-2xl relative border-amber-500/50">
+    <div className="fixed inset-0 z-[100] bg-scrim/60 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-150">
+      <Card variant="container" rounded="rounded-[28px]" className="w-full max-w-lg p-6 shadow-m3-3 relative border border-warning/40">
         {/* Header */}
         <div className="flex items-center justify-between pb-3.5 border-b border-outline-variant/40">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-amber-950/60 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0">
+            <div className="w-10 h-10 rounded-full bg-warning-container text-on-warning-container flex items-center justify-center shrink-0">
               <AlertTriangle className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-xs font-semibold text-amber-400 block leading-tight">
+              <span className="text-label-small font-semibold text-warning block leading-tight">
                 Staff Alert
               </span>
-              <h2 className="text-base font-bold text-on-surface tracking-tight mt-0.5">
+              <h2 className="title-medium font-bold text-on-surface tracking-tight mt-0.5">
                 Session Ending Soon
               </h2>
             </div>
@@ -81,9 +81,9 @@ export function FiveMinuteWarningModal({ warnings = [], onDismiss, onExtend }) {
               <button
                 key={w.sessionId}
                 onClick={() => setSelectedIndex(idx)}
-                className={`px-3 py-1 rounded-lg text-xs font-medium whitespace-nowrap transition-colors border ${
+                className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-colors border ${
                   idx === selectedIndex
-                    ? 'bg-amber-500/20 text-amber-200 border-amber-500/50 font-semibold'
+                    ? 'bg-warning-container text-on-warning-container border-warning/40 font-semibold'
                     : 'bg-surface-container-lowest text-on-surface-variant border-outline-variant/40 hover:text-on-surface'
                 }`}
               >
@@ -94,9 +94,9 @@ export function FiveMinuteWarningModal({ warnings = [], onDismiss, onExtend }) {
         )}
 
         {/* Warning Notification Message */}
-        <div className="my-4 bg-amber-950/20 border border-amber-500/30 rounded-lg p-3.5 text-center">
-          <p className="text-sm font-semibold text-amber-200">
-            Only 5 minutes left for <span className="text-on-surface underline">{activeWarning.customerName}</span> on <span className="text-on-surface underline">{activeWarning.stationName}</span>.
+        <div className="my-4 bg-warning-container text-on-warning-container rounded-[12px] p-3.5 text-center border border-warning/30">
+          <p className="text-body-medium font-medium">
+            Only 5 minutes left for <span className="font-bold underline">{activeWarning.customerName}</span> on <span className="font-bold underline">{activeWarning.stationName}</span>.
           </p>
         </div>
 
@@ -118,29 +118,29 @@ export function FiveMinuteWarningModal({ warnings = [], onDismiss, onExtend }) {
             <p className="text-sm font-bold text-on-surface truncate">{activeWarning.customerName}</p>
           </Card>
 
-          <div className="bg-amber-950/30 border border-amber-500/40 rounded-xl p-3 text-center">
-            <span className="text-[11px] text-amber-400 flex items-center justify-center gap-1 mb-1">
-              <Clock className="w-3.5 h-3.5 text-amber-400" />
+          <div className="bg-warning-container text-on-warning-container rounded-xl p-3 text-center border border-warning/30">
+            <span className="text-[11px] flex items-center justify-center gap-1 mb-1">
+              <Clock className="w-3.5 h-3.5" />
               Time Left
             </span>
-            <p className="text-base font-bold font-mono tabular-nums text-amber-300">
+            <p className="text-base font-bold font-mono tabular-nums">
               {timeFormatted}
             </p>
           </div>
         </div>
 
-        <p className="text-xs text-on-surface-variant text-center mb-5">
+        <p className="body-small text-on-surface-variant text-center mb-5">
           Ask the customer if they wish to add more time before extra time charges begin.
         </p>
 
         {/* Action Buttons */}
         <div className="flex gap-2">
           <Button
-            variant="outlined"
+            variant="tonal"
             onClick={() => onDismiss(activeWarning.sessionId)}
             className="flex-1"
           >
-            <Check className="w-4 h-4 text-on-surface-variant" />
+            <Check className="w-4 h-4" />
             <span>Dismiss</span>
           </Button>
 
@@ -152,7 +152,7 @@ export function FiveMinuteWarningModal({ warnings = [], onDismiss, onExtend }) {
               onDismiss(sessId);
               onExtend(sessId, stName);
             }}
-            className="flex-1 bg-amber-500 text-slate-950 hover:bg-amber-400 border-none font-bold"
+            className="flex-1 bg-warning text-on-warning hover:opacity-90"
           >
             <Plus className="w-4 h-4" />
             <span>Add More Time</span>

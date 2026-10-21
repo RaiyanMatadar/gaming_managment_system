@@ -37,14 +37,14 @@ export function StatsBar({ stations = [] }) {
         {/* Attention Badge */}
         {hasAlerts ? (
           <Badge variant="warning" size="md" className="self-start sm:self-auto">
-            <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
             <span>
               {overtime > 0 ? `${overtime} in extra time` : `${expiring} ending in 5 minutes`}
             </span>
           </Badge>
         ) : (
           <Badge variant="success" size="md" className="self-start sm:self-auto">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+            <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
             <span>All sessions running on time</span>
           </Badge>
         )}
@@ -57,21 +57,21 @@ export function StatsBar({ stations = [] }) {
           <div className="h-2 w-full bg-surface-container-high rounded-full overflow-hidden flex gap-0.5">
             {available > 0 && (
               <div
-                className="bg-emerald-500 h-full rounded-sm transition-all"
+                className="bg-success h-full rounded-full transition-all"
                 style={{ width: `${(available / total) * 100}%` }}
                 title={`${available} available`}
               />
             )}
             {occupied > 0 && (
               <div
-                className="bg-primary h-full rounded-sm transition-all"
+                className="bg-primary h-full rounded-full transition-all"
                 style={{ width: `${(occupied / total) * 100}%` }}
                 title={`${occupied} in use`}
               />
             )}
             {maintenance > 0 && (
               <div
-                className="bg-outline h-full rounded-sm transition-all"
+                className="bg-outline h-full rounded-full transition-all"
                 style={{ width: `${(maintenance / total) * 100}%` }}
                 title={`${maintenance} in repair`}
               />
@@ -82,12 +82,12 @@ export function StatsBar({ stations = [] }) {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4 pt-2">
             {/* Available */}
             <div className="flex items-start gap-2.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 mt-1 shrink-0" />
+              <span className="w-2.5 h-2.5 rounded-full bg-success mt-1 shrink-0" />
               <div>
-                <span className="text-lg font-bold text-on-surface tabular-nums leading-none block">
+                <span className="headline-small font-bold text-on-surface tabular-nums leading-none block">
                   {available}
                 </span>
-                <span className="text-[11px] text-on-surface-variant font-medium">Available</span>
+                <span className="label-medium text-on-surface-variant font-medium">Available</span>
               </div>
             </div>
 
@@ -95,21 +95,21 @@ export function StatsBar({ stations = [] }) {
             <div className="flex items-start gap-2.5">
               <span className="w-2.5 h-2.5 rounded-full bg-primary mt-1 shrink-0" />
               <div>
-                <span className="text-lg font-bold text-on-surface tabular-nums leading-none block">
-                  {occupied} <span className="text-xs font-normal text-on-surface-variant">({occupancyRate}%)</span>
+                <span className="headline-small font-bold text-on-surface tabular-nums leading-none block">
+                  {occupied} <span className="body-small font-normal text-on-surface-variant">({occupancyRate}%)</span>
                 </span>
-                <span className="text-[11px] text-on-surface-variant font-medium">Currently In Use</span>
+                <span className="label-medium text-on-surface-variant font-medium">Currently In Use</span>
               </div>
             </div>
 
             {/* Expiring / Overtime */}
             <div className="flex items-start gap-2.5">
-              <span className={`w-2.5 h-2.5 rounded-full mt-1 shrink-0 ${hasAlerts ? 'bg-amber-400' : 'bg-outline'}`} />
+              <span className={`w-2.5 h-2.5 rounded-full mt-1 shrink-0 ${hasAlerts ? 'bg-warning' : 'bg-outline'}`} />
               <div>
-                <span className={`text-lg font-bold tabular-nums leading-none block ${hasAlerts ? 'text-amber-300' : 'text-on-surface-variant'}`}>
+                <span className={`headline-small font-bold tabular-nums leading-none block ${hasAlerts ? 'text-warning' : 'text-on-surface-variant'}`}>
                   {expiring + overtime}
                 </span>
-                <span className="text-[11px] text-on-surface-variant font-medium">Ending Soon / Extra Time</span>
+                <span className="label-medium text-on-surface-variant font-medium">Ending Soon / Extra Time</span>
               </div>
             </div>
 
@@ -117,10 +117,10 @@ export function StatsBar({ stations = [] }) {
             <div className="flex items-start gap-2.5">
               <span className="w-2.5 h-2.5 rounded-full bg-outline mt-1 shrink-0" />
               <div>
-                <span className="text-lg font-bold text-on-surface tabular-nums leading-none block">
+                <span className="headline-small font-bold text-on-surface tabular-nums leading-none block">
                   {maintenance}
                 </span>
-                <span className="text-[11px] text-on-surface-variant font-medium">In Repair</span>
+                <span className="label-medium text-on-surface-variant font-medium">In Repair</span>
               </div>
             </div>
           </div>

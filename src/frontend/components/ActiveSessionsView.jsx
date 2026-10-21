@@ -142,21 +142,21 @@ export function ActiveSessionsView({
           </div>
         </Card>
 
-        <div className={`rounded-xl p-4 flex items-center justify-between border ${
+        <Card variant={warningCount > 0 ? "high" : "container"} className={`p-4 flex items-center justify-between border ${
           warningCount > 0
-            ? 'bg-amber-950/30 border-amber-500/50 text-amber-300'
-            : 'bg-surface-container border-outline-variant/60'
+            ? 'bg-warning-container text-on-warning-container border-warning/40'
+            : 'border-outline-variant/40'
         }`}>
           <div>
             <span className="text-xs font-medium text-on-surface-variant">Ending Soon (5 mins)</span>
-            <div className={`text-xl font-bold tabular-nums mt-0.5 ${warningCount > 0 ? 'text-amber-300' : 'text-on-surface'}`}>
+            <div className={`text-xl font-bold tabular-nums mt-0.5 ${warningCount > 0 ? 'text-warning' : 'text-on-surface'}`}>
               {warningCount} players
             </div>
           </div>
-          <div className="w-9 h-9 rounded-lg bg-amber-950/60 border border-amber-500/30 flex items-center justify-center text-amber-400">
+          <div className="w-9 h-9 rounded-full bg-warning/20 flex items-center justify-center text-warning">
             <Clock className="w-4 h-4" />
           </div>
-        </div>
+        </Card>
 
         <div className={`rounded-xl p-4 flex items-center justify-between border ${
           overtimeCount > 0
@@ -190,13 +190,13 @@ export function ActiveSessionsView({
           </button>
           <button
             onClick={() => setFilterType('WARNING')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors flex items-center gap-1.5 ${
               filterType === 'WARNING'
-                ? 'bg-amber-500/20 text-amber-200 border border-amber-500/50 font-semibold'
-                : 'bg-surface-container text-amber-400 border border-outline-variant/60 hover:text-on-surface'
+                ? 'bg-warning-container text-on-warning-container border border-warning/40 font-semibold'
+                : 'bg-surface-container text-warning border border-outline-variant/60 hover:text-on-surface'
             }`}
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+            <span className="w-1.5 h-1.5 rounded-full bg-warning" />
             Ending Soon ({warningCount})
           </button>
           <button
@@ -260,15 +260,29 @@ export function ActiveSessionsView({
           {filtered.map((item) => {
             const { station, live, remainingMs, overtimeMs, isWarning, isOvertime, computedStatus } = item;
 
-            let cardBorder = 'border-outline-variant/60 bg-surface-container';
-            if (isOvertime) cardBorder = 'border-error/60 bg-error-container/30';
-            else if (isWarning) cardBorder = 'border-amber-500/60 bg-amber-950/40';
-            else if (computedStatus === 'PAUSED') cardBorder = 'border-tertiary/40 bg-tertiary-container/20';
+            let cardVariant = 'container';
+            let badgeVariant = 'primary';
+            let badgeLabel = 'In Use';
+
+            if (isOvertime) {
+              cardVariant = 'high';
+              badgeVariant = 'error';
+              badgeLabel = 'Extra Time';
+            } else if (isWarning) {
+              cardVariant = 'high';
+              badgeVariant = 'warning';
+              badgeLabel = 'Ending Soon';
+            } else if (computedStatus === 'PAUSED') {
+              cardVariant = 'container';
+              badgeVariant = 'tertiary';
+              badgeLabel = 'Paused';
+            }
 
             return (
-              <div
+              <Card
                 key={live.sessionId}
-                className={`rounded-xl border p-4 sm:p-5 flex flex-col justify-between h-full transition-colors ${cardBorder}`}
+                variant={cardVariant}
+                className="p-4 sm:p-5 flex flex-col justify-between h-full border border-outline-variant/40 hover:border-outline-variant/70 transition-all"
               >
                 <div>
                   {/* Header: Station & Status */}
@@ -283,19 +297,9 @@ export function ActiveSessionsView({
                       </div>
                     </div>
 
-                    <span
-                      className={`text-[10px] font-medium px-2 py-0.5 rounded border shrink-0 ${
-                        isOvertime
-                          ? 'bg-error-container text-on-error-container border-error/40 font-semibold'
-                          : isWarning
-                          ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 font-semibold'
-                          : computedStatus === 'PAUSED'
-                          ? 'bg-tertiary-container text-tertiary border-tertiary/30'
-                          : 'bg-primary-container text-on-primary-container border-primary/30'
-                      }`}
-                    >
-                      {isOvertime ? 'Extra Time' : isWarning ? 'Ending Soon' : computedStatus === 'PAUSED' ? 'Paused' : 'In Use'}
-                    </span>
+                    <Badge variant={badgeVariant} size="sm" className="shrink-0">
+                      {badgeLabel}
+                    </Badge>
                   </div>
 
                   {/* Customer Details */}
@@ -347,7 +351,7 @@ export function ActiveSessionsView({
                         Paused
                       </span>
                     ) : (
-                      <span className={`font-mono tabular-nums text-base font-bold ${isWarning ? 'text-amber-400' : 'text-primary'}`}>
+                      <span className={`font-mono tabular-nums text-base font-bold ${isWarning ? 'text-warning' : 'text-primary'}`}>
                         {formatDuration(remainingMs)}
                       </span>
                     )}
@@ -417,21 +421,16 @@ export function ActiveSessionsView({
                   </div>
 
                   <Button
-                    variant="filled"
+                    variant={isOvertime ? 'error' : 'success'}
                     size="sm"
                     fullWidth
                     onClick={() => checkoutSession && checkoutSession(live.sessionId, station.name)}
-                    className={
-                      isOvertime
-                        ? 'bg-error text-on-error hover:opacity-90'
-                        : 'bg-emerald-600 hover:bg-emerald-500 text-white'
-                    }
                   >
                     <CreditCard className="w-3.5 h-3.5" />
                     <span>Checkout & Settle</span>
                   </Button>
                 </div>
-              </div>
+              </Card>
             );
           })}
         </div>

@@ -51,15 +51,27 @@ All semantic tokens are exported from `material.json` into CSS custom properties
 | `border-outline-variant` | `--md-outline-variant` | Subtle dividers, subtle card borders |
 | `text-error`, `bg-error` | `--md-error` | Critical alerts, session overtime, destructive actions |
 | `bg-error-container` | `--md-error-container` | Error banner backgrounds, overtime warning cards |
+| `bg-success`, `text-success` | `--md-success` | Positive confirmations, paid sessions, available hardware |
+| `bg-success-container` | `--md-success-container` | Success badges, on-time indicators |
+| `bg-warning`, `text-warning` | `--md-warning` | Expiry warnings, attention notices |
+| `bg-warning-container` | `--md-warning-container` | Warning banners, 5-minute alert chips |
 
-### Shape Tokens
+### Shape Tokens (Material Design 3)
 
-- `rounded-xs`: 4px (`--md-shape-xs`)
-- `rounded-sm`: 8px (`--md-shape-sm`)
-- `rounded-md`: 12px (`--md-shape-md`)
-- `rounded-lg`: 16px (`--md-shape-lg`)
-- `rounded-xl`: 24px (`--md-shape-xl`)
-- `rounded-full`: 9999px (`--md-shape-full`)
+- `rounded-xs`: 4px (`--md-shape-xs`) — Inputs, select fields
+- `rounded-sm`: 8px (`--md-shape-sm`) — Filter chips, compact tags
+- `rounded-md`: 12px (`--md-shape-md`) — Small containers, nested cards
+- `rounded-lg`: 16px (`--md-shape-lg`) — Standard cards, station cards, FABs
+- `rounded-xl`: 28px (`--md-shape-xl`) — Dialogs, modal sheets, full popups
+- `rounded-full`: 9999px (`--md-shape-full`) — Pill buttons, badges, round avatars
+
+### Soft Elevation Scale
+
+- `shadow-m3-1`: Level 1 soft tonal shadow (cards on hover, active buttons)
+- `shadow-m3-2`: Level 2 soft shadow (menus, bottom bars)
+- `shadow-m3-3`: Level 3 soft shadow (dialogs, FABs, navigation drawers)
+- `shadow-m3-4`: Level 4 soft shadow
+- `shadow-m3-5`: Level 5 soft shadow
 
 ---
 
@@ -67,39 +79,61 @@ All semantic tokens are exported from `material.json` into CSS custom properties
 
 Import primitives directly from `./ui`:
 ```jsx
-import { Button, Card, Input, Select, Badge, Modal } from './ui';
+import {
+  Button,
+  FAB,
+  Chip,
+  Card,
+  Input,
+  Select,
+  TextField,
+  Badge,
+  Modal,
+  Snackbar,
+  TopAppBar,
+  Tabs,
+  Switch,
+  Checkbox,
+  Icon
+} from './ui';
 ```
 
 ### `<Button />`
 - **Variants**:
-  - `filled` (default): Primary brand filled button (`bg-primary text-on-primary`)
-  - `tonal`: Secondary container button (`bg-secondary-container text-on-secondary-container`)
-  - `outlined`: Subdued border button (`border border-outline-variant text-on-surface`)
-  - `text`: Low-emphasis text-only button (`text-primary`)
-  - `error`: Destructive action button (`bg-error-container text-on-error-container border border-error/30`)
-  - `success`: Positive confirmation button (`bg-emerald-950/60 text-emerald-300 border border-emerald-500/40`)
-- **Sizes**: `sm`, `md` (default), `lg`, `icon`, `icon-md`
-- **Props**: `fullWidth` (boolean), `disabled` (boolean), `className` (string)
+  - `filled` (default): Primary brand filled button (`bg-primary text-on-primary rounded-full`)
+  - `tonal`: Secondary container button (`bg-secondary-container text-on-secondary-container rounded-full`)
+  - `outlined`: Subdued border button (`border border-outline text-primary rounded-full`)
+  - `text`: Low-emphasis text-only button (`text-primary rounded-full`)
+  - `error`: Destructive action button (`bg-error text-on-error rounded-full`)
+  - `success`: Positive confirmation button (`bg-success text-on-success rounded-full`)
+- **Sizes**: `sm` (32px), `md` (40px default), `lg` (48px touch target), `icon`, `icon-md`
 
 ### `<Card />`
 - **Variants**:
-  - `container` (default): Standard surface card (`bg-surface-container border border-outline-variant/60`)
-  - `low`: Low surface container (`bg-surface-container-low border border-outline-variant/40`)
-  - `lowest`: Dark inset container (`bg-surface-container-lowest border border-outline-variant/50`)
-  - `high`: Elevated surface (`bg-surface-container-high border border-outline-variant`)
-  - `outlined`: Transparent with border (`bg-transparent border border-outline-variant`)
-- **Props**: `rounded` (default `'rounded-xl'`), `className` (string)
+  - `container` (default): Standard surface card (`bg-surface-container rounded-[16px]`)
+  - `low`: Low surface container (`bg-surface-container-low rounded-[16px]`)
+  - `lowest`: Inset container (`bg-surface-container-lowest rounded-[16px]`)
+  - `high`: Elevated surface (`bg-surface-container-high rounded-[16px]`)
+  - `outlined`: Outlined surface (`bg-surface border border-outline-variant/50 rounded-[16px]`)
+
+### `<Chip />`
+- Material Design 3 filter/action chip with rounded-8px or pill shape, optional leading icon/avatar, label, and trailing count badge.
+
+### `<FAB />`
+- Floating Action Button with soft elevation (`shadow-m3-3`), available in small, regular, and extended modes.
 
 ### `<Badge />`
 - **Variants**: `primary`, `secondary`, `tertiary`, `success`, `warning`, `error`, `neutral`
-- **Sizes**: `xs`, `sm` (default), `md`, `pill`
+- **Sizes**: `xs`, `sm` (default), `md`, `pill` (all fully rounded)
 
-### `<Input />` & `<Select />`
-- Standardized inputs styled with `bg-surface-container-lowest border border-outline-variant focus:border-primary text-on-surface`.
-- Supports `size="sm" | "md"` and `fullWidth`.
+### `<Input />`, `<Select />` & `<TextField />`
+- Outlined and filled input primitives with 4px border radius (`rounded-[4px]`), 48px touch targets, and accessible focus rings.
 
 ### `<Modal />`
-- Complete modal wrapper featuring backdrop blur, header with customizable icon, title, subtitle, close button, and action footer slots.
+- Material 3 dialog with 28px border radius (`rounded-[28px]`), `bg-surface-container-high`, soft `shadow-m3-3`, title, subtitle, customizable icon, and action footer.
+
+### `<Snackbar />`
+- Material 3 toast banner with `bg-inverse-surface text-inverse-on-surface`.
 
 ---
 
@@ -110,8 +144,8 @@ import { Button, Card, Input, Select, Badge, Modal } from './ui';
    - ✅ Good: `bg-surface-container`, `text-primary`, `border-outline-variant/60`
 
 2. **NEVER use hardcoded non-semantic Tailwind palettes**:
-   - ❌ Bad: `bg-blue-600 text-white`, `text-slate-400`, `bg-cyan-500`
-   - ✅ Good: `bg-primary text-on-primary`, `text-on-surface-variant`, `bg-primary-container`
+   - ❌ Bad: `bg-blue-600 text-white`, `text-slate-400`, `bg-cyan-500`, `text-amber-300`, `bg-emerald-500`
+   - ✅ Good: `bg-primary text-on-primary`, `text-on-surface-variant`, `bg-success`, `text-warning`
 
 3. **ALWAYS use UI Primitives for interactive elements**:
    - ❌ Bad: `<button className="px-3 py-1.5 rounded-lg bg-blue-600 ...">`

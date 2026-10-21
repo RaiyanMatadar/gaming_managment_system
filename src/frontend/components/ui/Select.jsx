@@ -7,8 +7,8 @@ export function Select({
   children,
   ...props
 }) {
-  const base = 'bg-surface-container-lowest border border-outline-variant text-on-surface focus:outline-none focus:border-primary transition-colors cursor-pointer';
-  const sizeClass = size === 'sm' ? 'text-xs py-1.5 px-3 rounded-lg' : 'text-xs sm:text-sm py-2 px-3.5 rounded-xl';
+  const base = 'bg-surface-container-highest/50 border border-outline text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all rounded-[4px] cursor-pointer';
+  const sizeClass = size === 'sm' ? 'text-xs h-10 px-3' : 'text-body-medium h-12 px-4';
   const widthClass = fullWidth ? 'w-full' : '';
 
   return (

@@ -14,21 +14,21 @@ import {
   XCircle,
   Phone
 } from 'lucide-react';
-import { Button, Badge } from './ui';
+import { Button, Badge, Card } from './ui';
 
 function getHardwareBadge(type) {
   switch (type) {
     case 'PS5':
-      return { label: 'PS5', icon: Tv, color: 'text-tertiary bg-tertiary-container/30 border-tertiary/40' };
+      return { label: 'PS5', icon: Tv, variant: 'tertiary' };
     case 'XBOX':
-      return { label: 'Xbox', icon: Tv, color: 'text-emerald-400 bg-emerald-950/40 border-emerald-500/30' };
+      return { label: 'Xbox', icon: Tv, variant: 'success' };
     case 'VR':
-      return { label: 'VR', icon: Glasses, color: 'text-secondary bg-secondary-container/30 border-secondary/40' };
+      return { label: 'VR', icon: Glasses, variant: 'secondary' };
     case 'PC_VIP':
-      return { label: 'VIP PC', icon: Monitor, color: 'text-amber-400 bg-amber-950/40 border-amber-500/30' };
+      return { label: 'VIP PC', icon: Monitor, variant: 'warning' };
     case 'PC_STANDARD':
     default:
-      return { label: 'Standard PC', icon: Monitor, color: 'text-primary bg-primary-container/30 border-primary/30' };
+      return { label: 'Standard PC', icon: Monitor, variant: 'primary' };
   }
 }
 
@@ -123,54 +123,54 @@ export function StationCard({
   const HardwareIcon = hardware.icon;
 
   // Station card styling
-  let borderStyles = 'border-outline-variant/60 bg-surface-container';
-  let badgeStyles = 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30';
+  let cardVariant = 'container';
+  let badgeVariant = 'success';
   let badgeLabel = 'Available';
 
   if (isMaintenance) {
-    borderStyles = 'border-outline-variant/40 bg-surface-container-low opacity-80';
-    badgeStyles = 'bg-surface-container-high text-on-surface-variant border-outline-variant';
+    cardVariant = 'low';
+    badgeVariant = 'neutral';
     badgeLabel = 'In Repair';
   } else if (currentStatus === 'EXPIRED_UNSETTLED') {
-    borderStyles = 'border-error/70 bg-error-container/30 shadow-sm';
-    badgeStyles = 'bg-error-container text-on-error-container border-error/40 font-semibold';
+    cardVariant = 'high';
+    badgeVariant = 'error';
     badgeLabel = 'Extra Time';
   } else if (currentStatus === 'WARNING') {
-    borderStyles = 'border-amber-500/70 bg-amber-950/40 shadow-sm';
-    badgeStyles = 'bg-amber-500/20 text-amber-300 border-amber-500/40 font-semibold';
+    cardVariant = 'high';
+    badgeVariant = 'warning';
     badgeLabel = 'Ending Soon';
   } else if (currentStatus === 'PAUSED') {
-    borderStyles = 'border-tertiary/50 bg-tertiary-container/20';
-    badgeStyles = 'bg-tertiary-container text-tertiary border-tertiary/40 font-semibold';
+    cardVariant = 'container';
+    badgeVariant = 'tertiary';
     badgeLabel = 'Paused';
   } else if (isOccupied) {
-    borderStyles = 'border-primary/40 bg-surface-container-high';
-    badgeStyles = 'bg-primary-container text-on-primary-container border-primary/30 font-medium';
+    cardVariant = 'high';
+    badgeVariant = 'primary';
     badgeLabel = 'In Use';
   }
 
   return (
-    <div className={`rounded-xl border p-4 sm:p-5 flex flex-col justify-between h-full transition-colors ${borderStyles}`}>
+    <Card variant={cardVariant} className="p-4 sm:p-5 flex flex-col justify-between h-full border border-outline-variant/40 hover:border-outline-variant/70 transition-all">
       <div>
         {/* Header: Station Name, Type, Price, Status */}
         <div className="pb-3 border-b border-outline-variant/40">
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center justify-between gap-2 min-w-0">
             <h3
-              className="text-base font-bold text-on-surface tracking-tight truncate flex-1 min-w-0"
+              className="title-medium font-bold text-on-surface tracking-tight truncate flex-1 min-w-0"
               title={station.name}
             >
               {station.name}
             </h3>
-            <span className={`text-[11px] px-2 py-0.5 rounded-md border font-semibold whitespace-nowrap shrink-0 ${badgeStyles}`}>
+            <Badge variant={badgeVariant} size="sm" className="shrink-0">
               {badgeLabel}
-            </span>
+            </Badge>
           </div>
 
           <div className="flex items-center justify-between gap-2 mt-1.5 text-xs text-on-surface-variant">
-            <span className={`text-[10px] font-medium px-2 py-0.5 rounded border inline-flex items-center gap-1 ${hardware.color}`}>
+            <Badge variant={hardware.variant} size="xs" className="inline-flex items-center gap-1">
               <HardwareIcon className="w-3 h-3" />
               <span>{hardware.label}</span>
-            </span>
+            </Badge>
             <span className="font-semibold text-on-surface">
               ₹{station.hourlyRate}/hr
             </span>
@@ -232,7 +232,7 @@ export function StationCard({
                   Paused
                 </span>
               ) : (
-                <span className={`font-mono tabular-nums text-base font-bold ${isWarning ? 'text-amber-400' : 'text-primary'}`}>
+                <span className={`font-mono tabular-nums text-base font-bold ${isWarning ? 'text-warning' : 'text-primary'}`}>
                   {formatDuration(remainingMs)}
                 </span>
               )}
@@ -243,8 +243,8 @@ export function StationCard({
         {/* Maintenance State */}
         {isMaintenance && (
           <div className="my-3 py-6 px-3 text-center border border-outline-variant/50 rounded-xl bg-surface-container-lowest/40 flex flex-col items-center justify-center min-h-[105px] text-xs text-on-surface-variant">
-            <Wrench className="w-5 h-5 text-amber-400 mb-1" />
-            <p className="text-xs font-medium text-amber-400">In Repair</p>
+            <Wrench className="w-5 h-5 text-warning mb-1" />
+            <p className="text-xs font-medium text-warning">In Repair</p>
             <p className="text-[11px] text-on-surface-variant mt-0.5">Currently offline for service</p>
           </div>
         )}
@@ -354,15 +354,10 @@ export function StationCard({
 
             {/* Checkout & Pay */}
             <Button
-              variant="filled"
+              variant={isOvertime ? 'error' : 'success'}
               size="sm"
               fullWidth
               onClick={() => checkoutSession && checkoutSession(live.sessionId, station.name)}
-              className={
-                isOvertime
-                  ? 'bg-error text-on-error hover:opacity-90'
-                  : 'bg-emerald-600 hover:bg-emerald-500 text-white'
-              }
             >
               <CreditCard className="w-3.5 h-3.5" />
               <span>Checkout & Settle</span>
@@ -378,11 +373,11 @@ export function StationCard({
             fullWidth
             onClick={() => onToggleMaintenance(station._id, 'AVAILABLE')}
           >
-            <Wrench className="w-3.5 h-3.5 text-emerald-400" />
+            <Wrench className="w-3.5 h-3.5 text-success" />
             <span>Mark as Available</span>
           </Button>
         )}
       </div>
-    </div>
+    </Card>
   );
 }

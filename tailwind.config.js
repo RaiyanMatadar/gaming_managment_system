@@ -7,6 +7,9 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Roboto', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+      },
       colors: {
         primary: 'var(--md-primary)',
         'surface-tint': 'var(--md-surface-tint)',
@@ -25,6 +28,14 @@ export default {
         'on-error': 'var(--md-on-error)',
         'error-container': 'var(--md-error-container)',
         'on-error-container': 'var(--md-on-error-container)',
+        success: 'var(--md-success)',
+        'on-success': 'var(--md-on-success)',
+        'success-container': 'var(--md-success-container)',
+        'on-success-container': 'var(--md-on-success-container)',
+        warning: 'var(--md-warning)',
+        'on-warning': 'var(--md-on-warning)',
+        'warning-container': 'var(--md-warning-container)',
+        'on-warning-container': 'var(--md-on-warning-container)',
         background: 'var(--md-background)',
         'on-background': 'var(--md-on-background)',
         surface: 'var(--md-surface)',
@@ -59,6 +70,12 @@ export default {
         'on-tertiary-fixed-variant': 'var(--md-on-tertiary-fixed-variant)',
       },
       borderRadius: {
+        'xs': 'var(--md-shape-xs)',
+        'sm': 'var(--md-shape-sm)',
+        'md': 'var(--md-shape-md)',
+        'lg': 'var(--md-shape-lg)',
+        'xl': 'var(--md-shape-xl)',
+        'full': 'var(--md-shape-full)',
         'md-sm': 'var(--md-shape-sm)',
         'md-md': 'var(--md-shape-md)',
         'md-lg': 'var(--md-shape-lg)',
@@ -66,10 +83,24 @@ export default {
         'md-full': 'var(--md-shape-full)',
       },
       boxShadow: {
+        'm3-1': 'var(--md-elevation-1)',
+        'm3-2': 'var(--md-elevation-2)',
+        'm3-3': 'var(--md-elevation-3)',
+        'm3-4': 'var(--md-elevation-4)',
+        'm3-5': 'var(--md-elevation-5)',
         'md-1': 'var(--md-elevation-1)',
         'md-2': 'var(--md-elevation-2)',
         'md-3': 'var(--md-elevation-3)',
         'md-5': 'var(--md-elevation-5)',
+      },
+      opacity: {
+        '38': '0.38',
+        '12': '0.12',
+        '10': '0.10',
+        '8': '0.08',
+      },
+      transitionTimingFunction: {
+        'm3-standard': 'cubic-bezier(0.2, 0.0, 0, 1.0)',
       }
     },
   },

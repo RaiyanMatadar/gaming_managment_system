@@ -1,25 +1,31 @@
 import React from 'react';
 
+/**
+ * Material Design 3 Card Primitive
+ * @param {'filled' | 'elevated' | 'outlined' | 'low' | 'lowest' | 'high'} variant
+ */
 const variantClasses = {
-  container: 'bg-surface-container border border-outline-variant/60',
-  low: 'bg-surface-container-low border border-outline-variant/40',
-  lowest: 'bg-surface-container-lowest border border-outline-variant/50',
-  high: 'bg-surface-container-high border border-outline-variant',
-  outlined: 'bg-transparent border border-outline-variant'
+  filled: 'bg-surface-container text-on-surface border-none',
+  container: 'bg-surface-container text-on-surface border-none',
+  elevated: 'bg-surface-container-low text-on-surface shadow-m3-1 hover:shadow-m3-2 border-none',
+  outlined: 'bg-surface text-on-surface border border-outline-variant/50',
+  low: 'bg-surface-container-low text-on-surface border-none',
+  lowest: 'bg-surface-container-lowest text-on-surface border-none',
+  high: 'bg-surface-container-high text-on-surface border-none'
 };
 
 export function Card({
-  variant = 'container',
-  rounded = 'rounded-xl',
+  variant = 'filled',
+  rounded = 'rounded-[16px]',
   className = '',
   children,
   ...props
 }) {
-  const vClass = variantClasses[variant] || variantClasses.container;
+  const vClass = variantClasses[variant] || variantClasses.filled;
 
   return (
     <div
-      className={`${vClass} ${rounded} transition-colors ${className}`.trim()}
+      className={`${vClass} ${rounded} transition-colors duration-200 ease-m3-standard ${className}`.trim()}
       {...props}
     >
       {children}

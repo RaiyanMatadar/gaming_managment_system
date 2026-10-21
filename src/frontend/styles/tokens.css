@@ -51,18 +51,36 @@
   --md-surface-container-high: #E7E8EE;
   --md-surface-container-highest: #E2E2E9;
 
-  /* Shape Tokens (derived from codebase audit) */
-  --md-shape-sm: 0.25rem;
-  --md-shape-md: 0.5rem;
-  --md-shape-lg: 0.75rem;
-  --md-shape-xl: 1rem;
+  /* Material Design 3 Extended Semantic Roles: Success & Warning */
+  --md-success: #386A20;
+  --md-on-success: #FFFFFF;
+  --md-success-container: #B7F397;
+  --md-on-success-container: #042100;
+  --md-warning: #7C5800;
+  --md-on-warning: #FFFFFF;
+  --md-warning-container: #FFDEA3;
+  --md-on-warning-container: #261900;
+
+  /* Material Design 3 Shape Scale */
+  --md-shape-none: 0px;
+  --md-shape-xs: 4px;
+  --md-shape-sm: 8px;
+  --md-shape-md: 12px;
+  --md-shape-lg: 16px;
+  --md-shape-xl: 28px;
   --md-shape-full: 9999px;
 
-  /* Elevation Tokens (shadows) */
-  --md-elevation-1: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  --md-elevation-2: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --md-elevation-3: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --md-elevation-5: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  /* Material Design 3 Soft Elevation Scale */
+  --md-elevation-1: 0 1px 3px 1px rgba(0, 0, 0, 0.08), 0 1px 2px 0 rgba(0, 0, 0, 0.12);
+  --md-elevation-2: 0 2px 6px 2px rgba(0, 0, 0, 0.08), 0 1px 2px 0 rgba(0, 0, 0, 0.12);
+  --md-elevation-3: 0 4px 8px 3px rgba(0, 0, 0, 0.08), 0 1px 3px 0 rgba(0, 0, 0, 0.12);
+  --md-elevation-4: 0 6px 10px 4px rgba(0, 0, 0, 0.08), 0 2px 3px 0 rgba(0, 0, 0, 0.12);
+  --md-elevation-5: 0 8px 12px 6px rgba(0, 0, 0, 0.08), 0 4px 4px 0 rgba(0, 0, 0, 0.12);
+
+  /* Material Design 3 Motion */
+  --md-motion-easing-standard: cubic-bezier(0.2, 0.0, 0, 1.0);
+  --md-motion-duration-short: 150ms;
+  --md-motion-duration-medium: 250ms;
 }
 
 .dark {
@@ -115,4 +133,21 @@
   --md-surface-container: #1D2024;
   --md-surface-container-high: #282A2F;
   --md-surface-container-highest: #33353A;
+
+  /* Material Design 3 Extended Semantic Roles: Success & Warning (Dark) */
+  --md-success: #9CD67D;
+  --md-on-success: #0C3900;
+  --md-success-container: #205107;
+  --md-on-success-container: #B7F397;
+  --md-warning: #FABD00;
+  --md-on-warning: #412D00;
+  --md-warning-container: #5E4200;
+  --md-on-warning-container: #FFDEA3;
+
+  /* Material Design 3 Soft Elevation Scale (Dark) */
+  --md-elevation-1: 0 1px 3px 1px rgba(0, 0, 0, 0.25), 0 1px 2px 0 rgba(0, 0, 0, 0.35);
+  --md-elevation-2: 0 2px 6px 2px rgba(0, 0, 0, 0.25), 0 1px 2px 0 rgba(0, 0, 0, 0.35);
+  --md-elevation-3: 0 4px 8px 3px rgba(0, 0, 0, 0.3), 0 1px 3px 0 rgba(0, 0, 0, 0.4);
+  --md-elevation-4: 0 6px 10px 4px rgba(0, 0, 0, 0.3), 0 2px 3px 0 rgba(0, 0, 0, 0.4);
+  --md-elevation-5: 0 8px 12px 6px rgba(0, 0, 0, 0.35), 0 4px 4px 0 rgba(0, 0, 0, 0.45);
 }

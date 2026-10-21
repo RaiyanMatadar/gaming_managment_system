@@ -11,16 +11,20 @@ When editing, modifying, or creating UI components in this codebase:
 - Backdrops & Surfaces: `bg-background`, `bg-surface`, `bg-surface-container`, `bg-surface-container-low`, `bg-surface-container-high`, `bg-surface-container-lowest`
 - Typography & Icons: `text-on-surface`, `text-on-surface-variant`, `text-primary`, `text-on-primary`, `text-outline`
 - Brand & Key Actions: `bg-primary`, `text-on-primary`, `bg-primary-container`, `text-on-primary-container`
+- Status Roles: `bg-success`, `text-success`, `bg-success-container`, `text-on-success-container`, `bg-warning`, `text-warning`, `bg-warning-container`, `text-on-warning-container`
 - Alerts & Destructive: `bg-error`, `text-error`, `bg-error-container`, `text-on-error-container`
 - Borders & Dividers: `border-outline`, `border-outline-variant`, `border-outline-variant/40`, `border-outline-variant/60`
 
 ## 2. Mandatory Use of UI Primitives
 Always import and use the primitives in `src/frontend/components/ui`:
-- Buttons: `<Button variant="filled | tonal | outlined | text | error | success" size="sm | md | lg">`
-- Containers & Cards: `<Card variant="container | low | lowest | high | outlined">`
-- Inputs & Selects: `<Input />`, `<Select />`
+- Buttons & FABs: `<Button variant="filled | tonal | outlined | text | error | success" size="sm | md | lg">`, `<FAB icon={...} label={...} />`
+- Containers & Cards: `<Card variant="container | low | lowest | high | outlined" rounded="rounded-[16px]">`
+- Inputs & Selects: `<Input />`, `<Select />`, `<TextField variant="outlined | filled" label="..." />`
+- Chips & Filter Pills: `<Chip label="..." count={...} selected={...} onClick={...} avatar={...} />`
 - Badges & Status Chips: `<Badge variant="primary | secondary | tertiary | success | warning | error | neutral">`
-- Modals & Overlays: `<Modal isOpen onClose title icon subtitle footer>`
+- Modals & Overlays: `<Modal isOpen onClose title icon subtitle footer>` (using `rounded-[28px]`)
+- Feedback & Toast: `<Snackbar message="..." type="..." onClose={...} />`
+- Toggles: `<Switch checked={...} onChange={...} />`, `<Checkbox checked={...} onChange={...} />`
 
 ## 3. Preservation of Logic & Contracts
 - Never edit `src/frontend/styles/material.json` directly.

@@ -7,9 +7,9 @@ export function Input({
   className = '',
   ...props
 }) {
-  const base = 'bg-surface-container-lowest border text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary transition-colors';
-  const sizeClass = size === 'sm' ? 'text-xs py-1.5 px-3 rounded-lg' : 'text-xs sm:text-sm py-2 px-3.5 rounded-xl';
-  const borderClass = error ? 'border-error focus:border-error' : 'border-outline-variant focus:border-primary';
+  const base = 'bg-surface-container-highest/50 border text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all rounded-[4px]';
+  const sizeClass = size === 'sm' ? 'text-xs h-10 px-3' : 'text-body-medium h-12 px-4';
+  const borderClass = error ? 'border-error focus:ring-error' : 'border-outline focus:ring-primary';
   const widthClass = fullWidth ? 'w-full' : '';
 
   return (

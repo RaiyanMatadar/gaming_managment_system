@@ -90,7 +90,7 @@ export function StartSessionModal({ station, onClose, onSubmit, isSubmitting }) 
         {/* Pricing Preview Banner */}
         <Card variant="lowest" className="p-3 flex items-center justify-between text-xs">
           <span className="text-on-surface-variant">Estimated Price:</span>
-          <span className="text-base font-bold text-emerald-400 tabular-nums">₹{estimatedCost}</span>
+          <span className="text-base font-bold text-success tabular-nums">₹{estimatedCost}</span>
         </Card>
 
         <div className="flex gap-2 pt-2">
@@ -187,7 +187,7 @@ export function TransferSessionModal({ sessionId, currentStationName, availableS
     >
       {availableStations.length === 0 ? (
         <div className="text-center py-6">
-          <p className="text-sm text-amber-400 font-medium">No computers available to move to.</p>
+          <p className="text-sm text-warning font-medium">No computers available to move to.</p>
           <p className="text-xs text-on-surface-variant mt-1">Please wait for another computer to become free.</p>
           <Button onClick={onClose} variant="tonal" className="mt-4">
             Close
@@ -277,7 +277,7 @@ export function CheckoutModal({ sessionId, stationName, liveSession, onClose, on
       title="Checkout & Payment"
       subtitle={`${stationName} • ${liveSession?.customerName || 'Guest'}`}
       icon={CreditCard}
-      iconColor="text-emerald-400 bg-emerald-950/60 border-emerald-500/30"
+      iconColor="text-success bg-success-container text-on-success-container border border-success/30"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Itemized Breakdown Box */}
@@ -293,7 +293,7 @@ export function CheckoutModal({ sessionId, stationName, liveSession, onClose, on
               <span className="tabular-nums">+₹{overtimeFee}</span>
             </div>
           ) : (
-            <div className="flex justify-between text-emerald-400">
+            <div className="flex justify-between text-success">
               <span>Extra time:</span>
               <span>₹0 (On time)</span>
             </div>
@@ -313,7 +313,7 @@ export function CheckoutModal({ sessionId, stationName, liveSession, onClose, on
 
           <div className="flex justify-between text-base font-bold text-on-surface pt-2 border-t border-outline-variant/40">
             <span>Total to pay:</span>
-            <span className="text-emerald-400 tabular-nums">₹{totalPayable}</span>
+            <span className="text-success tabular-nums">₹{totalPayable}</span>
           </div>
         </Card>
 
@@ -324,10 +324,10 @@ export function CheckoutModal({ sessionId, stationName, liveSession, onClose, on
             <button
               type="button"
               onClick={() => setPaymentMethod('CASH')}
-              className={`py-2.5 rounded-xl text-xs font-semibold border flex items-center justify-center gap-2 transition-all ${
+              className={`py-2.5 rounded-full text-xs font-semibold border flex items-center justify-center gap-2 transition-all ${
                 paymentMethod === 'CASH'
-                  ? 'bg-emerald-600 text-white border-emerald-500 shadow-sm'
-                  : 'bg-surface-container-lowest text-on-surface-variant border-outline-variant hover:text-on-surface'
+                  ? 'bg-success text-on-success border-success shadow-sm'
+                  : 'bg-surface-container text-on-surface-variant border-outline-variant hover:text-on-surface'
               }`}
             >
               <Banknote className="w-4 h-4" />
@@ -336,10 +336,10 @@ export function CheckoutModal({ sessionId, stationName, liveSession, onClose, on
             <button
               type="button"
               onClick={() => setPaymentMethod('UPI')}
-              className={`py-2.5 rounded-xl text-xs font-semibold border flex items-center justify-center gap-2 transition-all ${
+              className={`py-2.5 rounded-full text-xs font-semibold border flex items-center justify-center gap-2 transition-all ${
                 paymentMethod === 'UPI'
                   ? 'bg-primary text-on-primary border-primary shadow-sm'
-                  : 'bg-surface-container-lowest text-on-surface-variant border-outline-variant hover:text-on-surface'
+                  : 'bg-surface-container text-on-surface-variant border-outline-variant hover:text-on-surface'
               }`}
             >
               <Smartphone className="w-4 h-4" />
@@ -362,7 +362,7 @@ export function CheckoutModal({ sessionId, stationName, liveSession, onClose, on
               />
             </div>
             {tendered > totalPayable && (
-              <div className="flex items-center justify-between text-xs pt-1 border-t border-outline-variant/30 font-semibold text-amber-400">
+              <div className="flex items-center justify-between text-xs pt-1 border-t border-outline-variant/30 font-semibold text-warning">
                 <span>Change to return:</span>
                 <span className="tabular-nums">₹{changeDue}</span>
               </div>

@@ -17,6 +17,7 @@ import {
   AddStationModal
 } from './components/Modals.jsx';
 import { FiveMinuteWarningModal } from './components/FiveMinuteWarningModal.jsx';
+import { Snackbar } from './components/ui/index.js';
 import { AlertCircle, CheckCircle2, X } from 'lucide-react';
 
 export function App() {
@@ -372,8 +373,8 @@ export function App() {
         onClose={() => setIsMobileMenuOpen(false)}
       />
 
-      {/* 2. Main Workspace Layout */}
-      <div className="flex-1 flex flex-col min-w-0 lg:pl-60">
+      {/* 2. Main Workspace Layout with M3 Responsive Adaptations */}
+      <div className="flex-1 flex flex-col min-w-0 md:pl-20 lg:pl-72 pb-20 md:pb-6">
         {/* Persistent App Header */}
         <AppHeader
           currentView={currentView}
@@ -386,25 +387,13 @@ export function App() {
           urgentAlertsCount={counts.alerts}
         />
 
-        {/* Toast Alert Banner */}
+        {/* M3 Snackbar Notifications */}
         {toast && (
-          <div className="fixed top-16 right-6 z-50">
-            <div
-              className={`flex items-center gap-2.5 px-4 py-2.5 rounded-lg shadow-xl border text-xs font-medium ${
-                toast.type === 'error'
-                  ? 'bg-error-container border-error/50 text-on-error-container'
-                  : toast.type === 'warning'
-                  ? 'bg-amber-950/80 border-amber-500/50 text-amber-200'
-                  : 'bg-emerald-950/80 border-emerald-500/50 text-emerald-200'
-              }`}
-            >
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              <span>{toast.message}</span>
-              <button onClick={() => setToast(null)} className="ml-2 hover:opacity-80">
-                <X className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
+          <Snackbar
+            message={toast.message}
+            type={toast.type}
+            onClose={() => setToast(null)}
+          />
         )}
 
         {/* View Router Main Content Area */}
