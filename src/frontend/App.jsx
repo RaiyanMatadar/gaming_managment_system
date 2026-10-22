@@ -14,7 +14,9 @@ import {
   ExtendSessionModal,
   TransferSessionModal,
   CheckoutModal,
-  AddStationModal
+  AddStationModal,
+  CancelSessionModal,
+  DeleteStationModal
 } from './components/Modals.jsx';
 import { FiveMinuteWarningModal } from './components/FiveMinuteWarningModal.jsx';
 import { Snackbar } from './components/ui/index.js';
@@ -38,6 +40,8 @@ export function App() {
   const [extendData, setExtendData] = useState(null);
   const [transferData, setTransferData] = useState(null);
   const [checkoutData, setCheckoutData] = useState(null);
+  const [cancelModalData, setCancelModalData] = useState(null);
+  const [deleteModalStation, setDeleteModalStation] = useState(null);
   const [isAddStationOpen, setIsAddStationOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -184,12 +188,14 @@ export function App() {
     }
   };
 
-  const cancelSession = async (sessionId, stationName) => {
-    const confirmed = window.confirm(
-      `Are you sure you want to cancel the session on ${stationName || 'this computer'}? The timer will stop immediately and the computer will become available.`
-    );
-    if (!confirmed) return;
+  const initiateCancelSession = (sessionId, stationName, customerName) => {
+    setCancelModalData({ sessionId, stationName, customerName });
+  };
 
+  const executeCancelSession = async () => {
+    if (!cancelModalData) return;
+    const { sessionId, stationName } = cancelModalData;
+    setIsSubmitting(true);
     try {
       const res = await fetch(`/api/sessions/${sessionId}/cancel`, {
         method: 'POST',
@@ -201,9 +207,33 @@ export function App() {
 
       setActiveWarnings((prev) => prev.filter((w) => String(w.sessionId) !== String(sessionId)));
       showToast(`Session on ${stationName || 'computer'} was cancelled.`, 'info');
+      setCancelModalData(null);
       fetchStations();
     } catch (err) {
-      alert(`Error cancelling session: ${err.message}`);
+      showToast(`Error cancelling session: ${err.message}`, 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const executeDeleteStation = async () => {
+    if (!deleteModalStation) return;
+    const station = deleteModalStation;
+    setIsSubmitting(true);
+    try {
+      const res = await fetch(`/api/stations/${station._id}`, {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to delete computer');
+
+      showToast(`Computer '${station.name}' was deleted from fleet.`, 'success');
+      setDeleteModalStation(null);
+      fetchStations();
+    } catch (err) {
+      showToast(err.message, 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -413,7 +443,7 @@ export function App() {
 
               {/* Loading & Error States */}
               {loading && (
-                <div className="text-center py-20 bg-surface-container border border-outline-variant/60 rounded-xl">
+                <div className="text-center py-20 bg-surface-container border border-outline-variant/40 rounded-xl">
                   <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3" />
                   <p className="text-xs text-on-surface-variant">Loading computers...</p>
                 </div>
@@ -427,7 +457,7 @@ export function App() {
 
               {/* Station Grid Empty State */}
               {!loading && filteredStations.length === 0 && (
-                <div className="text-center py-16 bg-surface-container border border-outline-variant/60 rounded-xl">
+                <div className="text-center py-16 bg-surface-container border border-outline-variant/40 rounded-xl">
                   <p className="text-sm font-semibold text-on-surface">No computers found in this category</p>
                   <p className="text-xs text-on-surface-variant mt-1">Switch to "All" or click "Add Computer"</p>
                 </div>
@@ -446,7 +476,8 @@ export function App() {
                     onCheckout={(id, name) =>
                       setCheckoutData({ sessionId: id, stationName: name, liveSession: station.liveSession })
                     }
-                    onCancel={(id, name) => cancelSession(id, name)}
+                    onCancel={(id, name, cust) => initiateCancelSession(id, name, cust)}
+                    onDelete={(st) => initiateDeleteStation(st)}
                     onToggleMaintenance={toggleMaintenance}
                   />
                 ))}
@@ -470,7 +501,7 @@ export function App() {
                   liveSession: targetStation?.liveSession
                 });
               }}
-              onCancel={(id, name) => cancelSession(id, name)}
+              onCancel={(id, name, cust) => initiateCancelSession(id, name, cust)}
               onQuickStart={quickStart}
             />
           )}
@@ -491,6 +522,7 @@ export function App() {
               onNewStationClick={() => setIsAddStationOpen(true)}
               onStartSession={(st) => setSelectedStation(st)}
               onToggleMaintenance={toggleMaintenance}
+              onDeleteStation={(st) => initiateDeleteStation(st)}
             />
           )}
         </main>
@@ -542,6 +574,29 @@ export function App() {
         <AddStationModal
           onClose={() => setIsAddStationOpen(false)}
           onSubmit={addStation}
+          isSubmitting={isSubmitting}
+        />
+      )}
+
+      {/* Confirmation Modal to Cancel Active Session */}
+      {cancelModalData && (
+        <CancelSessionModal
+          isOpen={true}
+          stationName={cancelModalData.stationName}
+          customerName={cancelModalData.customerName}
+          onClose={() => setCancelModalData(null)}
+          onConfirm={executeCancelSession}
+          isSubmitting={isSubmitting}
+        />
+      )}
+
+      {/* Confirmation Modal to Delete Station */}
+      {deleteModalStation && (
+        <DeleteStationModal
+          isOpen={true}
+          station={deleteModalStation}
+          onClose={() => setDeleteModalStation(null)}
+          onConfirm={executeDeleteStation}
           isSubmitting={isSubmitting}
         />
       )}

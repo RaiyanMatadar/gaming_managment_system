@@ -20,7 +20,7 @@ export function createApp() {
     res.json({
       status: 'OK',
       timestamp: new Date().toISOString(),
-      service: 'Gaming Center Management API'
+      service: 'GameDash Gaming Center Management API'
     });
   });
 
@@ -55,8 +55,13 @@ export function createApp() {
   app.use('/api/reports', reportRoutes);
 
   // Serve static production frontend if built
-  const distPath = path.join(process.cwd(), 'dist');
-  if (fs.existsSync(distPath)) {
+  const candidateDistPaths = [
+    path.join(process.cwd(), 'dist'),
+    path.join(process.cwd(), 'client', 'dist'),
+    path.join(process.cwd(), '..', 'client', 'dist')
+  ];
+  const distPath = candidateDistPaths.find(p => fs.existsSync(p));
+  if (distPath) {
     app.use(express.static(distPath));
     app.use((req, res, next) => {
       if (req.method === 'GET' && !req.path.startsWith('/api/')) {

@@ -91,7 +91,7 @@ export function Sidebar({
                 <Gamepad2 className="w-5 h-5" />
               </div>
               <div>
-                <span className="title-medium text-on-surface font-medium block leading-tight">CyberArena</span>
+                <span className="title-medium text-on-surface font-medium block leading-tight">GameDash</span>
                 <span className="body-small text-on-surface-variant block mt-0.5">Management System</span>
               </div>
             </div>

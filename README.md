@@ -1,132 +1,157 @@
-# Gaming Center Management System (CyberArena POS)
+# GameDash — Gaming Center Management System
 
-A production-grade, reliable Gaming Center Management System built with the MERN stack (React, Vite, Tailwind CSS, Node.js, Express, MongoDB / Mongoose).
+A production-grade, reliable Gaming Center Management System built with React 19, Tailwind CSS (Material Design 3 semantic design system), Express, Node.js, and MongoDB / In-Memory Store.
 
-Designed specifically for physical gaming cafes to eliminate unbilled overtime, prevent station double-booking, reconcile Cash & UPI payments, and maintain complete audit compliance.
+Designed specifically for physical gaming cafes to eliminate unbilled overtime, prevent station double-booking, reconcile Cash & UPI payments, provide intuitive station controls, and maintain complete audit compliance.
 
 ---
 
 ## Key Features
 
-1. **Authoritative Server-Side Time Tracking:**
+1. **Brand New GameDash UI (Material Design 3):**
+   - High-contrast, sleek dark-mode interface built on Material Design 3 design tokens.
+   - Refined visual hierarchy, smooth state transitions, and accessible contrast with zero harsh borders.
+2. **Polished Start Session Workflow:**
+   - Dedicated hardware indicator badge and customer details form.
+   - 1-click quick-duration selection pills (30m, 1h, 2h, 3h) and customizable steppers (+/- 15m increments).
+   - Real-time billing and scheduled checkout time preview before confirming.
+3. **Ergonomic Active Session Controls:**
+   - Balanced 2x2 grid for non-destructive actions (Pause/Resume, Add Time, Move Station, Cancel Session).
+   - Dedicated prominent bottom row action for Checkout & Settle with invoice totals.
+   - Modern confirmation dialogs with clear consequences replacing browser `confirm()` popups.
+4. **Station Management & Safe PC Deletion:**
+   - Add new PC stations with custom specifications and hourly rates.
+   - Safe station deletion endpoint (`DELETE /api/stations/:id`) with strict guardrails preventing deletion of stations in `OCCUPIED` state or with active/paused/unsettled sessions.
+   - Permanent deletion audit logging with actor attribution.
+5. **Authoritative Server-Side Time Tracking:**
    - Eliminates client clock manipulation or drift.
    - Preserves state across browser refreshes, network drops, and server restarts.
-2. **Deterministic Overtime & Billing Engine:**
+6. **Deterministic Overtime & Billing Engine:**
    - 5-minute grace period before overtime charges kick in.
    - 15-minute block rounding for billable overtime beyond grace period.
    - Automatic deduction of accumulated and active pause periods.
-3. **Hardware & Concurrency Protection:**
-   - Strict decoupling of Station status (`AVAILABLE`, `OCCUPIED`, `MAINTENANCE`, `RESERVED`) from Session status (`ACTIVE`, `PAUSED`, `EXPIRED_UNSETTLED`, `COMPLETED`, `CANCELLED`).
-   - Atomic conditional reservation prevents concurrent collisions when two cashiers assign the same station.
-4. **5-Minute Warning Popup & Automated Owner Email:**
-   - Real-time overlay popup modal displaying: **"Only 5 minutes left for [Customer Name] on PC [PC Number]."**
-   - Dispatches automated email notification to the gaming center owner's inbox with session details.
+7. **5-Minute Warning Popup & Automated Owner Alert:**
+   - Real-time overlay popup modal: **"Only 5 minutes left for [Customer Name] on PC [PC Number]."**
+   - Dispatches automated email notification to the gaming center owner's inbox.
    - Deduplicated across server restarts and multiple concurrent players.
-5. **Customer History & Player Ledger:**
+8. **Customer History, Player Ledger & Operational Audit Trail:**
    - Real-time search and filter by customer name, phone number, and session status.
-   - Displays booked vs actual playing duration, amounts charged, overtime surcharges, and payment statuses.
-6. **Redesigned Operational Audit Trail:**
-   - Clean, high-contrast visual timeline of all staff actions (`Session Started`, `Extended`, `Paid`, `Transferred`, `Cancelled`).
-   - Clearly highlights Customer Name, PC Number, exact timestamp, cashier actor, and justification notes.
-7. **Payment Reconciliation & Idempotency:**
-   - Separate tracking for Cash in drawer and UPI transaction reference numbers.
-   - Idempotency key protection prevents double-charging on network retries or double-clicks.
-8. **Shift Reports & Daily Register Closing:**
-   - Shift reconciliation with Cash vs UPI splits, gaming hours sold vs played, and station utilization table.
+   - Clean visual timeline of all staff actions (`Session Started`, `Extended`, `Paid`, `Transferred`, `Cancelled`, `PC Deleted`).
 
 ---
 
-## Quick Start & Verification
+## Project Structure
 
-### 1. Install Dependencies
+The project is cleanly divided into independent `client/` and `server/` packages, with root workspace scripts for developer convenience:
+
+```
+├── client/                     # Frontend Application (React 19, Vite, Tailwind CSS)
+│   ├── src/
+│   │   ├── components/         # M3 Primitives & Views (Modals, StationCard, etc.)
+│   │   ├── styles/             # tokens.css, material.json, global styles
+│   │   ├── App.jsx             # Main interactive dashboard
+│   │   ├── index.css           # Tailwind & font imports
+│   │   └── main.jsx            # React root mount
+│   ├── index.html              # HTML entrypoint
+│   ├── package.json            # Client-specific scripts & dependencies
+│   ├── tailwind.config.js      # Semantic theme mappings
+│   ├── vite.config.js          # Vite config & API reverse proxy (:3000 -> :4000)
+│   └── .env.example            # Client environment variables
+│
+├── server/                     # Backend API & Business Logic (Node.js, Express)
+│   ├── src/
+│   │   ├── controllers/        # REST route handlers (station, session, report)
+│   │   ├── domain/             # Pure deterministic billing math & state machines
+│   │   ├── models/             # Data models (Station, Session, Payment, AuditLog)
+│   │   ├── routes/             # Express route declarations
+│   │   ├── services/           # Expiry worker, emailer, broadcaster, session rules
+│   │   ├── storage/            # Dual-engine persistence (MongoDB & In-Memory Store)
+│   │   ├── tests/              # 47 automated test suites (unit, concurrency, API)
+│   │   ├── app.js              # Express app factory with multi-path static serving
+│   │   └── server.js           # Server bootstrap & DB connection
+│   ├── package.json            # Server-specific scripts & dependencies
+│   └── .env.example            # Server environment variables
+│
+├── dist/                       # Production frontend build artifact
+└── package.json                # Root orchestration & workspace scripts
+```
+
+---
+
+## Quick Start & Commands
+
+### 1. Install All Dependencies
+Install dependencies across root, client, and server in one command:
 ```bash
 npm install
 ```
 
-### 2. Run Automated Test Suite
-Executes all 43 unit, integration, concurrency, state machine, warning, and billing tests:
+### 2. Root Convenience Commands
+| Command | Action |
+| :--- | :--- |
+| `npm run dev` | Launch Vite frontend dev server at `http://localhost:3000` |
+| `npm run dev:client` | Start frontend client dev server (`client/`) |
+| `npm run dev:server` | Start backend server with file auto-reloading (`server/`) |
+| `npm run client` | Launch frontend client dev server |
+| `npm run server` | Start the backend API on port 4000 |
+| `npm run build` | Compile production bundles for client |
+| `npm start` | Run backend server and serve production frontend on `http://localhost:4000` |
+| `npm test` | Execute the full 47 automated test suite |
+
+---
+
+## Running Client & Server Independently
+
+### Running Server Independently
+```bash
+cd server
+npm start          # Runs server on port 4000
+# or
+npm run dev        # Runs with --watch
+# or
+npm test           # Executes backend tests
+```
+
+### Running Client Independently
+```bash
+cd client
+npm run dev        # Runs Vite dev server at http://localhost:3000 (proxies /api to :4000)
+npm run build      # Builds production assets to client/dist
+```
+
+---
+
+## Configuration
+
+### Server (`server/.env` or root `.env`)
+| Variable | Default | Description |
+| :--- | :--- | :--- |
+| `PORT` | `4000` | Backend API port |
+| `MONGO_URI` | `undefined` | MongoDB connection string. When omitted, operates in zero-dependency in-memory mode |
+| `OWNER_EMAIL` | `owner@gamingcenter.com` | Email address receiving 5-minute warning notifications |
+| `SMTP_HOST` | `undefined` | SMTP server host for real emails (mock console logs if omitted) |
+| `SMTP_PORT` | `587` | SMTP server port |
+| `SMTP_USER` | `undefined` | SMTP username |
+| `SMTP_PASS` | `undefined` | SMTP password / app key |
+
+### Client (`client/.env`)
+| Variable | Default | Description |
+| :--- | :--- | :--- |
+| `VITE_API_URL` | `http://localhost:4000` | Backend API URL (optional in dev due to Vite proxy) |
+
+---
+
+## Verification & Automated Tests
+GameDash includes 47 automated unit, integration, concurrency, state machine, and API tests running via the native Node.js test runner:
+
 ```bash
 npm test
 ```
-
-### 3. Build Production Bundle
-Compiles the React frontend with Vite & Tailwind CSS:
-```bash
-npm run build
-```
-
-### 4. Start the Application
-Starts the Express API and serves the production frontend at `http://localhost:4000`:
-```bash
-npm start
-```
-
-### 5. Development Mode (Frontend Hot-Reload)
-In one terminal start backend:
-```bash
-node src/server.js
-```
-In a second terminal start Vite dev server:
-```bash
-npm run dev
-```
-Open `http://localhost:3000`.
-
----
-
-## Configuration (`.env`)
-
-| Variable | Default | Description |
-| :--- | :--- | :--- |
-| `PORT` | `4000` | Port for the backend API and static frontend |
-| `MONGO_URI` | `undefined` | MongoDB connection string. When omitted, operates in high-performance in-memory mode for offline dev and testing |
-| `OWNER_EMAIL` | `owner@gamingcenter.com` | Email address of the gaming center owner receiving 5-minute warning alerts |
-| `SMTP_HOST` | `undefined` | SMTP server host (e.g. `smtp.gmail.com`) for sending owner alerts |
-| `SMTP_PORT` | `587` | SMTP server port |
-| `SMTP_USER` | `undefined` | SMTP account username / email |
-| `SMTP_PASS` | `undefined` | SMTP account password / app password |
-| `EMAIL_FROM` | `"CyberArena" <notifications@gamingcenter.com>` | Sender email header |
-
----
-
-## Architecture & Project Structure
-
-```
-├── PROJECT_SPEC.md              # Complete 10-section system specification
-├── USER_GUIDE.md                # Full user manual and operating guide
-├── dist/                        # Production-compiled frontend build
-├── src/
-│   ├── app.js                   # Express application setup & middleware
-│   ├── server.js                # Server entrypoint with DB connection
-│   ├── domain/                  # Pure deterministic business logic
-│   │   ├── billingCalculator.js # Time math, grace period, overtime fees
-│   │   ├── sessionStateMachine.js
-│   │   └── stationStateMachine.js
-│   ├── models/                  # Mongoose data schemas
-│   │   ├── Station.js
-│   │   ├── Session.js           # Includes persistent warning sent flags
-│   │   ├── Payment.js
-│   │   └── AuditLog.js          # Includes customerName & stationName
-│   ├── storage/                 # Data layer (MongoDB + Memory store)
-│   ├── services/
-│   │   ├── sessionService.js    # Session lifecycle & atomic locking
-│   │   ├── eventBroadcaster.js  # Server-Sent Events (SSE) push engine
-│   │   ├── expiryPoller.js      # Background scanning worker & 5-min warning dispatcher
-│   │   ├── emailService.js      # Owner email notification service
-│   │   └── reportService.js     # Shift reconciliation & ledger analytics
-│   ├── controllers/             # REST route handlers
-│   ├── routes/                  # Express API routers
-│   ├── frontend/                # React + Tailwind CSS client
-│   │   ├── App.jsx              # Main dashboard with warning queue
-│   │   ├── components/
-│   │   │   ├── Navbar.jsx       # Header & navigation links
-│   │   │   ├── StatsBar.jsx     # Operational KPI cards
-│   │   │   ├── FilterTabs.jsx   # Quick station filters
-│   │   │   ├── StationCard.jsx  # Station card with live countdown/overtime
-│   │   │   ├── Modals.jsx       # Session start, extend, transfer, checkout
-│   │   │   ├── FiveMinuteWarningModal.jsx # 5-min warning popup modal
-│   │   │   ├── CustomerHistoryModal.jsx   # Customer history & player ledger
-│   │   │   ├── AuditTrailModal.jsx        # Redesigned audit trail & activity log
-│   │   │   └── ShiftReportModal.jsx       # Shift summary & register closing
-│   └── tests/                   # Automated test suites (43 tests passing)
-```
+All 47 tests verify:
+- Accurate billing, overtime block calculation, and 5-minute grace period enforcement.
+- Hardware concurrency locks preventing duplicate session creation.
+- Pause/resume scheduled end time recalculation.
+- Station transfer and atomic lock reassignment.
+- Safe station deletion preventing removal of active or occupied PCs.
+- Dynamic 5-minute remaining warnings and automated owner email notifications.
+- Shift reconciliation and daily register closing reports.

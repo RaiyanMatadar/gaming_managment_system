@@ -65,6 +65,13 @@ export const store = {
     return await memoryStore.updateStationStatus(stationId, status, notes);
   },
 
+  async deleteStation(stationId) {
+    if (isMongoConnected()) {
+      return await Station.findByIdAndDelete(stationId);
+    }
+    return await memoryStore.deleteStation(stationId);
+  },
+
   // --- SESSIONS ---
   async getSessionById(id) {
     if (isMongoConnected()) {

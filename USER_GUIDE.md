@@ -1,6 +1,6 @@
-# CyberArena — Gaming Center Management System: User Manual & Operating Guide
+# GameDash — Gaming Center Management System: User Manual & Operating Guide
 
-Welcome to the **CyberArena Gaming Center Management System**. This software is specifically engineered for physical gaming cafes, LAN centers, and esports arenas to streamline session management, eliminate unbilled customer overtime, prevent double-booking, and reconcile daily Cash and UPI collections.
+Welcome to the **GameDash Gaming Center Management System**. This software is specifically engineered for physical gaming cafes, LAN centers, and esports arenas to streamline session management, eliminate unbilled customer overtime, prevent double-booking, and reconcile daily Cash and UPI collections.
 
 ---
 
@@ -285,7 +285,7 @@ SMTP_PORT=587
 SMTP_USER=your-email@gmail.com
 SMTP_PASS=your-app-password
 SMTP_SECURE=false
-EMAIL_FROM="CyberArena Gaming Center" <notifications@gamingcenter.com>
+EMAIL_FROM="GameDash Gaming Center" <notifications@gamingcenter.com>
 ```
 
 > **Note:** If SMTP credentials are not configured, the system logs simulated mock deliveries to the server console and the cashier 5-minute warning popup continues to function normally.

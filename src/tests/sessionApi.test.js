@@ -65,6 +65,42 @@ describe('Gaming Center Management System — REST API & Lifecycle', () => {
       assert.equal(res.body.data.status, 'MAINTENANCE');
       assert.equal(res.body.data.notes, 'Controller drift repair');
     });
+
+    it('DELETE /api/stations/:id deletes an available station', async () => {
+      const st = await memoryStore.createStation({
+        name: 'PC-DEL-01',
+        type: 'PC_STANDARD',
+        hourlyRate: 100
+      });
+
+      const res = await request(app).delete(`/api/stations/${st._id}`);
+      assert.equal(res.status, 200);
+      assert.equal(res.body.success, true);
+      assert.equal(res.body.deletedId, st._id);
+
+      const check = await memoryStore.getStationById(st._id);
+      assert.equal(check, null);
+    });
+
+    it('DELETE /api/stations/:id rejects deletion of occupied PC with active session', async () => {
+      const st = await memoryStore.createStation({
+        name: 'PC-DEL-OCCUPIED',
+        type: 'PC_STANDARD',
+        hourlyRate: 120
+      });
+      await memoryStore.atomicOccupyStation(st._id, 'sess_123');
+
+      const res = await request(app).delete(`/api/stations/${st._id}`);
+      assert.equal(res.status, 400);
+      assert.equal(res.body.success, false);
+      assert.match(res.body.error, /active or paused session/);
+    });
+
+    it('DELETE /api/stations/:id returns 404 for non-existent station', async () => {
+      const res = await request(app).delete('/api/stations/nonexistent_id');
+      assert.equal(res.status, 404);
+      assert.equal(res.body.success, false);
+    });
   });
 
   describe('Session Lifecycle & Concurrency Protection', () => {

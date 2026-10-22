@@ -1,19 +1,29 @@
 {
   "name": "gaming-management-system",
   "version": "1.0.0",
-  "description": "Gaming Center Management System with deterministic time tracking, overtime billing, and session controls",
+  "description": "GameDash — Gaming Center Management System with deterministic time tracking, overtime billing, and session controls",
   "type": "module",
+  "workspaces": [
+    "client",
+    "server"
+  ],
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "dev:client": "npm run dev --prefix client",
+    "dev:server": "npm run dev --prefix server",
+    "client": "npm run dev --prefix client",
+    "server": "npm run start --prefix server",
+    "build": "vite build && npm run build --prefix client",
     "preview": "vite preview",
-    "start": "node src/server.js",
-    "test": "node --test src/tests/*.test.js"
+    "start": "node server/src/server.js",
+    "test": "node --test server/src/tests/*.test.js",
+    "test:server": "npm test --prefix server"
   },
   "keywords": [
     "gaming-center",
     "billing",
-    "session-management"
+    "session-management",
+    "gamedash"
   ],
   "author": "",
   "license": "ISC",

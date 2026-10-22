@@ -9,7 +9,8 @@ import {
   Play,
   Clock,
   Search,
-  Filter
+  Filter,
+  Trash2
 } from 'lucide-react';
 import { Card, Button, Badge, Input, Select } from './ui';
 
@@ -33,7 +34,8 @@ export function StationInventoryView({
   stations = [],
   onNewStationClick,
   onStartSession,
-  onToggleMaintenance
+  onToggleMaintenance,
+  onDeleteStation
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState('ALL');
@@ -231,6 +233,19 @@ export function StationInventoryView({
                           title={isOccupied ? 'Cannot put occupied computer in repair' : 'Put in repair'}
                         >
                           Repair
+                        </Button>
+                      )}
+
+                      {onDeleteStation && (
+                        <Button
+                          variant="outlined"
+                          size="sm"
+                          disabled={isOccupied}
+                          onClick={() => onDeleteStation(st)}
+                          title={isOccupied ? 'Cannot delete PC with active session' : `Delete ${st.name}`}
+                          className="px-2 text-error hover:bg-error-container/20 border-outline-variant/40"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
                         </Button>
                       )}
                     </div>

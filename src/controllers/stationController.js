@@ -76,3 +76,51 @@ export async function updateStationStatus(req, res, next) {
     next(err);
   }
 }
+
+export async function deleteStation(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    const station = await store.getStationById(id);
+    if (!station) {
+      return res.status(404).json({ success: false, error: 'Station not found.' });
+    }
+
+    // Safety check: Prevent deletion while station has an active/paused session
+    if (station.status === 'OCCUPIED' || station.currentSessionId) {
+      return res.status(400).json({
+        success: false,
+        error: `Cannot delete '${station.name}' while it has an active or paused session. Please complete or cancel the session first.`
+      });
+    }
+
+    // Check for any active or unsettled sessions attached to this station
+    const sessions = await store.getAllSessions({ stationId: id });
+    const hasActiveSession = sessions.some(s =>
+      ['ACTIVE', 'PAUSED', 'EXPIRED_UNSETTLED'].includes(s.status)
+    );
+    if (hasActiveSession) {
+      return res.status(400).json({
+        success: false,
+        error: `Cannot delete '${station.name}' because it has an active or unsettled session pending checkout.`
+      });
+    }
+
+    await store.deleteStation(id);
+
+    await store.createAuditLog({
+      action: 'DELETE_STATION',
+      stationId: id,
+      stationName: station.name,
+      notes: `Computer '${station.name}' was deleted from inventory.`
+    });
+
+    res.json({
+      success: true,
+      message: `Station '${station.name}' was deleted successfully.`,
+      deletedId: id
+    });
+  } catch (err) {
+    next(err);
+  }
+}

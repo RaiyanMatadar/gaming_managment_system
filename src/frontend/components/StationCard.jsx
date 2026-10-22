@@ -12,7 +12,8 @@ import {
   Wrench,
   User,
   XCircle,
-  Phone
+  Phone,
+  Trash2
 } from 'lucide-react';
 import { Button, Badge, Card } from './ui';
 
@@ -66,7 +67,9 @@ export function StationCard({
   onCheckoutSession,
   onCancel,
   onCancelSession,
-  onToggleMaintenance
+  onToggleMaintenance,
+  onDelete,
+  onDeleteStation
 }) {
   const startSession = onStart || onStartSession;
   const pauseSession = onPause || onPauseSession;
@@ -75,6 +78,7 @@ export function StationCard({
   const transferSession = onTransfer || onTransferSession;
   const checkoutSession = onCheckout || onCheckoutSession;
   const cancelSession = onCancel || onCancelSession;
+  const deleteStation = onDelete || onDeleteStation;
 
   const live = station.liveSession;
   const isOccupied = station.status === 'OCCUPIED' && live;
@@ -263,14 +267,14 @@ export function StationCard({
       <div className="pt-3 border-t border-outline-variant/40 space-y-2">
         {/* Available Actions */}
         {station.status === 'AVAILABLE' && (
-          <div className="flex gap-2">
+          <div className="flex items-center gap-1.5">
             <Button
               variant="filled"
               size="sm"
               onClick={() => startSession && startSession(station)}
               className="flex-1"
             >
-              <Play className="w-3.5 h-3.5 fill-current" />
+              <Play className="w-3.5 h-3.5 fill-current mr-1" />
               <span>Start Session</span>
             </Button>
             <Button
@@ -279,103 +283,132 @@ export function StationCard({
               onClick={() => onToggleMaintenance(station._id, 'MAINTENANCE')}
               title="Mark for repair"
               aria-label="Maintenance toggle"
+              className="px-2.5"
             >
               <Wrench className="w-3.5 h-3.5" />
             </Button>
-          </div>
-        )}
-
-        {/* Occupied Actions: Row 1 = Controls, Row 2 = Checkout */}
-        {isOccupied && (
-          <>
-            <div className="grid grid-cols-4 gap-1.5">
-              {/* Extend */}
+            {deleteStation && (
               <Button
                 variant="outlined"
                 size="sm"
-                onClick={() => extendSession && extendSession(live.sessionId, station.name)}
-                title="Add 15, 30, or 60 minutes"
-                className="px-1 text-[11px]"
+                onClick={() => deleteStation(station)}
+                title="Delete this computer"
+                aria-label="Delete computer"
+                className="px-2.5 text-error hover:bg-error-container/20 border-outline-variant/40"
               >
-                <Plus className="w-3 h-3 text-primary shrink-0" />
-                <span className="truncate">Add</span>
+                <Trash2 className="w-3.5 h-3.5" />
               </Button>
+            )}
+          </div>
+        )}
 
-              {/* Pause / Resume */}
+        {/* Occupied Actions: Balanced 2x2 + 1 Layout */}
+        {isOccupied && (
+          <div className="space-y-1.5">
+            {/* Row 1: Pause/Resume (50%) + Add Time (50%) */}
+            <div className="flex gap-1.5">
               {currentStatus === 'PAUSED' ? (
                 <Button
                   variant="success"
                   size="sm"
                   onClick={() => resumeSession && resumeSession(live.sessionId)}
-                  className="px-1 text-[11px]"
+                  className="flex-1 text-xs"
+                  title="Resume countdown"
                 >
-                  <Play className="w-3 h-3 fill-current shrink-0" />
-                  <span className="truncate">Play</span>
+                  <Play className="w-3.5 h-3.5 fill-current mr-1" />
+                  <span>Resume</span>
                 </Button>
               ) : (
                 <Button
-                  variant="outlined"
+                  variant="tonal"
                   size="sm"
                   onClick={() => pauseSession && pauseSession(live.sessionId)}
-                  title="Pause time"
-                  className="px-1 text-[11px]"
+                  className="flex-1 text-xs"
+                  title="Pause countdown"
                 >
-                  <Pause className="w-3 h-3 shrink-0" />
-                  <span className="truncate">Pause</span>
+                  <Pause className="w-3.5 h-3.5 mr-1" />
+                  <span>Pause</span>
                 </Button>
               )}
 
-              {/* Move / Transfer */}
+              <Button
+                variant="tonal"
+                size="sm"
+                onClick={() => extendSession && extendSession(live.sessionId, station.name)}
+                className="flex-1 text-xs"
+                title="Add 15, 30, or 60 minutes"
+              >
+                <Plus className="w-3.5 h-3.5 text-primary mr-1" />
+                <span>Add Time</span>
+              </Button>
+            </div>
+
+            {/* Row 2: Move PC (50%) + Cancel Session (50%) */}
+            <div className="flex gap-1.5">
               <Button
                 variant="outlined"
                 size="sm"
                 onClick={() => transferSession && transferSession(live.sessionId, station.name)}
+                className="flex-1 text-xs"
                 title="Move player to another computer"
-                className="px-1 text-[11px]"
               >
-                <ArrowRightLeft className="w-3 h-3 text-on-surface-variant shrink-0" />
-                <span className="truncate">Move</span>
+                <ArrowRightLeft className="w-3 h-3 text-on-surface-variant mr-1" />
+                <span>Move</span>
               </Button>
 
-              {/* Cancel Session */}
               {cancelSession && (
                 <Button
                   variant="error"
                   size="sm"
-                  onClick={() => cancelSession(live.sessionId, station.name)}
-                  title="Cancel session if customer doesn't want to play"
-                  className="px-1 text-[11px]"
+                  onClick={() => cancelSession(live.sessionId, station.name, live.customerName)}
+                  className="flex-1 text-xs"
+                  title="Cancel active session and release computer"
                 >
-                  <XCircle className="w-3 h-3 shrink-0" />
-                  <span className="truncate">Cancel</span>
+                  <XCircle className="w-3 h-3 mr-1" />
+                  <span>Cancel</span>
                 </Button>
               )}
             </div>
 
-            {/* Checkout & Pay */}
+            {/* Row 3: Checkout & Settle (100% full-width) */}
             <Button
               variant={isOvertime ? 'error' : 'success'}
               size="sm"
               fullWidth
               onClick={() => checkoutSession && checkoutSession(live.sessionId, station.name)}
+              className="mt-0.5"
             >
-              <CreditCard className="w-3.5 h-3.5" />
+              <CreditCard className="w-3.5 h-3.5 mr-1" />
               <span>Checkout & Settle</span>
             </Button>
-          </>
+          </div>
         )}
 
         {/* Maintenance Actions */}
         {isMaintenance && (
-          <Button
-            variant="outlined"
-            size="sm"
-            fullWidth
-            onClick={() => onToggleMaintenance(station._id, 'AVAILABLE')}
-          >
-            <Wrench className="w-3.5 h-3.5 text-success" />
-            <span>Mark as Available</span>
-          </Button>
+          <div className="flex items-center gap-1.5">
+            <Button
+              variant="outlined"
+              size="sm"
+              onClick={() => onToggleMaintenance(station._id, 'AVAILABLE')}
+              className="flex-1"
+            >
+              <Wrench className="w-3.5 h-3.5 text-success mr-1" />
+              <span>Mark Available</span>
+            </Button>
+            {deleteStation && (
+              <Button
+                variant="outlined"
+                size="sm"
+                onClick={() => deleteStation(station)}
+                title="Delete this computer"
+                aria-label="Delete computer"
+                className="px-2.5 text-error hover:bg-error-container/20 border-outline-variant/40"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </Button>
+            )}
+          </div>
         )}
       </div>
     </Card>

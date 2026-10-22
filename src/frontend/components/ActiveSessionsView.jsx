@@ -358,75 +358,82 @@ export function ActiveSessionsView({
                   </div>
                 </div>
 
-                {/* Session Action Controls */}
-                <div className="pt-3 border-t border-outline-variant/40 space-y-2">
-                  <div className="grid grid-cols-4 gap-1.5">
-                    <Button
-                      variant="outlined"
-                      size="sm"
-                      onClick={() => extendSession && extendSession(live.sessionId, station.name)}
-                      className="px-1 text-[11px]"
-                      title="Add 15, 30, or 60 minutes"
-                    >
-                      <Plus className="w-3 h-3 text-primary shrink-0" />
-                      <span className="truncate">Add</span>
-                    </Button>
-
+                {/* Session Action Controls: Balanced 2x2 + 1 Layout */}
+                <div className="pt-3 border-t border-outline-variant/40 space-y-1.5">
+                  {/* Row 1: Pause/Resume (50%) + Add Time (50%) */}
+                  <div className="flex gap-1.5">
                     {computedStatus === 'PAUSED' ? (
                       <Button
                         variant="success"
                         size="sm"
                         onClick={() => resumeSession && resumeSession(live.sessionId)}
-                        className="px-1 text-[11px]"
+                        className="flex-1 text-xs"
+                        title="Resume countdown"
                       >
-                        <Play className="w-3 h-3 fill-current shrink-0" />
-                        <span className="truncate">Play</span>
+                        <Play className="w-3.5 h-3.5 fill-current mr-1" />
+                        <span>Resume</span>
                       </Button>
                     ) : (
                       <Button
-                        variant="outlined"
+                        variant="tonal"
                         size="sm"
                         onClick={() => pauseSession && pauseSession(live.sessionId)}
-                        className="px-1 text-[11px]"
-                        title="Pause time"
+                        className="flex-1 text-xs"
+                        title="Pause countdown"
                       >
-                        <Pause className="w-3 h-3 shrink-0" />
-                        <span className="truncate">Pause</span>
+                        <Pause className="w-3.5 h-3.5 mr-1" />
+                        <span>Pause</span>
                       </Button>
                     )}
 
                     <Button
+                      variant="tonal"
+                      size="sm"
+                      onClick={() => extendSession && extendSession(live.sessionId, station.name)}
+                      className="flex-1 text-xs"
+                      title="Add 15, 30, or 60 minutes"
+                    >
+                      <Plus className="w-3.5 h-3.5 text-primary mr-1" />
+                      <span>Add Time</span>
+                    </Button>
+                  </div>
+
+                  {/* Row 2: Move PC (50%) + Cancel Session (50%) */}
+                  <div className="flex gap-1.5">
+                    <Button
                       variant="outlined"
                       size="sm"
                       onClick={() => transferSession && transferSession(live.sessionId, station.name)}
-                      className="px-1 text-[11px]"
-                      title="Move to another computer"
+                      className="flex-1 text-xs"
+                      title="Move player to another computer"
                     >
-                      <ArrowRightLeft className="w-3 h-3 text-on-surface-variant shrink-0" />
-                      <span className="truncate">Move</span>
+                      <ArrowRightLeft className="w-3 h-3 text-on-surface-variant mr-1" />
+                      <span>Move</span>
                     </Button>
 
                     {cancelSession && (
                       <Button
                         variant="error"
                         size="sm"
-                        onClick={() => cancelSession(live.sessionId, station.name)}
-                        title="Cancel session if customer doesn't want to play"
-                        className="px-1 text-[11px]"
+                        onClick={() => cancelSession(live.sessionId, station.name, live.customerName)}
+                        className="flex-1 text-xs"
+                        title="Cancel active session and release computer"
                       >
-                        <XCircle className="w-3 h-3 shrink-0" />
-                        <span className="truncate">Cancel</span>
+                        <XCircle className="w-3 h-3 mr-1" />
+                        <span>Cancel</span>
                       </Button>
                     )}
                   </div>
 
+                  {/* Row 3: Checkout & Settle (100% full-width) */}
                   <Button
                     variant={isOvertime ? 'error' : 'success'}
                     size="sm"
                     fullWidth
                     onClick={() => checkoutSession && checkoutSession(live.sessionId, station.name)}
+                    className="mt-0.5"
                   >
-                    <CreditCard className="w-3.5 h-3.5" />
+                    <CreditCard className="w-3.5 h-3.5 mr-1" />
                     <span>Checkout & Settle</span>
                   </Button>
                 </div>

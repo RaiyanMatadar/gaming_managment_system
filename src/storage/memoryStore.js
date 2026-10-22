@@ -93,6 +93,15 @@ export class MemoryStore {
     return { ...station };
   }
 
+  async deleteStation(stationId) {
+    const key = String(stationId);
+    if (this.stations.has(key)) {
+      this.stations.delete(key);
+      return true;
+    }
+    return false;
+  }
+
   // --- SESSIONS ---
   async getSessionById(id) {
     const session = this.sessions.get(String(id));
