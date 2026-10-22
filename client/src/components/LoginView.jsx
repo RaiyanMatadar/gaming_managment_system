@@ -1,94 +1,193 @@
-import React, { useState } from 'react';
-import { Gamepad2, Lock, User, Eye, EyeOff, ShieldAlert, Sparkles, ArrowRight, ShieldCheck } from 'lucide-react';
-import { Card, Button, Input, Badge } from './ui';
-import { loginUser } from '../utils/api.js';
+
+import React, { useState } from "react";
+import {
+  Gamepad2,
+  Lock,
+  User,
+  Eye,
+  EyeOff,
+  ShieldAlert,
+  ArrowRight,
+  ShieldCheck,
+} from "lucide-react";
+import { Card, Button, Input } from "./ui";
+import { loginUser } from "../utils/api.js";
 
 export function LoginView({ onLoginSuccess }) {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!username.trim() || !password) {
-      setErrorMessage('Please enter both your username and password.');
+      setErrorMessage("Please enter both your username and password.");
       return;
     }
 
     setIsLoading(true);
-    setErrorMessage('');
+    setErrorMessage("");
 
     try {
       const result = await loginUser(username.trim(), password);
+
       if (onLoginSuccess) {
         onLoginSuccess(result.user, result.token);
       }
     } catch (err) {
-      setErrorMessage(err.message || 'Invalid username or password. Please try again.');
+      setErrorMessage(
+        err.message || "Invalid username or password. Please try again."
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen w-full bg-background flex flex-col justify-center items-center p-4 sm:p-6 transition-colors selection:bg-primary-container selection:text-on-primary-container">
-      {/* Decorative ambient subtle background glows */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none opacity-20">
-        <div className="absolute top-1/4 left-1/3 w-96 h-96 bg-primary/10 rounded-full blur-3xl transform -translate-x-1/2 -translate-y-1/2" />
-        <div className="absolute bottom-1/4 right-1/3 w-96 h-96 bg-secondary/10 rounded-full blur-3xl transform translate-x-1/2 translate-y-1/2" />
+    <main
+      className="
+        relative flex min-h-[100svh] w-full items-center justify-center
+        overflow-x-hidden bg-background px-3 py-3 text-on-surface
+        selection:bg-primary-container selection:text-on-primary-container
+        min-[400px]:px-4
+        sm:px-6 sm:py-4
+        max-[360px]:py-2
+        max-[360px]:[&_*]:scroll-m-0
+      "
+    >
+      {/* Decorative background */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 overflow-hidden"
+      >
+        <div className="absolute left-1/4 top-1/4 h-64 w-64 rounded-full bg-primary/10 blur-3xl sm:h-80 sm:w-80" />
+        <div className="absolute bottom-1/4 right-1/4 h-64 w-64 rounded-full bg-secondary/10 blur-3xl sm:h-80 sm:w-80" />
       </div>
 
-      <div className="w-full max-w-md relative z-10">
-        {/* Brand Header */}
-        <div className="flex flex-col items-center text-center mb-8">
-          <div className="w-16 h-16 rounded-[22px] bg-primary text-on-primary shadow-m3-2 flex items-center justify-center mb-4 transition-transform hover:scale-105 duration-200">
-            <Gamepad2 className="w-9 h-9" />
+      {/* Responsive page container */}
+      <div
+        className="
+          relative z-10 mx-auto w-full max-w-[400px] py-1
+          min-[400px]:py-2
+          max-[360px]:py-0
+        "
+      >
+        {/* Brand header */}
+        <div
+          className="
+            mb-3 flex items-center justify-center gap-3
+            sm:mb-4
+            max-[360px]:mb-2
+            [@media(max-height:650px)]:mb-2
+          "
+        >
+          <div
+            className="
+              flex h-11 w-11 shrink-0 items-center justify-center
+              rounded-2xl bg-primary text-on-primary shadow-m3-1
+              min-[400px]:h-12 min-[400px]:w-12
+              [@media(max-height:650px)]:h-9
+              [@media(max-height:650px)]:w-9
+            "
+          >
+            <Gamepad2 className="h-6 w-6 [@media(max-height:650px)]:h-5 [@media(max-height:650px)]:w-5" />
           </div>
-          <h1 className="display-small font-bold text-on-surface tracking-tight">GameDash</h1>
-          <p className="body-medium text-on-surface-variant mt-1.5">
-            Enterprise Gaming Center Management Portal
-          </p>
+
+          <div className="min-w-0">
+            <h1
+              className="
+                text-2xl font-bold leading-tight tracking-tight text-on-surface
+                [@media(max-height:650px)]:text-xl
+              "
+            >
+              GameDash
+            </h1>
+            <p className="mt-0.5 text-xs text-on-surface-variant">
+              Gaming Center Management
+            </p>
+          </div>
         </div>
 
-        {/* Main Authentication Card */}
+        {/* Login card */}
         <Card
           variant="container"
-          rounded="rounded-[28px]"
-          className="p-6 sm:p-8 border border-outline-variant/40 shadow-m3-3 backdrop-blur-md"
+          rounded="rounded-2xl"
+          className="
+            border border-outline-variant/40 p-4
+            shadow-m3-3 backdrop-blur-md
+            min-[400px]:p-5
+            sm:rounded-[24px] sm:p-6
+            [@media(max-height:750px)]:p-4
+            [@media(max-height:650px)]:p-3
+            [@media(max-height:550px)]:p-2.5
+          "
         >
-          <div className="mb-6">
-            <h2 className="title-large font-semibold text-on-surface">Welcome Back</h2>
-            <p className="body-small text-on-surface-variant mt-1">
-              Sign in to manage your gaming stations, sessions, and sales.
+          {/* Heading */}
+          <div
+            className="
+              mb-4
+              [@media(max-height:650px)]:mb-2
+            "
+          >
+            <h2 className="text-xl font-semibold tracking-tight text-on-surface [@media(max-height:550px)]:text-lg">
+              Welcome Back
+            </h2>
+            <p className="mt-1 text-sm leading-relaxed text-on-surface-variant [@media(max-height:550px)]:text-xs">
+              Sign in to manage your computers, sessions, and sales.
             </p>
           </div>
 
-          {/* Error Feedback Banner */}
+          {/* Error message */}
           {errorMessage && (
-            <div className="mb-6 p-3.5 rounded-[12px] bg-error-container text-on-error-container flex items-start gap-3 text-body-small animate-in fade-in slide-in-from-top-1 duration-200">
-              <ShieldAlert className="w-5 h-5 shrink-0 text-error mt-0.5" />
-              <div className="flex-1 font-medium">{errorMessage}</div>
+            <div
+              role="alert"
+              className="
+                mb-4 flex items-start gap-2.5 rounded-xl
+                bg-error-container p-3 text-sm text-on-error-container
+                [@media(max-height:650px)]:mb-2
+                [@media(max-height:650px)]:p-2
+              "
+            >
+              <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-error" />
+              <p className="min-w-0 flex-1 break-words font-medium">
+                {errorMessage}
+              </p>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Username Field */}
-            <div className="space-y-1.5">
-              <label className="text-label-medium text-on-surface-variant block">
+          <form
+            onSubmit={handleSubmit}
+            className="
+              space-y-3.5
+              max-[360px]:space-y-2.5
+              [@media(max-height:650px)]:space-y-2
+            "
+          >
+            {/* Username */}
+            <div className="space-y-1.5 [@media(max-height:650px)]:space-y-1">
+              <label
+                htmlFor="login-username"
+                className="block text-sm font-medium text-on-surface-variant"
+              >
                 Username
               </label>
+
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-on-surface-variant">
-                  <User className="w-4 h-4" />
-                </div>
+                <User
+                  aria-hidden="true"
+                  className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant"
+                />
+
                 <Input
+                  id="login-username"
                   type="text"
                   value={username}
                   onChange={(e) => {
                     setUsername(e.target.value);
-                    if (errorMessage) setErrorMessage('');
+                    if (errorMessage) setErrorMessage("");
                   }}
                   placeholder="Enter your username"
                   className="pl-10"
@@ -100,81 +199,119 @@ export function LoginView({ onLoginSuccess }) {
               </div>
             </div>
 
-            {/* Password Field */}
-            <div className="space-y-1.5">
-              <label className="text-label-medium text-on-surface-variant block">
+            {/* Password */}
+            <div className="space-y-1.5 [@media(max-height:650px)]:space-y-1">
+              <label
+                htmlFor="login-password"
+                className="block text-sm font-medium text-on-surface-variant"
+              >
                 Password
               </label>
+
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-on-surface-variant">
-                  <Lock className="w-4 h-4" />
-                </div>
+                <Lock
+                  aria-hidden="true"
+                  className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant"
+                />
+
                 <Input
-                  type={showPassword ? 'text' : 'password'}
+                  id="login-password"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value);
-                    if (errorMessage) setErrorMessage('');
+                    if (errorMessage) setErrorMessage("");
                   }}
-                  placeholder="••••••••••••"
-                  className="pl-10 pr-10"
+                  placeholder="Enter your password"
+                  className="pl-10 pr-11"
                   autoComplete="current-password"
                   required
                   disabled={isLoading}
                 />
+
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
-                  tabIndex={-1}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  onClick={() => setShowPassword((previous) => !previous)}
+                  className="
+                    absolute right-1 top-1/2 flex h-9 w-9
+                    -translate-y-1/2 cursor-pointer items-center
+                    justify-center rounded-lg text-on-surface-variant
+                    transition-colors hover:bg-surface-container-high
+                    hover:text-on-surface
+                    focus-visible:outline-none
+                    focus-visible:ring-2 focus-visible:ring-primary
+                  "
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  aria-pressed={showPassword}
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
                 </button>
               </div>
             </div>
 
-            {/* Submit Action */}
-            <div className="pt-2">
+            {/* Submit button */}
+            <div className="pt-1 [@media(max-height:650px)]:pt-0">
               <Button
                 type="submit"
                 variant="filled"
                 size="lg"
                 fullWidth
                 disabled={isLoading}
-                className="font-semibold shadow-m3-1 flex items-center justify-center gap-2"
+                className="flex items-center justify-center gap-2 font-semibold shadow-m3-1"
               >
-                {isLoading ? (
-                  <span>Signing In...</span>
-                ) : (
-                  <>
-                    <span>Sign In</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </>
-                )}
+                <span>{isLoading ? "Signing In..." : "Sign In"}</span>
+                {!isLoading && <ArrowRight className="h-4 w-4" />}
               </Button>
             </div>
           </form>
 
-          {/* Admin Manual Provisioning Policy Callout */}
-          <div className="mt-6 pt-5 border-t border-outline-variant/30">
-            <div className="flex items-start gap-2.5 p-3 rounded-[14px] bg-surface-container-low border border-outline-variant/30">
-              <ShieldCheck className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-              <div className="text-[12px] leading-relaxed text-on-surface-variant">
-                <strong className="text-on-surface font-medium block mb-0.5">
-                  Multi-User Provisioning Policy
-                </strong>
-                Public self-registration is disabled. Manager & Cashier accounts are provisioned manually by the system administrator via Postman with an admin key.
+          {/* Account provisioning notice */}
+          <div
+            className="
+              mt-4 border-t border-outline-variant/30 pt-4
+              [@media(max-height:650px)]:mt-2
+              [@media(max-height:650px)]:pt-2
+              [@media(max-height:550px)]:mt-1.5
+              [@media(max-height:550px)]:pt-1.5
+            "
+          >
+            <div
+              className="
+                flex items-start gap-2.5 rounded-xl
+                border border-outline-variant/30
+                bg-surface-container-low p-3
+                [@media(max-height:650px)]:p-2
+              "
+            >
+              <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+
+              <div className="min-w-0 text-xs leading-relaxed text-on-surface-variant [@media(max-height:550px)]:text-[11px]">
+                <p className="mb-0.5 font-semibold text-on-surface">
+                  Managed Accounts
+                </p>
+                Public registration is disabled. Accounts are created by the
+                system administrator through the authorized API.
               </div>
             </div>
           </div>
         </Card>
 
-        {/* Footer info */}
-        <p className="text-center text-label-small text-on-surface-variant/70 mt-6">
-          GameDash System • Secure Multi-Tenant Architecture • 2026
+        {/* Footer */}
+        <p
+          className="
+            mt-3 text-center text-[11px] text-on-surface-variant/70
+            sm:mt-4 sm:text-xs
+            [@media(max-height:650px)]:mt-2
+            [@media(max-height:550px)]:mt-1
+          "
+        >
+          GameDash · Secure Gaming Center Management · 2026
         </p>
       </div>
-    </div>
+    </main>
   );
 }
