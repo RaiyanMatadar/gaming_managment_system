@@ -26,7 +26,7 @@ export function Navbar({
           </div>
           <div>
             <h1 className="text-xl font-bold tracking-tight text-on-surface flex items-center gap-2">
-              GameDash
+              GameDashboard
               <Badge variant="primary" size="pill">
                 POS & Management
               </Badge>

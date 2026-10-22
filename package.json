@@ -1,7 +1,7 @@
 {
-  "name": "gamedash",
+  "name": "GameDashboard",
   "version": "1.0.0",
-  "description": "GameDash — Gaming Center Management System with deterministic time tracking, overtime billing, and session controls",
+  "description": "GameDashboard — Gaming Center Management System with deterministic time tracking, overtime billing, and session controls",
   "type": "module",
   "scripts": {
     "dev": "npm run dev --prefix client",
@@ -15,7 +15,7 @@
     "gaming-center",
     "billing",
     "session-management",
-    "gamedash"
+    "GameDashboard"
   ],
   "author": "",
   "license": "ISC"

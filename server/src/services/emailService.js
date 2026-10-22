@@ -34,7 +34,7 @@ export class EmailService {
   }
 
   getFromAddress() {
-    return process.env.EMAIL_FROM || '"GameDash Gaming Center" <notifications@gamingcenter.com>';
+    return process.env.EMAIL_FROM || '"GameDashboard Gaming Center" <notifications@gamingcenter.com>';
   }
 
   /**
@@ -80,7 +80,7 @@ export class EmailService {
       `Start Time: ${formattedStart}`,
       `Scheduled End Time: ${formattedEnd}`,
       `---------------------------------------`,
-      `Notification sent automatically by GameDash Gaming Management System.`
+      `Notification sent automatically by GameDashboard Gaming Management System.`
     ].join('\n');
 
     const htmlContent = `

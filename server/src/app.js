@@ -20,7 +20,7 @@ export function createApp() {
     res.json({
       status: 'OK',
       timestamp: new Date().toISOString(),
-      service: 'GameDash Gaming Center Management API'
+      service: 'GameDashboard Gaming Center Management API'
     });
   });
 

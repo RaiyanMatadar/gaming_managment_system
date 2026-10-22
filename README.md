@@ -1,4 +1,4 @@
-# GameDash — Gaming Center Management System
+# GameDashboard — Gaming Center Management System
 
 A production-grade, highly reliable Gaming Center Management System built with a modular full-stack architecture: React 19 (Material Design 3 tokens & Tailwind CSS), Node.js / Express REST API, and dual persistence engines (MongoDB / High-Performance In-Memory Store).
 
@@ -8,7 +8,7 @@ Designed specifically for physical gaming cafes, LAN arenas, and esports centers
 
 ## Architecture Overview
 
-GameDash is organized into two completely self-contained packages (`client/` and `server/`), each with its own dependencies and configuration, orchestrated by root convenience commands:
+GameDashboard is organized into two completely self-contained packages (`client/` and `server/`), each with its own dependencies and configuration, orchestrated by root convenience commands:
 
 ```
 ├── client/                     # Frontend Application (React 19, Vite, Tailwind CSS)
@@ -175,7 +175,7 @@ npm run build      # Build production bundle to client/dist
 ---
 
 ## Verification & Automated Tests
-GameDash includes 47 automated tests run with native Node.js test runner:
+GameDashboard includes 47 automated tests run with native Node.js test runner:
 
 ```bash
 npm test

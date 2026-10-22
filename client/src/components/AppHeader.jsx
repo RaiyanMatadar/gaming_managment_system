@@ -72,7 +72,7 @@ export function AppHeader({
 
           <div>
             <div className="flex items-center gap-1.5 text-label-small text-on-surface-variant">
-              <span>GameDash</span>
+              <span>GameDashboard</span>
               <ChevronRight className="w-3 h-3 text-outline" />
               <span className="text-on-surface font-semibold">{current.name}</span>
             </div>
