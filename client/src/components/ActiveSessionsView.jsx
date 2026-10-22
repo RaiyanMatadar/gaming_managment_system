@@ -129,60 +129,60 @@ export function ActiveSessionsView({
   const overtimeCount = enrichedSessions.filter((s) => s.isOvertime).length;
 
   return (
-    <div className="space-y-6">
-      {/* Top Session Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <Card variant="container" className="p-4 flex items-center justify-between">
+    <div className="space-y-3 sm:space-y-6">
+      {/* Top Session Metrics (Compact 3-column row on mobile, full cards on desktop) */}
+      <div className="grid grid-cols-3 sm:grid-cols-3 gap-1.5 sm:gap-3">
+        <Card variant="container" className="p-2 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-0">
           <div>
-            <span className="text-xs font-medium text-on-surface-variant">Currently Playing</span>
-            <div className="text-xl font-bold text-on-surface tabular-nums mt-0.5">{activeStations.length} players</div>
+            <span className="text-[10px] sm:text-xs font-medium text-on-surface-variant block truncate">Playing</span>
+            <div className="text-sm sm:text-xl font-bold text-on-surface tabular-nums mt-0.5">{activeStations.length} <span className="hidden sm:inline text-xs font-normal text-on-surface-variant">players</span></div>
           </div>
-          <div className="w-9 h-9 rounded-lg bg-primary-container/40 border border-primary/30 flex items-center justify-center text-primary">
+          <div className="hidden sm:flex w-9 h-9 rounded-lg bg-primary-container/40 border border-primary/30 items-center justify-center text-primary shrink-0">
             <Gamepad2 className="w-4 h-4" />
           </div>
         </Card>
 
-        <Card variant={warningCount > 0 ? "high" : "container"} className={`p-4 flex items-center justify-between border ${
+        <Card variant={warningCount > 0 ? "high" : "container"} className={`p-2 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-0 border ${
           warningCount > 0
             ? 'bg-warning-container text-on-warning-container border-warning/40'
             : 'border-outline-variant/40'
         }`}>
           <div>
-            <span className="text-xs font-medium text-on-surface-variant">Ending Soon (5 mins)</span>
-            <div className={`text-xl font-bold tabular-nums mt-0.5 ${warningCount > 0 ? 'text-warning' : 'text-on-surface'}`}>
-              {warningCount} players
+            <span className="text-[10px] sm:text-xs font-medium text-on-surface-variant block truncate">Ending Soon</span>
+            <div className={`text-sm sm:text-xl font-bold tabular-nums mt-0.5 ${warningCount > 0 ? 'text-warning' : 'text-on-surface'}`}>
+              {warningCount} <span className="hidden sm:inline text-xs font-normal text-on-surface-variant">players</span>
             </div>
           </div>
-          <div className="w-9 h-9 rounded-full bg-warning/20 flex items-center justify-center text-warning">
+          <div className="hidden sm:flex w-9 h-9 rounded-full bg-warning/20 items-center justify-center text-warning shrink-0">
             <Clock className="w-4 h-4" />
           </div>
         </Card>
 
-        <div className={`rounded-xl p-4 flex items-center justify-between border ${
+        <div className={`rounded-xl p-2 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-0 border ${
           overtimeCount > 0
             ? 'bg-error-container/40 border-error/50 text-on-error-container'
             : 'bg-surface-container border-outline-variant/60'
         }`}>
           <div>
-            <span className="text-xs font-medium text-on-surface-variant">In Extra Time</span>
-            <div className={`text-xl font-bold tabular-nums mt-0.5 ${overtimeCount > 0 ? 'text-on-error-container' : 'text-on-surface'}`}>
-              {overtimeCount} players
+            <span className="text-[10px] sm:text-xs font-medium text-on-surface-variant block truncate">Extra Time</span>
+            <div className={`text-sm sm:text-xl font-bold tabular-nums mt-0.5 ${overtimeCount > 0 ? 'text-on-error-container' : 'text-on-surface'}`}>
+              {overtimeCount} <span className="hidden sm:inline text-xs font-normal text-on-surface-variant">players</span>
             </div>
           </div>
-          <div className="w-9 h-9 rounded-lg bg-error-container/60 border border-error/40 flex items-center justify-center text-error">
+          <div className="hidden sm:flex w-9 h-9 rounded-lg bg-error-container/60 border border-error/40 items-center justify-center text-error shrink-0">
             <AlertTriangle className="w-4 h-4" />
           </div>
         </div>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none py-0.5">
           <button
             onClick={() => setFilterType('ALL')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-medium whitespace-nowrap transition-colors shrink-0 ${
               filterType === 'ALL'
-                ? 'bg-primary-container text-on-primary-container border border-primary/40 font-semibold'
+                ? 'bg-primary-container text-on-primary-container border border-primary/40 font-semibold shadow-xs'
                 : 'bg-surface-container text-on-surface-variant border border-outline-variant/60 hover:text-on-surface'
             }`}
           >
@@ -190,31 +190,31 @@ export function ActiveSessionsView({
           </button>
           <button
             onClick={() => setFilterType('WARNING')}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors flex items-center gap-1.5 ${
+            className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-medium whitespace-nowrap transition-colors flex items-center gap-1 shrink-0 ${
               filterType === 'WARNING'
-                ? 'bg-warning-container text-on-warning-container border border-warning/40 font-semibold'
+                ? 'bg-warning-container text-on-warning-container border border-warning/40 font-semibold shadow-xs'
                 : 'bg-surface-container text-warning border border-outline-variant/60 hover:text-on-surface'
             }`}
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-warning" />
-            Ending Soon ({warningCount})
+            <span className="w-1.5 h-1.5 rounded-full bg-warning shrink-0" />
+            <span>Ending Soon ({warningCount})</span>
           </button>
           <button
             onClick={() => setFilterType('OVERTIME')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
+            className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-medium whitespace-nowrap transition-colors flex items-center gap-1 shrink-0 ${
               filterType === 'OVERTIME'
-                ? 'bg-error-container/40 text-on-error-container border border-error/50 font-semibold'
+                ? 'bg-error-container/40 text-on-error-container border border-error/50 font-semibold shadow-xs'
                 : 'bg-surface-container text-error border border-outline-variant/60 hover:text-on-surface'
             }`}
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-error" />
-            Extra Time ({overtimeCount})
+            <span className="w-1.5 h-1.5 rounded-full bg-error shrink-0" />
+            <span>Extra Time ({overtimeCount})</span>
           </button>
           <button
             onClick={() => setFilterType('PAUSED')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-medium whitespace-nowrap transition-colors shrink-0 ${
               filterType === 'PAUSED'
-                ? 'bg-tertiary-container text-tertiary border border-tertiary/50 font-semibold'
+                ? 'bg-tertiary-container text-tertiary border border-tertiary/50 font-semibold shadow-xs'
                 : 'bg-surface-container text-tertiary border border-outline-variant/60 hover:text-on-surface'
             }`}
           >
@@ -370,7 +370,7 @@ export function ActiveSessionsView({
                         className="flex-1 text-xs"
                         title="Resume countdown"
                       >
-                        <Play className="w-3.5 h-3.5 fill-current mr-1" />
+                        <Play className="w-3.5 h-3.5 fill-current shrink-0" />
                         <span>Resume</span>
                       </Button>
                     ) : (
@@ -381,7 +381,7 @@ export function ActiveSessionsView({
                         className="flex-1 text-xs"
                         title="Pause countdown"
                       >
-                        <Pause className="w-3.5 h-3.5 mr-1" />
+                        <Pause className="w-3.5 h-3.5 shrink-0" />
                         <span>Pause</span>
                       </Button>
                     )}
@@ -393,7 +393,7 @@ export function ActiveSessionsView({
                       className="flex-1 text-xs"
                       title="Add 15, 30, or 60 minutes"
                     >
-                      <Plus className="w-3.5 h-3.5 text-primary mr-1" />
+                      <Plus className="w-3.5 h-3.5 text-primary shrink-0" />
                       <span>Add Time</span>
                     </Button>
                   </div>
@@ -407,7 +407,7 @@ export function ActiveSessionsView({
                       className="flex-1 text-xs"
                       title="Move player to another computer"
                     >
-                      <ArrowRightLeft className="w-3 h-3 text-on-surface-variant mr-1" />
+                      <ArrowRightLeft className="w-3 h-3 text-on-surface-variant shrink-0" />
                       <span>Move</span>
                     </Button>
 
@@ -419,7 +419,7 @@ export function ActiveSessionsView({
                         className="flex-1 text-xs"
                         title="Cancel active session and release computer"
                       >
-                        <XCircle className="w-3 h-3 mr-1" />
+                        <XCircle className="w-3 h-3 shrink-0" />
                         <span>Cancel</span>
                       </Button>
                     )}
@@ -433,7 +433,7 @@ export function ActiveSessionsView({
                     onClick={() => checkoutSession && checkoutSession(live.sessionId, station.name)}
                     className="mt-0.5"
                   >
-                    <CreditCard className="w-3.5 h-3.5 mr-1" />
+                    <CreditCard className="w-3.5 h-3.5 shrink-0" />
                     <span>Checkout & Settle</span>
                   </Button>
                 </div>

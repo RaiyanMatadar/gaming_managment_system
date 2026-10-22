@@ -202,7 +202,8 @@ export function CustomerLedgerView({ embedded = true }) {
 
       {!loading && !error && sessions.length > 0 && (
         <Card variant="container" className="overflow-hidden">
-          <table className="w-full text-left text-xs">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs min-w-[640px]">
             <thead className="bg-surface-container-lowest text-on-surface-variant border-b border-outline-variant/40">
               <tr>
                 <th className="py-3.5 px-4 font-semibold">Customer</th>
@@ -308,6 +309,7 @@ export function CustomerLedgerView({ embedded = true }) {
               })}
             </tbody>
           </table>
+          </div>
         </Card>
       )}
     </div>

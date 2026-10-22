@@ -154,10 +154,10 @@ export function StationCard({
   }
 
   return (
-    <Card variant={cardVariant} className="p-4 sm:p-5 flex flex-col justify-between h-full border border-outline-variant/40 hover:border-outline-variant/70 transition-all overflow-hidden">
+    <Card variant={cardVariant} className="p-3.5 sm:p-4 flex flex-col justify-between h-full border border-outline-variant/40 hover:border-outline-variant/70 transition-all overflow-hidden">
       <div>
         {/* Header: Station Name, Type, Price, Status */}
-        <div className="pb-3 border-b border-outline-variant/40">
+        <div className="pb-2 sm:pb-2.5 border-b border-outline-variant/40">
           <div className="flex items-center justify-between gap-2 min-w-0">
             <h3
               className="title-medium font-bold text-on-surface tracking-tight truncate flex-1 min-w-0"
@@ -170,7 +170,7 @@ export function StationCard({
             </Badge>
           </div>
 
-          <div className="flex items-center justify-between gap-2 mt-1.5 text-xs text-on-surface-variant">
+          <div className="flex items-center justify-between gap-2 mt-1 text-xs text-on-surface-variant">
             <Badge variant={hardware.variant} size="xs" className="inline-flex items-center gap-1">
               <HardwareIcon className="w-3 h-3" />
               <span>{hardware.label}</span>
@@ -183,9 +183,9 @@ export function StationCard({
 
         {/* Live Session Body (Occupied Station) */}
         {isOccupied && (
-          <div className="my-3 space-y-2.5 min-h-[105px] flex flex-col justify-center">
+          <div className="my-2.5 space-y-2 min-h-[72px] flex flex-col justify-center">
             {/* Player Information */}
-            <div className="flex items-center justify-between text-xs py-1 border-b border-outline-variant/30">
+            <div className="flex items-center justify-between text-xs py-0.5 border-b border-outline-variant/30">
               <span className="text-on-surface-variant flex items-center gap-1.5">
                 <User className="w-3.5 h-3.5 text-outline" />
                 Player:
@@ -214,7 +214,7 @@ export function StationCard({
             )}
 
             {/* Time Countdown / Overtime Meter */}
-            <div className="p-2.5 rounded-lg bg-surface-container-lowest border border-outline-variant/50 flex items-center justify-between">
+            <div className="p-2 rounded-lg bg-surface-container-lowest border border-outline-variant/50 flex items-center justify-between">
               <div className="text-xs text-on-surface-variant flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5 text-outline" />
                 <span>{isOvertime ? 'Extra time:' : 'Time left:'}</span>
@@ -236,7 +236,7 @@ export function StationCard({
                   Paused
                 </span>
               ) : (
-                <span className={`font-mono tabular-nums text-base font-bold ${isWarning ? 'text-warning' : 'text-primary'}`}>
+                <span className={`font-mono tabular-nums text-sm sm:text-base font-bold ${isWarning ? 'text-warning' : 'text-primary'}`}>
                   {formatDuration(remainingMs)}
                 </span>
               )}
@@ -246,25 +246,25 @@ export function StationCard({
 
         {/* Maintenance State */}
         {isMaintenance && (
-          <div className="my-3 py-6 px-3 text-center border border-outline-variant/50 rounded-xl bg-surface-container-lowest/40 flex flex-col items-center justify-center min-h-[105px] text-xs text-on-surface-variant">
-            <Wrench className="w-5 h-5 text-warning mb-1" />
-            <p className="text-xs font-medium text-warning">In Repair</p>
-            <p className="text-[11px] text-on-surface-variant mt-0.5">Currently offline for service</p>
+          <div className="my-2.5 py-3.5 px-3 text-center border border-outline-variant/50 rounded-xl bg-surface-container-lowest/40 flex flex-col items-center justify-center min-h-[72px] text-xs text-on-surface-variant">
+            <Wrench className="w-4 h-4 text-warning mb-1" />
+            <p className="text-xs font-semibold text-warning">In Repair</p>
+            <p className="text-[11px] text-on-surface-variant">Offline for maintenance</p>
           </div>
         )}
 
         {/* Available State Prompt */}
         {station.status === 'AVAILABLE' && (
-          <div className="my-3 py-6 px-3 text-center border border-dashed border-outline-variant/60 rounded-xl bg-surface-container-lowest/40 flex flex-col items-center justify-center min-h-[105px]">
-            <Monitor className="w-5 h-5 text-outline mb-1 opacity-60" />
-            <p className="text-xs font-medium text-on-surface">Ready to Play</p>
-            <p className="text-[11px] text-on-surface-variant mt-0.5">Click Start to assign player</p>
+          <div className="my-2.5 py-3.5 px-3 text-center border border-dashed border-outline-variant/60 rounded-xl bg-surface-container-lowest/40 flex flex-col items-center justify-center min-h-[72px]">
+            <Monitor className="w-4 h-4 text-outline mb-1 opacity-70" />
+            <p className="text-xs font-semibold text-on-surface">Ready to Play</p>
+            <p className="text-[11px] text-on-surface-variant">Click Start Session below</p>
           </div>
         )}
       </div>
 
       {/* Action Footer */}
-      <div className="pt-3 border-t border-outline-variant/40 space-y-2">
+      <div className="pt-2.5 border-t border-outline-variant/40 space-y-1.5">
         {/* Available Actions: Prominent Full-Width Start + Secondary Row */}
         {station.status === 'AVAILABLE' && (
           <div className="space-y-1.5">
@@ -275,7 +275,7 @@ export function StationCard({
               onClick={() => startSession && startSession(station)}
               className="font-medium whitespace-nowrap shadow-sm hover:shadow-md"
             >
-              <Play className="w-4 h-4 fill-current mr-1.5" />
+              <Play className="w-4 h-4 fill-current shrink-0" />
               <span>Start Session</span>
             </Button>
             <div className={`grid ${deleteStation ? 'grid-cols-2' : 'grid-cols-1'} gap-1.5`}>
@@ -287,7 +287,7 @@ export function StationCard({
                 aria-label="Maintenance toggle"
                 className="text-xs text-on-surface-variant hover:text-on-surface border-outline-variant/60 w-full justify-center px-1"
               >
-                <Wrench className="w-3.5 h-3.5 mr-1 shrink-0" />
+                <Wrench className="w-3.5 h-3.5 shrink-0" />
                 <span className="truncate">Maintenance</span>
               </Button>
               {deleteStation && (
@@ -299,7 +299,7 @@ export function StationCard({
                   aria-label="Delete computer"
                   className="text-xs text-error hover:bg-error-container/20 border-outline-variant/60 w-full justify-center px-1"
                 >
-                  <Trash2 className="w-3.5 h-3.5 mr-1 shrink-0" />
+                  <Trash2 className="w-3.5 h-3.5 shrink-0" />
                   <span className="truncate">Delete PC</span>
                 </Button>
               )}
@@ -320,7 +320,7 @@ export function StationCard({
                   className="flex-1 text-xs"
                   title="Resume countdown"
                 >
-                  <Play className="w-3.5 h-3.5 fill-current mr-1" />
+                  <Play className="w-3.5 h-3.5 fill-current shrink-0" />
                   <span>Resume</span>
                 </Button>
               ) : (
@@ -331,7 +331,7 @@ export function StationCard({
                   className="flex-1 text-xs"
                   title="Pause countdown"
                 >
-                  <Pause className="w-3.5 h-3.5 mr-1" />
+                  <Pause className="w-3.5 h-3.5 shrink-0" />
                   <span>Pause</span>
                 </Button>
               )}
@@ -343,7 +343,7 @@ export function StationCard({
                 className="flex-1 text-xs"
                 title="Add 15, 30, or 60 minutes"
               >
-                <Plus className="w-3.5 h-3.5 text-primary mr-1" />
+                <Plus className="w-3.5 h-3.5 text-primary shrink-0" />
                 <span>Add Time</span>
               </Button>
             </div>
@@ -357,7 +357,7 @@ export function StationCard({
                 className="flex-1 text-xs"
                 title="Move player to another computer"
               >
-                <ArrowRightLeft className="w-3 h-3 text-on-surface-variant mr-1" />
+                <ArrowRightLeft className="w-3 h-3 text-on-surface-variant shrink-0" />
                 <span>Move</span>
               </Button>
 
@@ -369,7 +369,7 @@ export function StationCard({
                   className="flex-1 text-xs"
                   title="Cancel active session and release computer"
                 >
-                  <XCircle className="w-3 h-3 mr-1" />
+                  <XCircle className="w-3 h-3 shrink-0" />
                   <span>Cancel</span>
                 </Button>
               )}
@@ -383,7 +383,7 @@ export function StationCard({
               onClick={() => checkoutSession && checkoutSession(live.sessionId, station.name)}
               className="mt-0.5"
             >
-              <CreditCard className="w-3.5 h-3.5 mr-1" />
+              <CreditCard className="w-3.5 h-3.5 shrink-0" />
               <span>Checkout & Settle</span>
             </Button>
           </div>
@@ -399,7 +399,7 @@ export function StationCard({
               onClick={() => onToggleMaintenance(station._id, 'AVAILABLE')}
               className="font-medium whitespace-nowrap text-success"
             >
-              <Wrench className="w-4 h-4 text-success mr-1.5" />
+              <Wrench className="w-4 h-4 text-success shrink-0" />
               <span>Mark Available</span>
             </Button>
             {deleteStation && (
@@ -412,7 +412,7 @@ export function StationCard({
                 aria-label="Delete computer"
                 className="text-xs text-error hover:bg-error-container/20 border-outline-variant/60"
               >
-                <Trash2 className="w-3.5 h-3.5 mr-1" />
+                <Trash2 className="w-3.5 h-3.5 shrink-0" />
                 <span>Delete PC</span>
               </Button>
             )}

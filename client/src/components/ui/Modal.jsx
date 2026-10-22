@@ -34,7 +34,7 @@ export function Modal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
       {/* Scrim Backdrop */}
       <div
         className="fixed inset-0 bg-scrim/60 backdrop-blur-sm transition-opacity duration-200"
@@ -46,7 +46,7 @@ export function Modal({
       <div
         role="dialog"
         aria-modal="true"
-        className={`relative w-full ${maxWidth} bg-surface-container-high text-on-surface rounded-[28px] p-6 shadow-m3-3 z-10 animate-in fade-in zoom-in-95 duration-200 ease-m3-standard`}
+        className={`relative w-full ${maxWidth} bg-surface-container-high text-on-surface rounded-[24px] sm:rounded-[28px] p-4 sm:p-6 shadow-m3-3 z-10 animate-in fade-in zoom-in-95 duration-200 ease-m3-standard max-h-[calc(100vh-2rem)] overflow-y-auto`}
       >
         {/* Header */}
         {(title || IconComponent) && (

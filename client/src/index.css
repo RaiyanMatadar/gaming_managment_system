@@ -115,19 +115,22 @@
     font-weight: 400;
   }
 
-  .label-large {
+  .label-large,
+  .text-label-large {
     font-size: 0.875rem;   /* 14px */
     line-height: 1.25rem; /* 20px */
     letter-spacing: 0.007em;
     font-weight: 500;
   }
-  .label-medium {
+  .label-medium,
+  .text-label-medium {
     font-size: 0.75rem;    /* 12px */
     line-height: 1rem;    /* 16px */
     letter-spacing: 0.031em;
     font-weight: 500;
   }
-  .label-small {
+  .label-small,
+  .text-label-small {
     font-size: 0.6875rem; /* 11px */
     line-height: 1rem;    /* 16px */
     letter-spacing: 0.031em;

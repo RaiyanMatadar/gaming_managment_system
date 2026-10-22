@@ -217,7 +217,7 @@ export function StartSessionModal({ station, onClose, onSubmit, isSubmitting }) 
             disabled={isSubmitting}
             className="flex-1"
           >
-            <Play className="w-4 h-4 fill-current mr-1" />
+            <Play className="w-4 h-4 fill-current shrink-0" />
             <span>{isSubmitting ? 'Starting...' : 'Start Session'}</span>
           </Button>
         </div>

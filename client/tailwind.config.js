@@ -10,6 +10,23 @@ export default {
       fontFamily: {
         sans: ['Roboto', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
       },
+      screens: {
+        'xs': '420px',
+      },
+      fontSize: {
+        'label-small': ['0.6875rem', { lineHeight: '1rem', letterSpacing: '0.031em', fontWeight: '500' }],
+        'label-medium': ['0.75rem', { lineHeight: '1rem', letterSpacing: '0.031em', fontWeight: '500' }],
+        'label-large': ['0.875rem', { lineHeight: '1.25rem', letterSpacing: '0.007em', fontWeight: '500' }],
+        'body-small': ['0.75rem', { lineHeight: '1rem', letterSpacing: '0.025em' }],
+        'body-medium': ['0.875rem', { lineHeight: '1.25rem', letterSpacing: '0.018em' }],
+        'body-large': ['1rem', { lineHeight: '1.5rem', letterSpacing: '0.031em' }],
+        'title-small': ['0.875rem', { lineHeight: '1.25rem', letterSpacing: '0.007em', fontWeight: '500' }],
+        'title-medium': ['1rem', { lineHeight: '1.5rem', letterSpacing: '0.009em', fontWeight: '500' }],
+        'title-large': ['1.375rem', { lineHeight: '1.75rem', letterSpacing: '0' }],
+        'headline-small': ['1.5rem', { lineHeight: '2rem', letterSpacing: '0' }],
+        'headline-medium': ['1.75rem', { lineHeight: '2.25rem', letterSpacing: '0' }],
+        'headline-large': ['2rem', { lineHeight: '2.5rem', letterSpacing: '0' }],
+      },
       colors: {
         primary: 'var(--md-primary)',
         'surface-tint': 'var(--md-surface-tint)',

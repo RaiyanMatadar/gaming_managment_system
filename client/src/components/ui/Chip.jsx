@@ -15,7 +15,7 @@ export function Chip({
   children,
   ...props
 }) {
-  const base = 'm3-state-layer inline-flex items-center gap-2 h-8 px-3 rounded-[8px] text-label-large font-medium select-none cursor-pointer transition-colors duration-150 ease-m3-standard focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary';
+  const base = 'm3-state-layer inline-flex items-center gap-1.5 sm:gap-2 h-7 sm:h-8 px-2.5 sm:px-3 rounded-full text-xs sm:text-label-large font-medium select-none cursor-pointer whitespace-nowrap shrink-0 transition-colors duration-150 ease-m3-standard focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary';
 
   const style = selected
     ? 'bg-secondary-container text-on-secondary-container border-none'

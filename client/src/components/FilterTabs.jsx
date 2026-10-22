@@ -11,7 +11,7 @@ export function FilterTabs({ activeFilter, onSelectFilter, counts }) {
   ];
 
   return (
-    <div className="flex items-center gap-2 overflow-x-auto pb-1 mb-6 scrollbar-none">
+    <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 mb-2.5 sm:mb-4 scrollbar-none py-0.5">
       {tabs.map(tab => {
         const isActive = activeFilter === tab.id;
         return (

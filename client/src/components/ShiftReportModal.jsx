@@ -211,30 +211,32 @@ export function ShiftReportView({ embedded = true }) {
 
       {!loading && report && activeTab === 'STATIONS' && (
         <Card variant="container" className="overflow-hidden shadow-inner">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-surface-container-lowest text-on-surface-variant border-b border-outline-variant/40">
-              <tr>
-                <th className="py-3.5 px-4 font-semibold">Computer</th>
-                <th className="py-3.5 px-4 font-semibold">Type</th>
-                <th className="py-3.5 px-4 font-semibold text-center">Hourly Rate</th>
-                <th className="py-3.5 px-4 font-semibold text-center">Sessions</th>
-                <th className="py-3.5 px-4 font-semibold text-center">Hours Used</th>
-                <th className="py-3.5 px-4 font-semibold text-right">Revenue</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-outline-variant/30 text-on-surface-variant">
-              {report.stationBreakdown.map((st) => (
-                <tr key={st.stationId} className="hover:bg-surface-container-high transition-colors">
-                  <td className="py-3.5 px-4 font-bold text-on-surface">{st.stationName}</td>
-                  <td className="py-3.5 px-4 text-on-surface-variant">{st.stationType.replace('_', ' ')}</td>
-                  <td className="py-3.5 px-4 text-center">₹{st.hourlyRate}/hr</td>
-                  <td className="py-3.5 px-4 text-center font-bold text-primary">{st.sessionCount}</td>
-                  <td className="py-3.5 px-4 text-center">{st.gamingHours} hrs</td>
-                  <td className="py-3.5 px-4 text-right font-bold text-success text-sm">₹{st.revenue}</td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs min-w-[560px]">
+              <thead className="bg-surface-container-lowest text-on-surface-variant border-b border-outline-variant/40">
+                <tr>
+                  <th className="py-3.5 px-4 font-semibold">Computer</th>
+                  <th className="py-3.5 px-4 font-semibold">Type</th>
+                  <th className="py-3.5 px-4 font-semibold text-center">Hourly Rate</th>
+                  <th className="py-3.5 px-4 font-semibold text-center">Sessions</th>
+                  <th className="py-3.5 px-4 font-semibold text-center">Hours Used</th>
+                  <th className="py-3.5 px-4 font-semibold text-right">Revenue</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-outline-variant/30 text-on-surface-variant">
+                {report.stationBreakdown.map((st) => (
+                  <tr key={st.stationId} className="hover:bg-surface-container-high transition-colors">
+                    <td className="py-3.5 px-4 font-bold text-on-surface">{st.stationName}</td>
+                    <td className="py-3.5 px-4 text-on-surface-variant">{st.stationType.replace('_', ' ')}</td>
+                    <td className="py-3.5 px-4 text-center">₹{st.hourlyRate}/hr</td>
+                    <td className="py-3.5 px-4 text-center font-bold text-primary">{st.sessionCount}</td>
+                    <td className="py-3.5 px-4 text-center">{st.gamingHours} hrs</td>
+                    <td className="py-3.5 px-4 text-right font-bold text-success text-sm">₹{st.revenue}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </Card>
       )}
 

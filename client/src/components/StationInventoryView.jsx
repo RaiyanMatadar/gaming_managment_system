@@ -135,7 +135,8 @@ export function StationInventoryView({
 
       {/* Inventory Table */}
       <Card variant="container" className="overflow-hidden shadow-inner">
-        <table className="w-full text-left text-xs">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs min-w-[620px]">
           <thead className="bg-surface-container-lowest text-on-surface-variant border-b border-outline-variant/40">
             <tr>
               <th className="py-3.5 px-4 font-semibold">Computer</th>
@@ -212,7 +213,7 @@ export function StationInventoryView({
                           onClick={() => onStartSession(st)}
                           className="whitespace-nowrap"
                         >
-                          <Play className="w-3.5 h-3.5 fill-current mr-1" />
+                          <Play className="w-3.5 h-3.5 fill-current shrink-0" />
                           <span>Start Session</span>
                         </Button>
                       )}
@@ -256,6 +257,7 @@ export function StationInventoryView({
             })}
           </tbody>
         </table>
+        </div>
       </Card>
     </div>
   );

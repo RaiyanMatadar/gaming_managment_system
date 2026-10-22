@@ -507,12 +507,14 @@ export function App() {
         )}
 
         {/* View Router Main Content Area */}
-        <main className="p-4 sm:p-6 lg:p-8 flex-1 w-full max-w-7xl mx-auto">
+        <main className="p-2.5 sm:p-5 lg:p-6 flex-1 w-full max-w-7xl mx-auto pb-20 md:pb-6">
           {/* VIEW 1: Live Floor Grid */}
           {currentView === 'floor' && (
-            <div className="space-y-5">
-              {/* Floor Overview Strip */}
-              <StatsBar stations={stations} />
+            <div className="space-y-3 sm:space-y-4">
+              {/* Floor Overview Strip (Visible on desktop/tablet, hidden on mobile for maximum space) */}
+              <div className="hidden sm:block">
+                <StatsBar stations={stations} />
+              </div>
 
               {/* Floor Segment Filters */}
               <FilterTabs
@@ -523,27 +525,27 @@ export function App() {
 
               {/* Loading & Error States */}
               {loading && (
-                <div className="text-center py-20 bg-surface-container border border-outline-variant/40 rounded-xl">
+                <div className="text-center py-16 bg-surface-container border border-outline-variant/40 rounded-xl">
                   <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3" />
                   <p className="text-xs text-on-surface-variant">Loading computers...</p>
                 </div>
               )}
 
               {error && (
-                <div className="p-4 rounded-xl bg-error-container/40 border border-error/40 text-on-error-container text-xs text-center mb-6">
+                <div className="p-3.5 rounded-xl bg-error-container/40 border border-error/40 text-on-error-container text-xs text-center mb-4">
                   {error}
                 </div>
               )}
 
               {/* Station Grid Empty State */}
               {!loading && filteredStations.length === 0 && (
-                <div className="text-center py-16 bg-surface-container border border-outline-variant/40 rounded-xl">
+                <div className="text-center py-12 bg-surface-container border border-outline-variant/40 rounded-xl">
                   <p className="text-sm font-semibold text-on-surface">No computers found in this category</p>
                   <p className="text-xs text-on-surface-variant mt-1">Switch to "All" or click "Add Computer"</p>
                 </div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
                 {filteredStations.map((station) => (
                   <StationCard
                     key={station._id}
