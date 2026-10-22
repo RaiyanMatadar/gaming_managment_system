@@ -20,7 +20,14 @@ export const store = {
 
   async getStationById(id) {
     if (isMongoConnected()) {
-      return await Station.findById(id).lean();
+      try {
+        if (mongoose.Types.ObjectId.isValid(id)) {
+          return await Station.findById(id).lean();
+        }
+        return await Station.findOne({ $or: [{ _id: id }, { name: id }] }).lean();
+      } catch {
+        return null;
+      }
     }
     return await memoryStore.getStationById(id);
   },
@@ -67,7 +74,14 @@ export const store = {
 
   async deleteStation(stationId) {
     if (isMongoConnected()) {
-      return await Station.findByIdAndDelete(stationId);
+      try {
+        if (mongoose.Types.ObjectId.isValid(stationId)) {
+          return await Station.findByIdAndDelete(stationId);
+        }
+        return await Station.findOneAndDelete({ $or: [{ _id: stationId }, { name: stationId }] });
+      } catch {
+        return null;
+      }
     }
     return await memoryStore.deleteStation(stationId);
   },
@@ -82,7 +96,15 @@ export const store = {
 
   async getAllSessions(filter = {}) {
     if (isMongoConnected()) {
-      return await Session.find(filter).lean();
+      try {
+        const query = { ...filter };
+        if (query.stationId && !mongoose.Types.ObjectId.isValid(query.stationId)) {
+          delete query.stationId;
+        }
+        return await Session.find(query).lean();
+      } catch {
+        return [];
+      }
     }
     return await memoryStore.getAllSessions(filter);
   },

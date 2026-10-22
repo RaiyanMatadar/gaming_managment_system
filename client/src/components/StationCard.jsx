@@ -154,7 +154,7 @@ export function StationCard({
   }
 
   return (
-    <Card variant={cardVariant} className="p-4 sm:p-5 flex flex-col justify-between h-full border border-outline-variant/40 hover:border-outline-variant/70 transition-all">
+    <Card variant={cardVariant} className="p-4 sm:p-5 flex flex-col justify-between h-full border border-outline-variant/40 hover:border-outline-variant/70 transition-all overflow-hidden">
       <div>
         {/* Header: Station Name, Type, Price, Status */}
         <div className="pb-3 border-b border-outline-variant/40">
@@ -265,40 +265,45 @@ export function StationCard({
 
       {/* Action Footer */}
       <div className="pt-3 border-t border-outline-variant/40 space-y-2">
-        {/* Available Actions */}
+        {/* Available Actions: Prominent Full-Width Start + Secondary Row */}
         {station.status === 'AVAILABLE' && (
-          <div className="flex items-center gap-1.5">
+          <div className="space-y-1.5">
             <Button
               variant="filled"
-              size="sm"
+              size="md"
+              fullWidth
               onClick={() => startSession && startSession(station)}
-              className="flex-1"
+              className="font-medium whitespace-nowrap shadow-sm hover:shadow-md"
             >
-              <Play className="w-3.5 h-3.5 fill-current mr-1" />
+              <Play className="w-4 h-4 fill-current mr-1.5" />
               <span>Start Session</span>
             </Button>
-            <Button
-              variant="outlined"
-              size="sm"
-              onClick={() => onToggleMaintenance(station._id, 'MAINTENANCE')}
-              title="Mark for repair"
-              aria-label="Maintenance toggle"
-              className="px-2.5"
-            >
-              <Wrench className="w-3.5 h-3.5" />
-            </Button>
-            {deleteStation && (
+            <div className={`grid ${deleteStation ? 'grid-cols-2' : 'grid-cols-1'} gap-1.5`}>
               <Button
                 variant="outlined"
                 size="sm"
-                onClick={() => deleteStation(station)}
-                title="Delete this computer"
-                aria-label="Delete computer"
-                className="px-2.5 text-error hover:bg-error-container/20 border-outline-variant/40"
+                onClick={() => onToggleMaintenance(station._id, 'MAINTENANCE')}
+                title="Mark for repair"
+                aria-label="Maintenance toggle"
+                className="text-xs text-on-surface-variant hover:text-on-surface border-outline-variant/60 w-full justify-center px-1"
               >
-                <Trash2 className="w-3.5 h-3.5" />
+                <Wrench className="w-3.5 h-3.5 mr-1 shrink-0" />
+                <span className="truncate">Maintenance</span>
               </Button>
-            )}
+              {deleteStation && (
+                <Button
+                  variant="outlined"
+                  size="sm"
+                  onClick={() => deleteStation(station)}
+                  title="Delete this computer"
+                  aria-label="Delete computer"
+                  className="text-xs text-error hover:bg-error-container/20 border-outline-variant/60 w-full justify-center px-1"
+                >
+                  <Trash2 className="w-3.5 h-3.5 mr-1 shrink-0" />
+                  <span className="truncate">Delete PC</span>
+                </Button>
+              )}
+            </div>
           </div>
         )}
 
@@ -386,26 +391,29 @@ export function StationCard({
 
         {/* Maintenance Actions */}
         {isMaintenance && (
-          <div className="flex items-center gap-1.5">
+          <div className="space-y-1.5">
             <Button
-              variant="outlined"
-              size="sm"
+              variant="tonal"
+              size="md"
+              fullWidth
               onClick={() => onToggleMaintenance(station._id, 'AVAILABLE')}
-              className="flex-1"
+              className="font-medium whitespace-nowrap text-success"
             >
-              <Wrench className="w-3.5 h-3.5 text-success mr-1" />
+              <Wrench className="w-4 h-4 text-success mr-1.5" />
               <span>Mark Available</span>
             </Button>
             {deleteStation && (
               <Button
                 variant="outlined"
                 size="sm"
+                fullWidth
                 onClick={() => deleteStation(station)}
                 title="Delete this computer"
                 aria-label="Delete computer"
-                className="px-2.5 text-error hover:bg-error-container/20 border-outline-variant/40"
+                className="text-xs text-error hover:bg-error-container/20 border-outline-variant/60"
               >
-                <Trash2 className="w-3.5 h-3.5" />
+                <Trash2 className="w-3.5 h-3.5 mr-1" />
+                <span>Delete PC</span>
               </Button>
             )}
           </div>

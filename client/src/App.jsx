@@ -216,12 +216,17 @@ export function App() {
     }
   };
 
+  const initiateDeleteStation = (station) => {
+    setDeleteModalStation(station);
+  };
+
   const executeDeleteStation = async () => {
     if (!deleteModalStation) return;
     const station = deleteModalStation;
     setIsSubmitting(true);
     try {
-      const res = await fetch(`/api/stations/${station._id}`, {
+      const stationId = station._id || station.id;
+      const res = await fetch(`/api/stations/${stationId}`, {
         method: 'DELETE'
       });
       const data = await res.json();

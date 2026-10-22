@@ -95,7 +95,12 @@ export async function deleteStation(req, res, next) {
     }
 
     // Check for any active or unsettled sessions attached to this station
-    const sessions = await store.getAllSessions({ stationId: id });
+    let sessions = [];
+    try {
+      sessions = await store.getAllSessions({ stationId: id });
+    } catch {
+      sessions = [];
+    }
     const hasActiveSession = sessions.some(s =>
       ['ACTIVE', 'PAUSED', 'EXPIRED_UNSETTLED'].includes(s.status)
     );
@@ -110,8 +115,12 @@ export async function deleteStation(req, res, next) {
 
     await store.createAuditLog({
       action: 'DELETE_STATION',
-      stationId: id,
+      actorId: 'admin',
+      targetType: 'STATION',
+      targetId: String(id),
+      stationId: String(id),
       stationName: station.name,
+      reason: `Computer '${station.name}' was deleted from fleet`,
       notes: `Computer '${station.name}' was deleted from inventory.`
     });
 

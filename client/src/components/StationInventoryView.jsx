@@ -210,9 +210,10 @@ export function StationInventoryView({
                           variant="filled"
                           size="sm"
                           onClick={() => onStartSession(st)}
+                          className="whitespace-nowrap"
                         >
-                          <Play className="w-3 h-3 fill-current" />
-                          <span>Start</span>
+                          <Play className="w-3.5 h-3.5 fill-current mr-1" />
+                          <span>Start Session</span>
                         </Button>
                       )}
 
