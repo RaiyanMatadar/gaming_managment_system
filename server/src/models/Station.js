@@ -33,6 +33,11 @@ const stationSchema = new mongoose.Schema(
     notes: {
       type: String,
       default: ''
+    },
+    userId: {
+      type: String,
+      default: null,
+      index: true
     }
   },
   {

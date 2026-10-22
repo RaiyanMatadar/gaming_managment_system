@@ -24,10 +24,11 @@ export class SessionService {
     customerPhone = '',
     pricingType = 'PACKAGE',
     bookedMinutes = 60,
-    staffId = 'Cashier'
+    staffId = 'Cashier',
+    userId = null
   }) {
     const station = await store.getStationById(stationId);
-    if (!station) {
+    if (!station || (station.userId && userId && station.userId !== userId)) {
       const err = new Error(`Station not found with id '${stationId}'`);
       err.statusCode = 404;
       throw err;
@@ -62,6 +63,7 @@ export class SessionService {
     });
 
     // Create session entity
+    const sessionOwnerId = userId || station.userId || null;
     const sessionData = {
       stationId: station._id,
       stationName: station.name,
@@ -75,7 +77,8 @@ export class SessionService {
       rateCardSnapshot,
       totalPausedMs: 0,
       financials: initialFinancials,
-      createdBy: staffId
+      createdBy: staffId,
+      userId: sessionOwnerId
     };
 
     const session = await store.createSession(sessionData);
@@ -101,7 +104,8 @@ export class SessionService {
       customerName: session.customerName,
       stationName: station.name,
       after: session,
-      reason: 'Session initiated'
+      reason: 'Session initiated',
+      userId: sessionOwnerId
     });
 
     eventBroadcaster.broadcast('SESSION_STARTED', {
@@ -116,9 +120,9 @@ export class SessionService {
   /**
    * Pauses an active session.
    */
-  async pauseSession(sessionId, { staffId = 'Cashier', reason = '' }) {
+  async pauseSession(sessionId, { staffId = 'Cashier', reason = '', userId = null } = {}) {
     const session = await store.getSessionById(sessionId);
-    if (!session) {
+    if (!session || (session.userId && userId && session.userId !== userId)) {
       const err = new Error('Session not found');
       err.statusCode = 404;
       throw err;
@@ -146,7 +150,8 @@ export class SessionService {
       stationName: session.stationName,
       before: { status: session.status },
       after: { status: SessionStatus.PAUSED, currentPauseStartTime: now },
-      reason
+      reason,
+      userId: session.userId || null
     });
 
     eventBroadcaster.broadcast('SESSION_PAUSED', {
@@ -161,9 +166,9 @@ export class SessionService {
   /**
    * Resumes a paused session, accumulating pause duration and extending scheduled end time.
    */
-  async resumeSession(sessionId, { staffId = 'Cashier' }) {
+  async resumeSession(sessionId, { staffId = 'Cashier', userId = null } = {}) {
     const session = await store.getSessionById(sessionId);
-    if (!session) {
+    if (!session || (session.userId && userId && session.userId !== userId)) {
       const err = new Error('Session not found');
       err.statusCode = 404;
       throw err;
@@ -211,7 +216,8 @@ export class SessionService {
         status: SessionStatus.ACTIVE,
         totalPausedMs: newTotalPausedMs,
         scheduledEndTime: newScheduledEndTime
-      }
+      },
+      userId: session.userId || null
     });
 
     eventBroadcaster.broadcast('SESSION_RESUMED', {
@@ -226,9 +232,9 @@ export class SessionService {
   /**
    * Extends session duration.
    */
-  async extendSession(sessionId, { addedMinutes, staffId = 'Cashier' }) {
+  async extendSession(sessionId, { addedMinutes, staffId = 'Cashier', userId = null } = {}) {
     const session = await store.getSessionById(sessionId);
-    if (!session) {
+    if (!session || (session.userId && userId && session.userId !== userId)) {
       const err = new Error('Session not found');
       err.statusCode = 404;
       throw err;
@@ -278,7 +284,8 @@ export class SessionService {
       targetId: String(sessionId),
       customerName: session.customerName,
       stationName: session.stationName,
-      metadata: { addedMinutes: mins, extensionFee, newScheduledEndTime }
+      metadata: { addedMinutes: mins, extensionFee, newScheduledEndTime },
+      userId: session.userId || null
     });
 
     eventBroadcaster.broadcast('SESSION_EXTENDED', {
@@ -294,9 +301,9 @@ export class SessionService {
   /**
    * Transfers a session to another available station.
    */
-  async transferStation(sessionId, { targetStationId, staffId = 'Cashier', reason = '' }) {
+  async transferStation(sessionId, { targetStationId, staffId = 'Cashier', reason = '', userId = null } = {}) {
     const session = await store.getSessionById(sessionId);
-    if (!session) {
+    if (!session || (session.userId && userId && session.userId !== userId)) {
       const err = new Error('Session not found');
       err.statusCode = 404;
       throw err;
@@ -309,7 +316,7 @@ export class SessionService {
     }
 
     const targetStation = await store.getStationById(targetStationId);
-    if (!targetStation) {
+    if (!targetStation || (targetStation.userId && userId && targetStation.userId !== userId)) {
       const err = new Error('Target station not found');
       err.statusCode = 404;
       throw err;
@@ -356,7 +363,8 @@ export class SessionService {
       stationName: `${session.stationName} -> ${targetStation.name}`,
       before: { stationId: session.stationId },
       after: { stationId: targetStation._id },
-      reason
+      reason,
+      userId: session.userId || null
     });
 
     eventBroadcaster.broadcast('SESSION_TRANSFERRED', {
@@ -377,10 +385,11 @@ export class SessionService {
     payment = null,
     discount = 0,
     addOns = [],
-    staffId = 'Cashier'
-  }) {
+    staffId = 'Cashier',
+    userId = null
+  } = {}) {
     const session = await store.getSessionById(sessionId);
-    if (!session) {
+    if (!session || (session.userId && userId && session.userId !== userId)) {
       const err = new Error('Session not found');
       err.statusCode = 404;
       throw err;
@@ -414,7 +423,8 @@ export class SessionService {
           paymentMethod: payment.paymentMethod || 'CASH',
           referenceNumber: payment.referenceNumber || '',
           idempotencyKey: payment.idempotencyKey,
-          receivedBy: staffId
+          receivedBy: staffId,
+          userId: session.userId || null
         });
         allPayments.push(newPayment);
 
@@ -423,7 +433,8 @@ export class SessionService {
           actorId: staffId,
           targetType: 'PAYMENT',
           targetId: String(newPayment._id),
-          metadata: { amount: payment.amount, method: payment.paymentMethod }
+          metadata: { amount: payment.amount, method: payment.paymentMethod },
+          userId: session.userId || null
         });
       }
     }
@@ -465,7 +476,8 @@ export class SessionService {
       targetId: String(sessionId),
       customerName: session.customerName,
       stationName: session.stationName,
-      metadata: { financials }
+      metadata: { financials },
+      userId: session.userId || null
     });
 
     eventBroadcaster.broadcast('SESSION_COMPLETED', {
@@ -492,11 +504,11 @@ export class SessionService {
   /**
    * Cancels a session and immediately stops the active timer and usage calculations.
    */
-  async cancelSession(sessionId, { staffId = 'Staff', reason } = {}) {
+  async cancelSession(sessionId, { staffId = 'Staff', reason, userId = null } = {}) {
     const cancellationReason = (reason && reason.trim()) ? reason.trim() : 'Customer decided not to play anymore';
 
     const session = await store.getSessionById(sessionId);
-    if (!session) {
+    if (!session || (session.userId && userId && session.userId !== userId)) {
       const err = new Error('Session not found');
       err.statusCode = 404;
       throw err;
@@ -525,7 +537,8 @@ export class SessionService {
       targetId: String(sessionId),
       customerName: session.customerName,
       stationName: session.stationName,
-      reason: cancellationReason
+      reason: cancellationReason,
+      userId: session.userId || null
     });
 
     eventBroadcaster.broadcast('SESSION_CANCELLED', {
@@ -541,9 +554,10 @@ export class SessionService {
   /**
    * Returns all stations enriched with current live status, remaining time, and overtime indicators.
    */
-  async getLiveStationOverview() {
-    const stations = await store.getAllStations();
-    const activeSessions = await store.getAllSessions();
+  async getLiveStationOverview(userId = null) {
+    const filter = userId ? { userId } : {};
+    const stations = await store.getAllStations(filter);
+    const activeSessions = await store.getAllSessions(filter);
     const now = new Date();
 
     const enriched = stations.map(station => {

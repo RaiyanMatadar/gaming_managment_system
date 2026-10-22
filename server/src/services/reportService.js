@@ -8,12 +8,13 @@ export class ReportService {
    * @param {Date|string} [params.startDate]
    * @param {Date|string} [params.endDate]
    */
-  async getShiftReport({ startDate, endDate } = {}) {
+  async getShiftReport({ startDate, endDate, userId = null } = {}) {
     const startMs = startDate ? new Date(startDate).getTime() : new Date().setHours(0, 0, 0, 0);
     const endMs = endDate ? new Date(endDate).getTime() : new Date().setHours(23, 59, 59, 999);
 
-    const allSessions = await store.getAllSessions();
-    const stations = await store.getAllStations();
+    const filter = userId ? { userId } : {};
+    const allSessions = await store.getAllSessions(filter);
+    const stations = await store.getAllStations(filter);
 
     // Filter sessions within date range based on start time
     const shiftSessions = allSessions.filter(s => {

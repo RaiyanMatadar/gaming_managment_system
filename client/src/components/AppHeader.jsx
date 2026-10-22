@@ -7,7 +7,9 @@ import {
   RefreshCw,
   Bell,
   Gamepad2,
-  ChevronRight
+  ChevronRight,
+  LogOut,
+  User
 } from 'lucide-react';
 import { Button } from './ui';
 
@@ -19,7 +21,9 @@ export function AppHeader({
   onRefresh,
   isRefreshing,
   isLiveConnected,
-  urgentAlertsCount = 0
+  urgentAlertsCount = 0,
+  currentUser,
+  onLogout
 }) {
   const [time, setTime] = useState(new Date());
 
@@ -143,6 +147,27 @@ export function AppHeader({
             <Plus className="w-3.5 h-3.5 text-on-surface-variant" />
             <span>Add Computer</span>
           </Button>
+
+          {/* User profile & Logout */}
+          {currentUser && (
+            <div className="flex items-center gap-2 pl-2 border-l border-outline-variant/40">
+              <div className="hidden lg:flex flex-col text-right">
+                <span className="text-label-small font-medium text-on-surface truncate max-w-[130px]">
+                  {currentUser.name || currentUser.username}
+                </span>
+                <span className="text-[10px] text-on-surface-variant leading-none truncate max-w-[130px]">
+                  {currentUser.centerName || 'GameDash'}
+                </span>
+              </div>
+              <button
+                onClick={onLogout}
+                title="Log out of account"
+                className="w-9 h-9 rounded-full bg-surface-container hover:bg-error-container hover:text-on-error-container text-on-surface-variant transition-colors flex items-center justify-center cursor-pointer"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </header>

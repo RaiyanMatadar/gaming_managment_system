@@ -2,12 +2,14 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import fs from 'fs';
+import authRoutes from './routes/authRoutes.js';
 import stationRoutes from './routes/stationRoutes.js';
 import sessionRoutes from './routes/sessionRoutes.js';
 import reportRoutes from './routes/reportRoutes.js';
 import { getCustomerHistory } from './controllers/sessionController.js';
 import { store } from './storage/index.js';
 import { eventBroadcaster } from './services/eventBroadcaster.js';
+import { authMiddleware } from './middleware/authMiddleware.js';
 
 export function createApp() {
   const app = express();
@@ -24,19 +26,23 @@ export function createApp() {
     });
   });
 
+  // Authentication routes (login, register, me)
+  app.use('/api/auth', authRoutes);
+
   // Server-Sent Events (SSE) stream for live cashier notifications
   app.get('/api/events', (req, res) => {
     eventBroadcaster.handleSSEConnection(req, res);
   });
 
   // Audit logs endpoint for shift verification and audit trail
-  app.get('/api/audit', async (req, res, next) => {
+  app.get('/api/audit', authMiddleware, async (req, res, next) => {
     try {
       const { limit, search, action } = req.query;
       const logs = await store.getAuditLogs({
         limit: Number(limit) || 100,
         search: search || '',
-        action: action || ''
+        action: action || '',
+        userId: req.user?.id || null
       });
       res.json({ success: true, count: logs.length, data: logs });
     } catch (err) {
@@ -45,14 +51,14 @@ export function createApp() {
   });
 
   // Customer history direct endpoints
-  app.get('/api/customers/history', getCustomerHistory);
-  app.get('/api/customers', getCustomerHistory);
-  app.get('/api/customer-history', getCustomerHistory);
+  app.get('/api/customers/history', authMiddleware, getCustomerHistory);
+  app.get('/api/customers', authMiddleware, getCustomerHistory);
+  app.get('/api/customer-history', authMiddleware, getCustomerHistory);
 
-  // Main feature routes
-  app.use('/api/stations', stationRoutes);
-  app.use('/api/sessions', sessionRoutes);
-  app.use('/api/reports', reportRoutes);
+  // Main feature routes protected by authentication
+  app.use('/api/stations', authMiddleware, stationRoutes);
+  app.use('/api/sessions', authMiddleware, sessionRoutes);
+  app.use('/api/reports', authMiddleware, reportRoutes);
 
   // Serve static production frontend if built
   const candidateDistPaths = [

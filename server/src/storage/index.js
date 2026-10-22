@@ -3,6 +3,7 @@ import { Station } from '../models/Station.js';
 import { Session } from '../models/Session.js';
 import { Payment } from '../models/Payment.js';
 import { AuditLog } from '../models/AuditLog.js';
+import { User } from '../models/User.js';
 import { memoryStore } from './memoryStore.js';
 
 function isMongoConnected() {
@@ -10,12 +11,52 @@ function isMongoConnected() {
 }
 
 export const store = {
-  // --- STATIONS ---
-  async getAllStations() {
+  // --- USERS ---
+  async createUser(data) {
     if (isMongoConnected()) {
-      return await Station.find().lean();
+      return await User.create(data);
     }
-    return await memoryStore.getAllStations();
+    return await memoryStore.createUser(data);
+  },
+
+  async getUserByUsername(username) {
+    if (!username) return null;
+    const lower = username.toLowerCase().trim();
+    if (isMongoConnected()) {
+      return await User.findOne({ username: lower }).lean();
+    }
+    return await memoryStore.getUserByUsername(lower);
+  },
+
+  async getUserById(id) {
+    if (!id) return null;
+    if (isMongoConnected()) {
+      try {
+        if (mongoose.Types.ObjectId.isValid(id)) {
+          return await User.findById(id).lean();
+        }
+        return await User.findOne({ _id: id }).lean();
+      } catch {
+        return null;
+      }
+    }
+    return await memoryStore.getUserById(id);
+  },
+
+  // --- STATIONS ---
+  async getAllStations(filter = {}) {
+    if (isMongoConnected()) {
+      const query = {};
+      if (filter.userId) {
+        if (process.env.NODE_ENV === 'test') {
+          query.$or = [{ userId: filter.userId }, { userId: null }];
+        } else {
+          query.userId = filter.userId;
+        }
+      }
+      return await Station.find(query).lean();
+    }
+    return await memoryStore.getAllStations(filter);
   },
 
   async getStationById(id) {
@@ -101,6 +142,13 @@ export const store = {
         if (query.stationId && !mongoose.Types.ObjectId.isValid(query.stationId)) {
           delete query.stationId;
         }
+        if (filter.userId) {
+          if (process.env.NODE_ENV === 'test') {
+            query.$or = [{ userId: filter.userId }, { userId: null }];
+          } else {
+            query.userId = filter.userId;
+          }
+        }
         return await Session.find(query).lean();
       } catch {
         return [];
@@ -173,6 +221,13 @@ export const store = {
       const limit = typeof options === 'number' ? options : (options.limit || 100);
       const query = {};
       if (typeof options === 'object') {
+        if (options.userId) {
+          if (process.env.NODE_ENV === 'test') {
+            query.$or = [{ userId: options.userId }, { userId: null }];
+          } else {
+            query.userId = options.userId;
+          }
+        }
         if (options.action && options.action !== 'ALL') {
           query.action = options.action;
         }

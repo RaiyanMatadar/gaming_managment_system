@@ -10,7 +10,8 @@ import {
   UserCheck,
   X,
   AlertTriangle,
-  Menu
+  Menu,
+  LogOut
 } from 'lucide-react';
 
 export function Sidebar({
@@ -19,7 +20,9 @@ export function Sidebar({
   stations = [],
   isLiveConnected,
   isOpen,
-  onClose
+  onClose,
+  currentUser,
+  onLogout
 }) {
   const occupiedCount = stations.filter(s => s.status === 'OCCUPIED').length;
   const alertCount = stations.filter(s => s.liveSession && (s.liveSession.isWarning || s.liveSession.isOvertime)).length;
@@ -182,15 +185,31 @@ export function Sidebar({
             </span>
           </div>
 
-          {/* Active Staff */}
-          <div className="flex items-center gap-2.5 pt-1">
-            <div className="w-8 h-8 rounded-full bg-success-container text-on-success-container flex items-center justify-center shrink-0">
-              <UserCheck className="w-4 h-4" />
+          {/* Active Staff / Authenticated User */}
+          <div className="flex items-center justify-between gap-2 pt-1 border-t border-outline-variant/30">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shrink-0">
+                <UserCheck className="w-4 h-4" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <span className="block text-label-medium font-medium text-on-surface truncate">
+                  {currentUser?.name || currentUser?.username || 'Staff'}
+                </span>
+                <span className="block text-[11px] text-primary font-medium leading-none capitalize">
+                  {currentUser?.role || 'Manager'}
+                </span>
+              </div>
             </div>
-            <div className="min-w-0 flex-1">
-              <span className="block text-label-medium font-medium text-on-surface truncate">Cashier</span>
-              <span className="block text-[11px] text-success font-medium leading-none">On Duty</span>
-            </div>
+
+            {onLogout && (
+              <button
+                onClick={onLogout}
+                title="Log Out"
+                className="w-8 h-8 rounded-full bg-surface-container-high hover:bg-error-container hover:text-on-error-container text-on-surface-variant flex items-center justify-center transition-colors cursor-pointer shrink-0"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
         </div>
       </aside>

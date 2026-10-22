@@ -3,7 +3,8 @@ import { StationStatus, StationType, validateStationTransition } from '../domain
 
 export async function getAllStations(req, res, next) {
   try {
-    const stations = await store.getAllStations();
+    const filter = req.user?.id ? { userId: req.user.id } : {};
+    const stations = await store.getAllStations(filter);
     res.json({ success: true, count: stations.length, data: stations });
   } catch (err) {
     next(err);
@@ -40,7 +41,8 @@ export async function createStation(req, res, next) {
       name: name.trim(),
       type,
       hourlyRate: rate,
-      notes: notes || ''
+      notes: notes || '',
+      userId: req.user?.id || null
     });
 
     res.status(201).json({ success: true, data: station });
@@ -61,7 +63,7 @@ export async function updateStationStatus(req, res, next) {
     const { status, notes } = req.body;
 
     const station = await store.getStationById(id);
-    if (!station) {
+    if (!station || (station.userId && req.user?.id && station.userId !== req.user.id)) {
       return res.status(404).json({ success: false, error: 'Station not found.' });
     }
 
@@ -82,7 +84,7 @@ export async function deleteStation(req, res, next) {
     const { id } = req.params;
 
     const station = await store.getStationById(id);
-    if (!station) {
+    if (!station || (station.userId && req.user?.id && station.userId !== req.user.id)) {
       return res.status(404).json({ success: false, error: 'Station not found.' });
     }
 
@@ -97,7 +99,7 @@ export async function deleteStation(req, res, next) {
     // Check for any active or unsettled sessions attached to this station
     let sessions = [];
     try {
-      sessions = await store.getAllSessions({ stationId: id });
+      sessions = await store.getAllSessions({ stationId: id, userId: req.user?.id });
     } catch {
       sessions = [];
     }
@@ -115,13 +117,14 @@ export async function deleteStation(req, res, next) {
 
     await store.createAuditLog({
       action: 'DELETE_STATION',
-      actorId: 'admin',
+      actorId: req.user?.username || 'admin',
       targetType: 'STATION',
       targetId: String(id),
       stationId: String(id),
       stationName: station.name,
       reason: `Computer '${station.name}' was deleted from fleet`,
-      notes: `Computer '${station.name}' was deleted from inventory.`
+      notes: `Computer '${station.name}' was deleted from inventory.`,
+      userId: req.user?.id || null
     });
 
     res.json({

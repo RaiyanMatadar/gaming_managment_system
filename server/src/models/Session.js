@@ -125,6 +125,11 @@ const sessionSchema = new mongoose.Schema(
     warningNotificationSent: {
       type: Boolean,
       default: false
+    },
+    userId: {
+      type: String,
+      default: null,
+      index: true
     }
   },
   {

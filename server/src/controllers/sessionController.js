@@ -3,7 +3,7 @@ import { store } from '../storage/index.js';
 
 export async function getLiveOverview(req, res, next) {
   try {
-    const data = await sessionService.getLiveStationOverview();
+    const data = await sessionService.getLiveStationOverview(req.user?.id || null);
     res.json({ success: true, count: data.length, data });
   } catch (err) {
     next(err);
@@ -17,7 +17,8 @@ export async function getCustomerHistory(req, res, next) {
     // 1. Auto-delete completed/cancelled sessions older than 30 days (1 month)
     const prunedCount = await store.pruneOldSessions();
 
-    const allSessions = await store.getAllSessions();
+    const filter = req.user?.id ? { userId: req.user.id } : {};
+    const allSessions = await store.getAllSessions(filter);
 
     // 2. Filter sessions within month / 30-day retention window
     const now = new Date();
@@ -107,7 +108,8 @@ export async function startSession(req, res, next) {
       customerPhone,
       pricingType: pricingType || 'PACKAGE',
       bookedMinutes: bookedMinutes ? Number(bookedMinutes) : 60,
-      staffId
+      staffId: staffId || req.user?.username || 'Cashier',
+      userId: req.user?.id || null
     });
 
     res.status(201).json({ success: true, data: session });
@@ -123,7 +125,11 @@ export async function pauseSession(req, res, next) {
   try {
     const { id } = req.params;
     const { staffId, reason } = req.body;
-    const session = await sessionService.pauseSession(id, { staffId, reason });
+    const session = await sessionService.pauseSession(id, {
+      staffId: staffId || req.user?.username || 'Cashier',
+      reason,
+      userId: req.user?.id || null
+    });
     res.json({ success: true, data: session });
   } catch (err) {
     if (err.statusCode) {
@@ -137,7 +143,10 @@ export async function resumeSession(req, res, next) {
   try {
     const { id } = req.params;
     const { staffId } = req.body;
-    const session = await sessionService.resumeSession(id, { staffId });
+    const session = await sessionService.resumeSession(id, {
+      staffId: staffId || req.user?.username || 'Cashier',
+      userId: req.user?.id || null
+    });
     res.json({ success: true, data: session });
   } catch (err) {
     if (err.statusCode) {
@@ -156,7 +165,11 @@ export async function extendSession(req, res, next) {
       return res.status(400).json({ success: false, error: 'addedMinutes must be positive.' });
     }
 
-    const session = await sessionService.extendSession(id, { addedMinutes, staffId });
+    const session = await sessionService.extendSession(id, {
+      addedMinutes,
+      staffId: staffId || req.user?.username || 'Cashier',
+      userId: req.user?.id || null
+    });
     res.json({ success: true, data: session });
   } catch (err) {
     if (err.statusCode) {
@@ -175,7 +188,12 @@ export async function transferSession(req, res, next) {
       return res.status(400).json({ success: false, error: 'targetStationId is required.' });
     }
 
-    const session = await sessionService.transferStation(id, { targetStationId, staffId, reason });
+    const session = await sessionService.transferStation(id, {
+      targetStationId,
+      staffId: staffId || req.user?.username || 'Cashier',
+      reason,
+      userId: req.user?.id || null
+    });
     res.json({ success: true, data: session });
   } catch (err) {
     if (err.statusCode) {
@@ -194,7 +212,8 @@ export async function checkoutSession(req, res, next) {
       payment,
       discount,
       addOns,
-      staffId
+      staffId: staffId || req.user?.username || 'Cashier',
+      userId: req.user?.id || null
     });
 
     res.json({ success: true, data: result });
@@ -213,8 +232,9 @@ export async function cancelSession(req, res, next) {
     const cancellationReason = (reason && reason.trim()) ? reason.trim() : 'Customer decided not to play anymore';
 
     const session = await sessionService.cancelSession(id, {
-      staffId: staffId || 'Staff',
-      reason: cancellationReason
+      staffId: staffId || req.user?.username || 'Staff',
+      reason: cancellationReason,
+      userId: req.user?.id || null
     });
     res.json({ success: true, data: session });
   } catch (err) {
@@ -232,7 +252,7 @@ export async function getSessionById(req, res, next) {
       return next();
     }
     const session = await store.getSessionById(id);
-    if (!session) {
+    if (!session || (session.userId && req.user?.id && session.userId !== req.user.id)) {
       return res.status(404).json({ success: false, error: 'Session not found.' });
     }
     res.json({ success: true, data: session });

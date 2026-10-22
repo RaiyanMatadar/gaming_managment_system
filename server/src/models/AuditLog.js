@@ -7,6 +7,11 @@ const auditLogSchema = new mongoose.Schema(
       required: true,
       index: true
     },
+    userId: {
+      type: String,
+      default: null,
+      index: true
+    },
     actorId: {
       type: String,
       default: 'system',

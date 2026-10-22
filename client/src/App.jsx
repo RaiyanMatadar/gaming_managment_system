@@ -19,10 +19,17 @@ import {
   DeleteStationModal
 } from './components/Modals.jsx';
 import { FiveMinuteWarningModal } from './components/FiveMinuteWarningModal.jsx';
+import { LoginView } from './components/LoginView.jsx';
 import { Snackbar } from './components/ui/index.js';
 import { AlertCircle, CheckCircle2, X } from 'lucide-react';
+import { getToken, getCurrentUser, clearAuth, verifySession } from './utils/api.js';
 
 export function App() {
+  // Authentication & Session State
+  const [authToken, setAuthToken] = useState(getToken());
+  const [currentUser, setCurrentUser] = useState(getCurrentUser());
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
   // Navigation & Layout State
   const [currentView, setCurrentView] = useState('floor'); // 'floor' | 'sessions' | 'customers' | 'reports' | 'audit' | 'inventory'
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -58,6 +65,46 @@ export function App() {
     }, 4000);
   };
 
+  // Verify token on mount and listen for authorization invalidation
+  useEffect(() => {
+    let isMounted = true;
+    async function checkAuth() {
+      if (authToken) {
+        const user = await verifySession();
+        if (isMounted) {
+          if (user) {
+            setCurrentUser(user);
+          } else {
+            setAuthToken(null);
+            setCurrentUser(null);
+          }
+        }
+      }
+      if (isMounted) setIsCheckingAuth(false);
+    }
+    checkAuth();
+
+    const handleUnauthorized = () => {
+      setAuthToken(null);
+      setCurrentUser(null);
+      showToast('Session expired. Please sign in again.', 'warning');
+    };
+
+    window.addEventListener('gamedash:unauthorized', handleUnauthorized);
+    return () => {
+      isMounted = false;
+      window.removeEventListener('gamedash:unauthorized', handleUnauthorized);
+    };
+  }, [authToken]);
+
+  const handleLogout = () => {
+    clearAuth();
+    setAuthToken(null);
+    setCurrentUser(null);
+    setStations([]);
+    showToast('Signed out successfully.', 'info');
+  };
+
   // Fetch live station overview
   const fetchStations = useCallback(async (isManualRefresh = false) => {
     if (isManualRefresh) setIsRefreshing(true);
@@ -79,6 +126,7 @@ export function App() {
 
   // Initial fetch and SSE event stream connection
   useEffect(() => {
+    if (!authToken || !currentUser) return;
     fetchStations();
 
     let eventSource;
@@ -165,7 +213,7 @@ export function App() {
     return () => {
       if (eventSource) eventSource.close();
     };
-  }, [fetchStations]);
+  }, [authToken, currentUser, fetchStations]);
 
   // Core session action handlers
   const startSession = async (payload) => {
@@ -396,6 +444,29 @@ export function App() {
     maintenance: stations.filter((s) => s.status === 'MAINTENANCE').length
   };
 
+  // Loading initial auth check state
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen w-full bg-background flex flex-col items-center justify-center p-4">
+        <div className="w-12 h-12 rounded-full border-3 border-primary border-t-transparent animate-spin mb-4" />
+        <p className="body-medium text-on-surface-variant font-medium">Loading GameDash...</p>
+      </div>
+    );
+  }
+
+  // If user is unauthenticated, render the Login View
+  if (!authToken || !currentUser) {
+    return (
+      <LoginView
+        onLoginSuccess={(user, token) => {
+          setCurrentUser(user);
+          setAuthToken(token);
+          showToast(`Welcome back, ${user.name || user.username}!`, 'success');
+        }}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen flex bg-background text-on-surface font-sans selection:bg-primary selection:text-on-primary">
       {/* 1. Terminal Sidebar Navigation */}
@@ -406,6 +477,8 @@ export function App() {
         isLiveConnected={isLiveConnected}
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
+        currentUser={currentUser}
+        onLogout={handleLogout}
       />
 
       {/* 2. Main Workspace Layout with M3 Responsive Adaptations */}
@@ -420,6 +493,8 @@ export function App() {
           isRefreshing={isRefreshing}
           isLiveConnected={isLiveConnected}
           urgentAlertsCount={counts.alerts}
+          currentUser={currentUser}
+          onLogout={handleLogout}
         />
 
         {/* M3 Snackbar Notifications */}

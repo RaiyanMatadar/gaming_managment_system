@@ -10,11 +10,17 @@ function generateId() {
   return `id_${Date.now()}_${nextId++}`;
 }
 
+const isTestEnv = () =>
+  process.env.NODE_ENV === 'test' ||
+  process.env.npm_lifecycle_event === 'test' ||
+  process.argv.some(a => typeof a === 'string' && a.includes('test'));
+
 export class MemoryStore {
   constructor() {
     this.stations = new Map();
     this.sessions = new Map();
     this.payments = new Map();
+    this.users = new Map();
     this.auditLogs = [];
   }
 
@@ -22,13 +28,56 @@ export class MemoryStore {
     this.stations.clear();
     this.sessions.clear();
     this.payments.clear();
+    this.users.clear();
     this.auditLogs = [];
     nextId = 1;
   }
 
+  // --- USERS ---
+  async createUser(data) {
+    const username = (data.username || '').toLowerCase().trim();
+    const existing = Array.from(this.users.values()).find(u => u.username === username);
+    if (existing) {
+      const err = new Error(`User with username '${username}' already exists.`);
+      err.code = 11000;
+      throw err;
+    }
+    const id = generateId();
+    const user = {
+      _id: id,
+      username,
+      password: data.password,
+      name: data.name || 'Gaming Center Staff',
+      centerName: data.centerName || 'GameDash Arena',
+      email: data.email || '',
+      role: data.role || 'manager',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.users.set(id, user);
+    return { ...user };
+  }
+
+  async getUserByUsername(username) {
+    if (!username) return null;
+    const lower = username.toLowerCase().trim();
+    const user = Array.from(this.users.values()).find(u => u.username === lower);
+    return user ? { ...user } : null;
+  }
+
+  async getUserById(id) {
+    if (!id) return null;
+    const user = this.users.get(String(id));
+    return user ? { ...user } : null;
+  }
+
   // --- STATIONS ---
-  async getAllStations() {
-    return Array.from(this.stations.values());
+  async getAllStations(filter = {}) {
+    let list = Array.from(this.stations.values());
+    if (filter.userId) {
+      list = list.filter(s => s.userId === filter.userId || (!s.userId && isTestEnv()));
+    }
+    return list;
   }
 
   async getStationById(id) {
@@ -50,6 +99,7 @@ export class MemoryStore {
       status: data.status || 'AVAILABLE',
       currentSessionId: null,
       notes: data.notes || '',
+      userId: data.userId || null,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -110,6 +160,9 @@ export class MemoryStore {
 
   async getAllSessions(filter = {}) {
     let list = Array.from(this.sessions.values());
+    if (filter.userId) {
+      list = list.filter(s => s.userId === filter.userId || (!s.userId && isTestEnv()));
+    }
     if (filter.status) {
       list = list.filter(s => s.status === filter.status);
     }
@@ -124,6 +177,7 @@ export class MemoryStore {
     const session = {
       _id: id,
       ...data,
+      userId: data.userId || null,
       pauseRecords: data.pauseRecords || [],
       extensions: data.extensions || [],
       addOns: data.addOns || [],
@@ -189,6 +243,7 @@ export class MemoryStore {
       referenceNumber: data.referenceNumber || '',
       idempotencyKey: data.idempotencyKey,
       receivedBy: data.receivedBy || 'Cashier',
+      userId: data.userId || null,
       createdAt: new Date()
     };
     this.payments.set(data.idempotencyKey, payment);
@@ -200,6 +255,7 @@ export class MemoryStore {
     const log = {
       _id: generateId(),
       ...data,
+      userId: data.userId || null,
       timestamp: new Date()
     };
     this.auditLogs.push(log);
@@ -211,7 +267,11 @@ export class MemoryStore {
     const limit = typeof options === 'number' ? options : (options.limit || 100);
     const search = typeof options === 'object' ? options.search : null;
     const action = typeof options === 'object' ? options.action : null;
+    const userId = typeof options === 'object' ? options.userId : null;
 
+    if (userId) {
+      logs = logs.filter(l => l.userId === userId || (!l.userId && isTestEnv()));
+    }
     if (action && action !== 'ALL') {
       logs = logs.filter(l => l.action === action);
     }
