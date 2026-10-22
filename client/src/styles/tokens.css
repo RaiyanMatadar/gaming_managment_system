@@ -67,8 +67,17 @@
   --md-shape-sm: 8px;
   --md-shape-md: 12px;
   --md-shape-lg: 16px;
-  --md-shape-xl: 28px;
+  --md-shape-xl: 20px;
+  --md-shape-2xl: 28px;
   --md-shape-full: 9999px;
+
+  /* Material Design 3 Shape Corner Aliases */
+  --md-shape-corner-extra-small: 4px;
+  --md-shape-corner-small: 8px;
+  --md-shape-corner-medium: 12px;
+  --md-shape-corner-large: 16px;
+  --md-shape-corner-extra-large: 28px;
+  --md-shape-corner-full: 9999px;
 
   /* Material Design 3 Soft Elevation Scale */
   --md-elevation-1: 0 1px 3px 1px rgba(0, 0, 0, 0.08), 0 1px 2px 0 rgba(0, 0, 0, 0.12);

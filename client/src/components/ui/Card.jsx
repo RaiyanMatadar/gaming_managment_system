@@ -16,7 +16,7 @@ const variantClasses = {
 
 export function Card({
   variant = 'filled',
-  rounded = 'rounded-[16px]',
+  rounded = 'rounded-[20px]',
   className = '',
   children,
   ...props
