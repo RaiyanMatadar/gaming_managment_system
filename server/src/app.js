@@ -56,9 +56,9 @@ export function createApp() {
 
   // Serve static production frontend if built
   const candidateDistPaths = [
-    path.join(process.cwd(), 'dist'),
     path.join(process.cwd(), 'client', 'dist'),
-    path.join(process.cwd(), '..', 'client', 'dist')
+    path.join(process.cwd(), '..', 'client', 'dist'),
+    path.join(process.cwd(), 'dist')
   ];
   const distPath = candidateDistPaths.find(p => fs.existsSync(p));
   if (distPath) {

@@ -72,7 +72,7 @@ The project is cleanly divided into independent `client/` and `server/` packages
 │   ├── package.json            # Server-specific scripts & dependencies
 │   └── .env.example            # Server environment variables
 │
-├── dist/                       # Production frontend build artifact
+├── .env                        # Root environment variables
 └── package.json                # Root orchestration & workspace scripts
 ```
 
@@ -89,12 +89,12 @@ npm install
 ### 2. Root Convenience Commands
 | Command | Action |
 | :--- | :--- |
-| `npm run dev` | Launch Vite frontend dev server at `http://localhost:3000` |
+| `npm run dev` | Boots BOTH backend API (:4000) and Vite frontend dev server (:3000) concurrently |
 | `npm run dev:client` | Start frontend client dev server (`client/`) |
 | `npm run dev:server` | Start backend server with file auto-reloading (`server/`) |
-| `npm run client` | Launch frontend client dev server |
-| `npm run server` | Start the backend API on port 4000 |
-| `npm run build` | Compile production bundles for client |
+| `npm run client` | Launch frontend client dev server only (:3000) |
+| `npm run server` | Start the backend API only (:4000) |
+| `npm run build` | Compile production bundles for client (`client/dist`) |
 | `npm start` | Run backend server and serve production frontend on `http://localhost:4000` |
 | `npm test` | Execute the full 47 automated test suite |
 

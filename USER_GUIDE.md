@@ -50,7 +50,7 @@ http://localhost:4000
 ```
 
 > **Optional Development Mode (with hot-reload):**
-> If making frontend changes, run `node src/server.js` in one terminal and `npm run dev` in a second terminal, then visit `http://localhost:3000`.
+> If making frontend changes, run `npm run server` (or `node server/src/server.js`) in one terminal and `npm run dev` in a second terminal, then visit `http://localhost:3000`.
 
 ---
 
