@@ -1,22 +1,31 @@
 import { app } from '../src/app.js';
 import { connectMongo } from '../src/storage/index.js';
 
-let isConnecting = false;
+// Ensure MongoDB is connected
+if (process.env.MONGO_URI) {
+  connectMongo(process.env.MONGO_URI).catch(err => {
+    console.error('[VERCEL] MongoDB connection error:', err.message);
+  });
+}
 
-async function ensureDb() {
-  if (process.env.MONGO_URI && !isConnecting) {
-    isConnecting = true;
+// Middleware to ensure DB connection on serverless cold starts
+app.use(async (req, res, next) => {
+  if (process.env.MONGO_URI) {
     try {
       await connectMongo(process.env.MONGO_URI);
-    } catch (err) {
-      console.error('[VERCEL] MongoDB connection error:', err.message);
-    } finally {
-      isConnecting = false;
-    }
+    } catch {}
   }
-}
+  next();
+});
 
-export default async function handler(req, res) {
-  await ensureDb();
-  return app(req, res);
-}
+// Root welcome route for Vercel deployment preview
+app.get('/', (req, res) => {
+  res.json({
+    status: 'OK',
+    service: 'GameDashboard Gaming Center Management API',
+    healthCheck: '/api/health',
+    timestamp: new Date().toISOString()
+  });
+});
+
+export default app;
