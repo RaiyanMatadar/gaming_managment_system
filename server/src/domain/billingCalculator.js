@@ -51,6 +51,22 @@ export function calculateElapsedDuration({
 }
 
 /**
+ * Convenience wrapper returning only elapsed whole minutes.
+ * @param {Object} params
+ * @returns {number}
+ */
+export function calculateElapsedMinutes(params) {
+  const { elapsedMinutes } = calculateElapsedDuration({
+    startTime: params.startTime,
+    endTime: params.now || params.endTime || Date.now(),
+    totalPausedMs: params.totalPausedMs || 0,
+    currentPauseStartTime: params.currentPauseStartTime || null
+  });
+  return elapsedMinutes;
+}
+
+
+/**
  * Calculates scheduled end time including extensions and paused duration.
  * @param {Object} params
  * @param {Date|string|number} params.startTime

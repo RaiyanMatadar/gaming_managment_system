@@ -62,7 +62,9 @@ export class MemoryStore {
   async getUserByUsername(username) {
     if (!username) return null;
     const lower = username.toLowerCase().trim();
-    const user = Array.from(this.users.values()).find(u => u.username === lower);
+    const user = Array.from(this.users.values()).find(
+      u => u.username === lower || (u.email && u.email.toLowerCase() === lower)
+    );
     return user ? { ...user } : null;
   }
 

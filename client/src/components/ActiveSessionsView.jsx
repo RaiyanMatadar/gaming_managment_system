@@ -34,6 +34,22 @@ function formatDuration(ms) {
   ].join(':');
 }
 
+function getStationImage(type) {
+  switch (type) {
+    case 'PS5':
+      return '/images/ps5_console_station.jpg';
+    case 'XBOX':
+      return '/images/xbox_controller_lounge.jpg';
+    case 'VR':
+      return '/images/vr_player_experience.jpg';
+    case 'PC_VIP':
+      return '/images/cyberpunk_battlestation.jpg';
+    case 'PC_STANDARD':
+    default:
+      return '/images/pc_gaming_rig.jpg';
+  }
+}
+
 export function ActiveSessionsView({
   stations = [],
   onExtend,
@@ -278,38 +294,68 @@ export function ActiveSessionsView({
               badgeLabel = 'Paused';
             }
 
+            const stationImg = getStationImage(station.type);
+            const startMs = new Date(live.startTime).getTime();
+            const scheduledEndMs = new Date(live.scheduledEndTime).getTime();
+            const totalDurationMs = Math.max(1, scheduledEndMs - startMs);
+            const elapsedMs = Math.max(0, now - startMs);
+            const progressPercent = Math.min(100, Math.max(0, (elapsedMs / totalDurationMs) * 100));
+
+            let borderPulseClass = 'border-primary/60 animate-pulse-blue cyber-glow-state-active';
+            if (isOvertime) {
+              borderPulseClass = 'border-error animate-pulse-red cyber-glow-state-error';
+            } else if (isWarning) {
+              borderPulseClass = 'border-warning animate-pulse-amber cyber-glow-state-warning';
+            } else if (computedStatus === 'PAUSED') {
+              borderPulseClass = 'border-tertiary/60';
+            }
+
             return (
               <Card
                 key={live.sessionId}
                 variant={cardVariant}
-                className="p-4 sm:p-5 flex flex-col justify-between h-full border border-outline-variant/40 hover:border-outline-variant/70 transition-all"
+                className={`gaming-station-card flex flex-col justify-between h-full border ${borderPulseClass} transition-all rounded-2xl overflow-hidden group`}
               >
                 <div>
-                  {/* Header: Station & Status */}
-                  <div className="flex items-center justify-between pb-3 border-b border-outline-variant/40">
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                      <div className="w-8 h-8 rounded-lg bg-surface-container-lowest border border-outline-variant/40 flex items-center justify-center text-primary shrink-0">
-                        <Monitor className="w-4 h-4" />
+                  {/* Station Visual Thumbnail */}
+                  <div className="relative h-20 w-full overflow-hidden bg-surface-container-lowest">
+                    <img
+                      src={stationImg}
+                      alt={station.name}
+                      className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/30 to-black/50" />
+                    <div className="absolute top-2 left-2 right-2 flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-bold text-xs text-on-surface bg-background/80 px-2 py-0.5 rounded-full backdrop-blur-md border border-outline-variant/30 flex items-center gap-1">
+                          <Gamepad2 className="w-3 h-3 text-primary" />
+                          <span>{station.name}</span>
+                        </span>
+                        {computedStatus !== 'PAUSED' && (
+                          <div className="flex items-end gap-0.5 h-3 px-1 py-0.5 rounded bg-black/40 backdrop-blur-sm border border-primary/40" title="Active Gameplay">
+                            <span className="w-0.5 bg-primary rounded-full animate-eq-1" />
+                            <span className="w-0.5 bg-primary rounded-full animate-eq-2" />
+                            <span className="w-0.5 bg-primary rounded-full animate-eq-3" />
+                          </div>
+                        )}
                       </div>
-                      <div className="min-w-0">
-                        <h4 className="text-sm font-bold text-on-surface tracking-tight truncate" title={station.name}>{station.name}</h4>
-                        <span className="text-[11px] text-on-surface-variant font-medium">₹{station.hourlyRate}/hr</span>
-                      </div>
+                      <Badge variant={badgeVariant} size="xs" className="font-bold tracking-wider backdrop-blur-md">
+                        {badgeLabel}
+                      </Badge>
                     </div>
-
-                    <Badge variant={badgeVariant} size="sm" className="shrink-0">
-                      {badgeLabel}
-                    </Badge>
+                    <div className="absolute bottom-1 right-2 text-[10px] font-semibold text-on-surface bg-surface-container-high/90 px-1.5 py-0.2 rounded backdrop-blur-sm">
+                      ₹{station.hourlyRate}/hr
+                    </div>
                   </div>
 
                   {/* Customer Details */}
-                  <div className="my-3 space-y-1.5 text-xs">
+                  <div className="p-3.5 space-y-2 text-xs">
                     <div className="flex items-center justify-between">
                       <span className="text-on-surface-variant flex items-center gap-1.5">
                         <User className="w-3.5 h-3.5 text-outline" />
                         Player:
                       </span>
-                      <span className="font-semibold text-on-surface truncate max-w-[130px]">{live.customerName}</span>
+                      <span className="font-semibold text-on-surface truncate max-w-[140px]">{live.customerName}</span>
                     </div>
 
                     {live.customerPhone && (
@@ -326,35 +372,50 @@ export function ActiveSessionsView({
                       <span>Booked Time:</span>
                       <span className="font-semibold text-on-surface">{live.bookedMinutes} mins</span>
                     </div>
-                  </div>
 
-                  {/* Timer Display */}
-                  <div className="p-3 rounded-lg bg-surface-container-lowest border border-outline-variant/50 my-3 flex items-center justify-between">
-                    <span className="text-xs text-on-surface-variant flex items-center gap-1.5">
-                      <Clock className="w-3.5 h-3.5 text-outline" />
-                      {isOvertime ? 'Extra time:' : 'Time left:'}
-                    </span>
-
-                    {isOvertime ? (
-                      <div className="text-right">
-                        <span className="font-mono tabular-nums text-base font-bold text-error">
-                          +{formatDuration(overtimeMs)}
+                    {/* Timer Display & Cyber Progress */}
+                    <div className="p-2.5 rounded-xl bg-surface-container-lowest border border-outline-variant/50 flex flex-col gap-1.5 shadow-inner">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-on-surface-variant flex items-center gap-1.5 font-medium">
+                          <Clock className="w-3.5 h-3.5 text-outline" />
+                          {isOvertime ? 'Overtime:' : 'Remaining:'}
                         </span>
-                        {live.overtimeFee > 0 && (
-                          <span className="block text-[11px] text-error font-medium">
-                            Extra: ₹{live.overtimeFee}
+
+                        {isOvertime ? (
+                          <div className="text-right">
+                            <span className="font-mono tabular-nums text-sm font-bold text-error">
+                              +{formatDuration(overtimeMs)}
+                            </span>
+                            {live.overtimeFee > 0 && (
+                              <span className="block text-[10px] text-error font-medium">
+                                Extra: ₹{live.overtimeFee}
+                              </span>
+                            )}
+                          </div>
+                        ) : computedStatus === 'PAUSED' ? (
+                          <span className="text-xs font-semibold text-tertiary">
+                            Paused
+                          </span>
+                        ) : (
+                          <span className={`font-mono tabular-nums text-sm sm:text-base font-bold ${isWarning ? 'text-warning' : 'text-primary'}`}>
+                            {formatDuration(remainingMs)}
                           </span>
                         )}
                       </div>
-                    ) : computedStatus === 'PAUSED' ? (
-                      <span className="text-xs font-semibold text-tertiary">
-                        Paused
-                      </span>
-                    ) : (
-                      <span className={`font-mono tabular-nums text-base font-bold ${isWarning ? 'text-warning' : 'text-primary'}`}>
-                        {formatDuration(remainingMs)}
-                      </span>
-                    )}
+
+                      {/* Animated Progress Bar */}
+                      {!isOvertime && computedStatus !== 'PAUSED' && (
+                        <div className="w-full h-1.5 bg-surface-container rounded-full overflow-hidden relative">
+                          <div
+                            className={`h-full rounded-full transition-all duration-1000 ${
+                              isWarning ? 'bg-warning' : 'bg-primary'
+                            }`}
+                            style={{ width: `${progressPercent}%` }}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer pointer-events-none" />
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 

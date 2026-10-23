@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a120b"/>
+      <stop offset="50%" stop-color="#0f1f14"/>
+      <stop offset="100%" stop-color="#050806"/>
+    </linearGradient>
+    <radialGradient id="greenGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#107C10" stop-opacity="0.8"/>
+      <stop offset="60%" stop-color="#0E6A0E" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#050806" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="consoleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e2220"/>
+      <stop offset="100%" stop-color="#0d0f0e"/>
+    </linearGradient>
+    <linearGradient id="screenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#002b11"/>
+      <stop offset="50%" stop-color="#00180a"/>
+      <stop offset="100%" stop-color="#000d05"/>
+    </linearGradient>
+    <filter id="neonBlur" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="450" fill="url(#bgGrad)"/>
+
+  <!-- Ambient Glow -->
+  <circle cx="400" cy="225" r="280" fill="url(#greenGlow)"/>
+
+  <!-- Cyber Grid Lines -->
+  <g stroke="#107C10" stroke-opacity="0.12" stroke-width="1">
+    <line x1="0" y1="90" x2="800" y2="90"/>
+    <line x1="0" y1="180" x2="800" y2="180"/>
+    <line x1="0" y1="270" x2="800" y2="270"/>
+    <line x1="0" y1="360" x2="800" y2="360"/>
+    <line x1="160" y1="0" x2="160" y2="450"/>
+    <line x1="320" y1="0" x2="320" y2="450"/>
+    <line x1="480" y1="0" x2="480" y2="450"/>
+    <line x1="640" y1="0" x2="640" y2="450"/>
+  </g>
+
+  <!-- Monitor Screen in Background -->
+  <g transform="translate(180, 50)">
+    <rect x="0" y="0" width="440" height="240" rx="12" fill="#141816" stroke="#25332a" stroke-width="3"/>
+    <rect x="10" y="10" width="420" height="220" rx="8" fill="url(#screenGrad)"/>
+    <!-- Game HUD Grid & Accents -->
+    <path d="M 40 40 L 120 40 L 140 60 L 400 60" fill="none" stroke="#22c55e" stroke-width="2" stroke-opacity="0.4"/>
+    <circle cx="220" cy="120" r="45" fill="none" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="6,4" stroke-opacity="0.6"/>
+    <circle cx="220" cy="120" r="20" fill="none" stroke="#107C10" stroke-width="2" stroke-opacity="0.8"/>
+    <text x="220" y="125" fill="#4ade80" font-family="system-ui, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" letter-spacing="3">4K 120FPS HDR</text>
+    <rect x="200" y="240" width="40" height="40" fill="#1b201d"/>
+    <ellipse cx="220" cy="280" rx="60" ry="8" fill="#111613"/>
+  </g>
+
+  <!-- Xbox Series X Console (Tower) -->
+  <g transform="translate(100, 160)">
+    <!-- Tower Shadow -->
+    <ellipse cx="60" cy="225" rx="55" ry="14" fill="#000" opacity="0.6"/>
+    <!-- Tower Body -->
+    <rect x="15" y="10" width="90" height="210" rx="6" fill="url(#consoleGrad)" stroke="#22c55e" stroke-width="1.5" stroke-opacity="0.3"/>
+    <!-- Top Green Vent Glow -->
+    <ellipse cx="60" cy="14" rx="42" ry="7" fill="#107C10" filter="url(#neonBlur)"/>
+    <!-- Power Button Xbox Logo -->
+    <circle cx="35" cy="40" r="7" fill="#0d0f0e" stroke="#22c55e" stroke-width="1.5"/>
+    <path d="M 31 36 L 39 44 M 39 36 L 31 44" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- Disc Slot -->
+    <rect x="30" y="170" width="4" height="40" rx="1.5" fill="#080a09" stroke="#22c55e" stroke-width="0.5" stroke-opacity="0.5"/>
+  </g>
+
+  <!-- Xbox Wireless Controller -->
+  <g transform="translate(480, 240)">
+    <!-- Controller Shadow -->
+    <ellipse cx="110" cy="130" rx="85" ry="18" fill="#000" opacity="0.7"/>
+    <!-- Main Controller Shell -->
+    <path d="M 50 40 C 35 60 25 110 40 135 C 50 145 70 140 85 110 C 95 95 125 95 135 110 C 150 140 170 145 180 135 C 195 110 185 60 170 40 C 150 25 70 25 50 40 Z" fill="#181c19" stroke="#22c55e" stroke-width="1.5"/>
+    <!-- Xbox Guide Button (Glowing) -->
+    <circle cx="110" cy="50" r="10" fill="#0c100e" stroke="#22c55e" stroke-width="2" filter="url(#neonBlur)"/>
+    <path d="M 105 45 L 115 55 M 115 45 L 105 55" stroke="#4ade80" stroke-width="2" stroke-linecap="round"/>
+    <!-- Thumbsticks -->
+    <circle cx="75" cy="70" r="14" fill="#0e120f" stroke="#22c55e" stroke-width="1" stroke-opacity="0.4"/>
+    <circle cx="130" cy="95" r="14" fill="#0e120f" stroke="#22c55e" stroke-width="1" stroke-opacity="0.4"/>
+    <!-- D-Pad -->
+    <rect x="70" y="90" width="10" height="22" rx="2" fill="#252c27"/>
+    <rect x="64" y="96" width="22" height="10" rx="2" fill="#252c27"/>
+    <!-- Action Buttons -->
+    <circle cx="145" cy="55" r="4" fill="#107C10"/>
+    <circle cx="155" cy="65" r="4" fill="#ef4444"/>
+    <circle cx="135" cy="65" r="4" fill="#3b82f6"/>
+    <circle cx="145" cy="75" r="4" fill="#eab308"/>
+  </g>
+
+  <!-- Gaming Badge Label -->
+  <g transform="translate(620, 30)">
+    <rect x="0" y="0" width="150" height="34" rx="17" fill="#107C10" fill-opacity="0.2" stroke="#22c55e" stroke-width="1.5"/>
+    <text x="75" y="22" fill="#4ade80" font-family="system-ui, sans-serif" font-size="13" font-weight="700" text-anchor="middle" letter-spacing="1.5">XBOX SERIES X</text>
+  </g>
+</svg>

@@ -13,23 +13,57 @@ import {
   User,
   XCircle,
   Phone,
-  Trash2
+  Trash2,
+  Zap,
+  Flame,
+  AlertTriangle,
+  QrCode
 } from 'lucide-react';
 import { Button, Badge, Card } from './ui';
 
 function getHardwareBadge(type) {
   switch (type) {
     case 'PS5':
-      return { label: 'PS5', icon: Tv, variant: 'tertiary' };
+      return {
+        label: 'PlayStation 5',
+        icon: Tv,
+        variant: 'tertiary',
+        image: '/images/ps5_console_station.jpg',
+        specs: 'PS5 • 4K 120Hz HDR'
+      };
     case 'XBOX':
-      return { label: 'Xbox', icon: Tv, variant: 'success' };
+      return {
+        label: 'Xbox Series X',
+        icon: Tv,
+        variant: 'success',
+        image: '/images/xbox_controller_lounge.jpg',
+        specs: 'Series X • Game Pass'
+      };
     case 'VR':
-      return { label: 'VR', icon: Glasses, variant: 'secondary' };
+      return {
+        label: 'VR Arena',
+        icon: Glasses,
+        variant: 'secondary',
+        image: '/images/vr_player_experience.jpg',
+        specs: '6-DOF VR • Immersive 120Hz'
+      };
     case 'PC_VIP':
-      return { label: 'VIP PC', icon: Monitor, variant: 'warning' };
+      return {
+        label: 'VIP Battlestation',
+        icon: Monitor,
+        variant: 'warning',
+        image: '/images/cyberpunk_battlestation.jpg',
+        specs: 'RTX 4080 • Liquid-Cooled 240Hz'
+      };
     case 'PC_STANDARD':
     default:
-      return { label: 'Standard PC', icon: Monitor, variant: 'primary' };
+      return {
+        label: 'Gaming PC',
+        icon: Monitor,
+        variant: 'primary',
+        image: '/images/pc_gaming_rig.jpg',
+        specs: 'RTX Rig • Mechanical RGB'
+      };
   }
 }
 
@@ -69,7 +103,8 @@ export function StationCard({
   onCancelSession,
   onToggleMaintenance,
   onDelete,
-  onDeleteStation
+  onDeleteStation,
+  onDeskQR
 }) {
   const startSession = onStart || onStartSession;
   const pauseSession = onPause || onPauseSession;
@@ -93,12 +128,13 @@ export function StationCard({
     return () => clearInterval(interval);
   }, [isOccupied]);
 
-  // Compute live time delta
+  // Compute live time delta & progress percentage
   let remainingMs = 0;
   let overtimeMs = 0;
   let isWarning = false;
   let isOvertime = false;
   let currentStatus = station.status;
+  let progressPercent = 0;
 
   if (isOccupied && live) {
     if (live.status === 'PAUSED') {
@@ -106,6 +142,11 @@ export function StationCard({
     } else {
       const scheduledEndMs = new Date(live.scheduledEndTime).getTime();
       const diffMs = scheduledEndMs - now;
+
+      const startMs = new Date(live.startTime).getTime();
+      const totalDurationMs = Math.max(1, scheduledEndMs - startMs);
+      const elapsedMs = Math.max(0, now - startMs);
+      progressPercent = Math.min(100, Math.max(0, (elapsedMs / totalDurationMs) * 100));
 
       if (diffMs > 0) {
         remainingMs = diffMs;
@@ -119,6 +160,7 @@ export function StationCard({
         overtimeMs = Math.abs(diffMs);
         isOvertime = true;
         currentStatus = 'EXPIRED_UNSETTLED';
+        progressPercent = 100;
       }
     }
   }
@@ -126,145 +168,240 @@ export function StationCard({
   const hardware = getHardwareBadge(station.type);
   const HardwareIcon = hardware.icon;
 
-  // Station card styling
+  // Station card styling & pulse classes
   let cardVariant = 'container';
   let badgeVariant = 'success';
   let badgeLabel = 'Available';
+  let borderPulseClass = 'border-outline-variant/40 hover:border-success/60 hover:cyber-glow-state-available';
 
   if (isMaintenance) {
     cardVariant = 'low';
     badgeVariant = 'neutral';
     badgeLabel = 'In Repair';
+    borderPulseClass = 'border-outline-variant/40 opacity-80';
   } else if (currentStatus === 'EXPIRED_UNSETTLED') {
     cardVariant = 'high';
     badgeVariant = 'error';
     badgeLabel = 'Extra Time';
+    borderPulseClass = 'border-error animate-pulse-red cyber-glow-state-error';
   } else if (currentStatus === 'WARNING') {
     cardVariant = 'high';
     badgeVariant = 'warning';
     badgeLabel = 'Ending Soon';
+    borderPulseClass = 'border-warning animate-pulse-amber cyber-glow-state-warning';
   } else if (currentStatus === 'PAUSED') {
     cardVariant = 'container';
     badgeVariant = 'tertiary';
     badgeLabel = 'Paused';
+    borderPulseClass = 'border-tertiary/60';
   } else if (isOccupied) {
     cardVariant = 'high';
     badgeVariant = 'primary';
     badgeLabel = 'In Use';
+    borderPulseClass = 'border-primary/60 animate-pulse-blue cyber-glow-state-active';
   }
 
   return (
-    <Card variant={cardVariant} className="p-3.5 sm:p-4 flex flex-col justify-between h-full border border-outline-variant/40 hover:border-outline-variant/70 transition-all overflow-hidden">
+    <Card
+      variant={cardVariant}
+      className={`gaming-station-card flex flex-col justify-between h-full border ${borderPulseClass} transition-all overflow-hidden rounded-2xl group`}
+    >
       <div>
-        {/* Header: Station Name, Type, Price, Status */}
-        <div className="pb-2 sm:pb-2.5 border-b border-outline-variant/40">
-          <div className="flex items-center justify-between gap-2 min-w-0">
-            <h3
-              className="title-medium font-bold text-on-surface tracking-tight truncate flex-1 min-w-0"
-              title={station.name}
-            >
-              {station.name}
-            </h3>
-            <Badge variant={badgeVariant} size="sm" className="shrink-0">
+        {/* Gaming Visual Banner Header */}
+        <div className="relative h-24 sm:h-28 w-full overflow-hidden bg-surface-container-lowest">
+          <img
+            src={hardware.image}
+            alt={station.name}
+            className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-500"
+            loading="lazy"
+          />
+          {/* Subtle Dark Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/40 to-black/50" />
+
+          {/* Top Status Indicators & Hardware Type */}
+          <div className="absolute top-2 left-2 right-2 flex items-center justify-between gap-1.5 z-10">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold tracking-wide bg-background/85 text-on-surface backdrop-blur-md border border-outline-variant/30 shadow-sm">
+              <HardwareIcon className="w-3 h-3 text-primary shrink-0" />
+              <span className="truncate max-w-[90px]">{hardware.label}</span>
+            </span>
+
+            <Badge variant={badgeVariant} size="xs" className="shrink-0 font-bold tracking-wider backdrop-blur-md shadow-sm">
+              {currentStatus === 'ACTIVE' && (
+                <span className="w-1.5 h-1.5 rounded-full bg-primary animate-ping mr-1 inline-block" />
+              )}
+              {currentStatus === 'WARNING' && (
+                <AlertTriangle className="w-3 h-3 text-warning inline mr-0.5" />
+              )}
+              {currentStatus === 'EXPIRED_UNSETTLED' && (
+                <Flame className="w-3 h-3 text-error inline mr-0.5" />
+              )}
               {badgeLabel}
             </Badge>
           </div>
 
-          <div className="flex items-center justify-between gap-2 mt-1 text-xs text-on-surface-variant">
-            <Badge variant={hardware.variant} size="xs" className="inline-flex items-center gap-1">
-              <HardwareIcon className="w-3 h-3" />
-              <span>{hardware.label}</span>
-            </Badge>
-            <span className="font-semibold text-on-surface">
+          {/* Bottom Specs & Hourly Rate Badge */}
+          <div className="absolute bottom-1.5 left-2 right-2 flex items-center justify-between z-10 text-[11px]">
+            <span className="font-mono text-on-surface font-medium truncate max-w-[160px] drop-shadow-sm opacity-90">
+              {hardware.specs}
+            </span>
+            <span className="font-bold text-on-surface bg-surface-container-high/90 px-2 py-0.5 rounded-md backdrop-blur-sm border border-outline-variant/40 tabular-nums shadow-sm">
               ₹{station.hourlyRate}/hr
             </span>
           </div>
         </div>
 
-        {/* Live Session Body (Occupied Station) */}
-        {isOccupied && (
-          <div className="my-2.5 space-y-2 min-h-[72px] flex flex-col justify-center">
-            {/* Player Information */}
-            <div className="flex items-center justify-between text-xs py-0.5 border-b border-outline-variant/30">
-              <span className="text-on-surface-variant flex items-center gap-1.5">
-                <User className="w-3.5 h-3.5 text-outline" />
-                Player:
-              </span>
-              <span className="font-semibold text-on-surface truncate max-w-[130px]" title={live.customerName}>
-                {live.customerName}
-              </span>
-            </div>
+        {/* Station Title & Live Info */}
+        <div className="p-3 sm:p-3.5 space-y-2">
+          <div className="flex items-center justify-between gap-2 min-w-0">
+            <h3
+              className="title-medium font-bold text-on-surface tracking-tight truncate flex-1 min-w-0 flex items-center gap-1.5"
+              title={station.name}
+            >
+              <Zap className="w-4 h-4 text-primary shrink-0" />
+              <span>{station.name}</span>
+            </h3>
 
-            {live.customerPhone ? (
-              <div className="flex items-center justify-between text-xs text-on-surface-variant">
-                <span className="flex items-center gap-1.5">
-                  <Phone className="w-3.5 h-3.5 text-outline" />
-                  Phone:
-                </span>
-                <span className="font-mono tabular-nums text-on-surface">{live.customerPhone}</span>
-              </div>
-            ) : (
-              <div className="flex items-center justify-between text-xs text-on-surface-variant/50">
-                <span className="flex items-center gap-1.5">
-                  <Phone className="w-3.5 h-3.5 text-outline/50" />
-                  Phone:
-                </span>
-                <span>Not set</span>
+            {/* Live Audio / In-Game Equalizer Feedback */}
+            {isOccupied && currentStatus !== 'PAUSED' && (
+              <div
+                className="flex items-end gap-0.5 h-4 px-1.5 py-0.5 rounded-md bg-primary-container/40 border border-primary/30 shrink-0"
+                title="Live Gameplay Telemetry"
+              >
+                <span className="w-1 bg-primary rounded-full animate-eq-1" />
+                <span className="w-1 bg-primary rounded-full animate-eq-2" />
+                <span className="w-1 bg-primary rounded-full animate-eq-3" />
+                <span className="w-1 bg-primary rounded-full animate-eq-4" />
               </div>
             )}
 
-            {/* Time Countdown / Overtime Meter */}
-            <div className="p-2 rounded-lg bg-surface-container-lowest border border-outline-variant/50 flex items-center justify-between">
-              <div className="text-xs text-on-surface-variant flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-outline" />
-                <span>{isOvertime ? 'Extra time:' : 'Time left:'}</span>
+            {/* Ready Radar Ping for Available Rigs */}
+            {!isOccupied && !isMaintenance && (
+              <div className="flex items-center gap-1.5 shrink-0" title="Station Ready">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-success" />
+                </span>
+              </div>
+            )}
+
+            {onDeskQR && (
+              <button
+                type="button"
+                onClick={() => onDeskQR(station)}
+                title="Desk QR Code & In-Seat Self-Service Portal"
+                aria-label="Desk QR Code"
+                className="p-1 rounded-md text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors cursor-pointer"
+              >
+                <QrCode className="w-4 h-4 shrink-0" />
+              </button>
+            )}
+          </div>
+
+          {/* Live Session Body (Occupied Station) */}
+          {isOccupied && (
+            <div className="space-y-2 pt-1 border-t border-outline-variant/30">
+              {/* Player Information */}
+              <div className="flex items-center justify-between text-xs py-0.5">
+                <span className="text-on-surface-variant flex items-center gap-1.5">
+                  <User className="w-3.5 h-3.5 text-outline" />
+                  Player:
+                </span>
+                <span className="font-semibold text-on-surface truncate max-w-[140px]" title={live.customerName}>
+                  {live.customerName}
+                </span>
               </div>
 
-              {isOvertime ? (
-                <div className="text-right">
-                  <span className="font-mono tabular-nums text-sm font-bold text-error">
-                    +{formatDuration(overtimeMs)}
+              {live.customerPhone ? (
+                <div className="flex items-center justify-between text-xs text-on-surface-variant">
+                  <span className="flex items-center gap-1.5">
+                    <Phone className="w-3.5 h-3.5 text-outline" />
+                    Phone:
                   </span>
-                  {live.overtimeFee > 0 && (
-                    <span className="block text-[10px] text-error font-semibold">
-                      Extra: ₹{live.overtimeFee}
+                  <span className="font-mono tabular-nums text-on-surface">{live.customerPhone}</span>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between text-xs text-on-surface-variant/50">
+                  <span className="flex items-center gap-1.5">
+                    <Phone className="w-3.5 h-3.5 text-outline/50" />
+                    Phone:
+                  </span>
+                  <span>Walk-in</span>
+                </div>
+              )}
+
+              {/* Time Countdown / Overtime Meter */}
+              <div className="p-2 sm:p-2.5 rounded-xl bg-surface-container-lowest border border-outline-variant/50 flex flex-col gap-1.5 shadow-inner">
+                <div className="flex items-center justify-between">
+                  <div className="text-xs text-on-surface-variant flex items-center gap-1.5 font-medium">
+                    <Clock className="w-3.5 h-3.5 text-outline" />
+                    <span>{isOvertime ? 'Overtime:' : 'Remaining:'}</span>
+                  </div>
+
+                  {isOvertime ? (
+                    <div className="text-right">
+                      <span className="font-mono tabular-nums text-sm font-bold text-error">
+                        +{formatDuration(overtimeMs)}
+                      </span>
+                      {live.overtimeFee > 0 && (
+                        <span className="block text-[10px] text-error font-semibold">
+                          Extra: ₹{live.overtimeFee}
+                        </span>
+                      )}
+                    </div>
+                  ) : currentStatus === 'PAUSED' ? (
+                    <span className="text-xs font-semibold text-tertiary">
+                      Paused
+                    </span>
+                  ) : (
+                    <span className={`font-mono tabular-nums text-sm sm:text-base font-bold ${isWarning ? 'text-warning' : 'text-primary'}`}>
+                      {formatDuration(remainingMs)}
                     </span>
                   )}
                 </div>
-              ) : currentStatus === 'PAUSED' ? (
-                <span className="text-xs font-semibold text-tertiary">
-                  Paused
-                </span>
-              ) : (
-                <span className={`font-mono tabular-nums text-sm sm:text-base font-bold ${isWarning ? 'text-warning' : 'text-primary'}`}>
-                  {formatDuration(remainingMs)}
-                </span>
-              )}
+
+                {/* Cyber Progress Bar for Active Countdown */}
+                {!isOvertime && currentStatus !== 'PAUSED' && (
+                  <div className="w-full h-1.5 bg-surface-container rounded-full overflow-hidden relative">
+                    <div
+                      className={`h-full rounded-full transition-all duration-1000 ${
+                        isWarning ? 'bg-warning' : 'bg-primary'
+                      }`}
+                      style={{ width: `${progressPercent}%` }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer pointer-events-none" />
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Maintenance State */}
-        {isMaintenance && (
-          <div className="my-2.5 py-3.5 px-3 text-center border border-outline-variant/50 rounded-xl bg-surface-container-lowest/40 flex flex-col items-center justify-center min-h-[72px] text-xs text-on-surface-variant">
-            <Wrench className="w-4 h-4 text-warning mb-1" />
-            <p className="text-xs font-semibold text-warning">In Repair</p>
-            <p className="text-[11px] text-on-surface-variant">Offline for maintenance</p>
-          </div>
-        )}
+          {/* Maintenance State */}
+          {isMaintenance && (
+            <div className="py-3 px-3 text-center border border-outline-variant/50 rounded-xl bg-surface-container-lowest/40 flex flex-col items-center justify-center min-h-[64px] text-xs text-on-surface-variant">
+              <Wrench className="w-4 h-4 text-warning mb-1" />
+              <p className="text-xs font-semibold text-warning">Bench / Maintenance</p>
+              <p className="text-[11px] text-on-surface-variant">Station hardware offline</p>
+            </div>
+          )}
 
-        {/* Available State Prompt */}
-        {station.status === 'AVAILABLE' && (
-          <div className="my-2.5 py-3.5 px-3 text-center border border-dashed border-outline-variant/60 rounded-xl bg-surface-container-lowest/40 flex flex-col items-center justify-center min-h-[72px]">
-            <Monitor className="w-4 h-4 text-outline mb-1 opacity-70" />
-            <p className="text-xs font-semibold text-on-surface">Ready to Play</p>
-            <p className="text-[11px] text-on-surface-variant">Click Start Session below</p>
-          </div>
-        )}
+          {/* Available State Prompt */}
+          {station.status === 'AVAILABLE' && (
+            <div className="py-2.5 px-3 text-center border border-dashed border-outline-variant/60 rounded-xl bg-surface-container-lowest/40 flex items-center justify-between min-h-[52px]">
+              <div className="text-left">
+                <p className="text-xs font-semibold text-on-surface flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-success inline-block animate-pulse" />
+                  Ready For Gamer
+                </p>
+                <p className="text-[10px] text-on-surface-variant">Instant check-in ready</p>
+              </div>
+              <Badge variant="success" size="xs">0 min waiting</Badge>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Action Footer */}
-      <div className="pt-2.5 border-t border-outline-variant/40 space-y-1.5">
+      <div className="p-3 sm:p-3.5 pt-0 space-y-1.5">
         {/* Available Actions: Prominent Full-Width Start + Secondary Row */}
         {station.status === 'AVAILABLE' && (
           <div className="space-y-1.5">
@@ -273,7 +410,7 @@ export function StationCard({
               size="md"
               fullWidth
               onClick={() => startSession && startSession(station)}
-              className="font-medium whitespace-nowrap shadow-sm hover:shadow-md"
+              className="font-medium whitespace-nowrap shadow-sm hover:shadow-md cyber-glow-primary"
             >
               <Play className="w-4 h-4 fill-current shrink-0" />
               <span>Start Session</span>

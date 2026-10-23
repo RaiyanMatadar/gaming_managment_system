@@ -21,16 +21,24 @@ import {
   WhatsAppLinkModal
 } from './components/Modals.jsx';
 import { FiveMinuteWarningModal } from './components/FiveMinuteWarningModal.jsx';
+import { ThermalReceiptModal } from './components/ThermalReceiptModal.jsx';
+import { DeskQRModal } from './components/DeskQRModal.jsx';
+import { CustomerPortalView } from './components/CustomerPortalView.jsx';
+import { UPSFreezeBanner, UPSFreezeModal } from './components/UPSFreezeBanner.jsx';
+import { GamingHeroBanner } from './components/GamingHeroBanner.jsx';
+import { HomePage } from './components/HomePage.jsx';
 import { LoginView } from './components/LoginView.jsx';
 import { Snackbar } from './components/ui/index.js';
 import { AlertCircle, CheckCircle2, X } from 'lucide-react';
 import { getToken, getCurrentUser, clearAuth, verifySession, updateProfile } from './utils/api.js';
+import { soundEngine } from './utils/soundEngine.js';
 
 export function App() {
   // Authentication & Session State
   const [authToken, setAuthToken] = useState(getToken());
   const [currentUser, setCurrentUser] = useState(getCurrentUser());
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [isViewingLogin, setIsViewingLogin] = useState(false);
 
   // Navigation & Layout State
   const [currentView, setCurrentView] = useState('floor'); // 'floor' | 'sessions' | 'customers' | 'reports' | 'audit' | 'inventory'
@@ -54,6 +62,16 @@ export function App() {
   const [isAddStationOpen, setIsAddStationOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(false);
+  const [receiptModalData, setReceiptModalData] = useState(null);
+  const [deskQRStation, setDeskQRStation] = useState(null);
+  const [isEmergencyFrozen, setIsEmergencyFrozen] = useState(false);
+  const [frozenCount, setFrozenCount] = useState(0);
+  const [isFreezeModalOpen, setIsFreezeModalOpen] = useState(false);
+  const [portalStationId, setPortalStationId] = useState(
+    window.location.pathname.startsWith('/portal/')
+      ? window.location.pathname.replace('/portal/', '').split('/')[0]
+      : null
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // 5-minute active warning popups queue
@@ -166,6 +184,9 @@ export function App() {
         const data = JSON.parse(e.data);
         const payload = data.payload;
 
+        // Sound alert chime
+        soundEngine.playChime();
+
         // Push warning to active modal queue if not already present
         setActiveWarnings((prev) => {
           if (prev.some((w) => String(w.sessionId) === String(payload.sessionId))) {
@@ -180,6 +201,8 @@ export function App() {
 
       eventSource.addEventListener('SESSION_EXPIRED', (e) => {
         const data = JSON.parse(e.data);
+        // Sound alert buzzer
+        soundEngine.playOvertimeBuzzer();
         showToast(`🚨 ${data.payload.stationName}: Time EXPIRED! Overtime charges accumulating.`, 'error');
         fetchStations();
       });
@@ -224,7 +247,72 @@ export function App() {
         }
         fetchStations();
       });
+
+      // Emergency Power Cut Freeze SSE Events
+      eventSource.addEventListener('EMERGENCY_FREEZE_TRIGGERED', (e) => {
+        setIsEmergencyFrozen(true);
+        if (e.data) {
+          try {
+            const data = JSON.parse(e.data);
+            setFrozenCount(data.payload?.count || 0);
+          } catch {}
+        }
+        showToast('⚠️ Power Cut / UPS Emergency Freeze active across all stations.', 'warning');
+        fetchStations();
+      });
+
+      eventSource.addEventListener('EMERGENCY_RESUME_TRIGGERED', () => {
+        setIsEmergencyFrozen(false);
+        setFrozenCount(0);
+        showToast('⚡ Power Cut Mode cleared. All station clocks resumed!', 'success');
+        fetchStations();
+      });
+
+      // In-Desk Customer Self-Service SSE Events
+      eventSource.addEventListener('STAFF_ASSISTANCE_REQUEST', (e) => {
+        if (e.data) {
+          try {
+            const data = JSON.parse(e.data);
+            soundEngine.playChime();
+            showToast(`🛎️ Staff Call: ${data.payload.stationName} — ${data.payload.reason} (${data.payload.customerName})`, 'warning');
+          } catch {}
+        }
+      });
+
+      eventSource.addEventListener('IN_SEAT_ORDER_RECEIVED', (e) => {
+        if (e.data) {
+          try {
+            const data = JSON.parse(e.data);
+            soundEngine.playSuccessDing();
+            showToast(`🍜 In-Seat Order: ${data.payload.stationName} ordered ${data.payload.items?.length} items (₹${data.payload.totalAmount})`, 'info');
+          } catch {}
+        }
+      });
+
+      eventSource.addEventListener('EXTENSION_REQUESTED', (e) => {
+        if (e.data) {
+          try {
+            const data = JSON.parse(e.data);
+            showToast(`➕ Extension Request: ${data.payload.stationName} requests +${data.payload.additionalMinutes}m (${data.payload.customerName})`, 'info');
+          } catch {}
+        }
+      });
     }
+
+    // Check current emergency status on load
+    async function checkEmergency() {
+      try {
+        const res = await fetch('/api/sessions/emergency/status');
+        if (res.ok) {
+          const json = await res.json();
+          if (json.data) {
+            setIsEmergencyFrozen(json.data.isEmergencyFrozen);
+            setFrozenCount(json.data.frozenCount);
+          }
+        }
+      } catch {}
+    }
+    checkEmergency();
 
     connectSSE();
 
@@ -232,6 +320,19 @@ export function App() {
       if (eventSource) eventSource.close();
     };
   }, [authToken, currentUser, fetchStations]);
+
+  // Route popstate listener for /portal/:stationId
+  useEffect(() => {
+    const handlePopState = () => {
+      if (window.location.pathname.startsWith('/portal/')) {
+        setPortalStationId(window.location.pathname.replace('/portal/', '').split('/')[0]);
+      } else {
+        setPortalStationId(null);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   // Core session action handlers
   const startSession = async (payload) => {
@@ -388,8 +489,12 @@ export function App() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to checkout');
-      showToast(`Checkout complete. Receipt: ${data.data.receipt.receiptNumber}`, 'success');
+      soundEngine.playSuccessDing();
+      showToast(`Checkout complete. Receipt: ${data.data.receipt?.receiptNumber || 'OK'}`, 'success');
       setCheckoutData(null);
+      if (data.data?.receipt) {
+        setReceiptModalData(data.data.receipt);
+      }
       fetchStations();
     } catch (err) {
       alert(`Error: ${err.message}`);
@@ -443,6 +548,60 @@ export function App() {
     }
   };
 
+  const triggerEmergencyFreeze = async () => {
+    setIsSubmitting(true);
+    try {
+      const res = await fetch('/api/sessions/emergency/freeze-all', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: 'UPS Emergency Power Cut' })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to trigger UPS freeze');
+      setIsEmergencyFrozen(true);
+      setFrozenCount(data.data?.frozenCount || 0);
+      setIsFreezeModalOpen(false);
+      showToast(`⚡ Power Cut Mode: ${data.data?.frozenCount || 0} sessions paused!`, 'warning');
+      fetchStations();
+    } catch (err) {
+      alert(`Error: ${err.message}`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const resumeEmergencyFreeze = async () => {
+    setIsSubmitting(true);
+    try {
+      const res = await fetch('/api/sessions/emergency/resume-all', {
+        method: 'POST'
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to resume sessions');
+      setIsEmergencyFrozen(false);
+      setFrozenCount(0);
+      showToast(`⚡ Floor Clocks Resumed: ${data.data?.resumedCount || 0} sessions active!`, 'success');
+      fetchStations();
+    } catch (err) {
+      alert(`Error: ${err.message}`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // In-Desk Customer Portal Mode (Public view for players scanning desk QR code)
+  if (portalStationId) {
+    return (
+      <CustomerPortalView
+        stationId={portalStationId}
+        onBackToFloor={() => {
+          window.history.pushState({}, '', '/');
+          setPortalStationId(null);
+        }}
+      />
+    );
+  }
+
   // Filter logic for Floor Grid
   const filteredStations = stations.filter((s) => {
     if (activeFilter === 'AVAILABLE') return s.status === 'AVAILABLE';
@@ -472,21 +631,31 @@ export function App() {
     );
   }
 
-  // If user is unauthenticated, render the Login View
+  // If user is unauthenticated, render the Public Arena Home Page or Staff Login View
   if (!authToken || !currentUser) {
+    if (isViewingLogin) {
+      return (
+        <LoginView
+          onBackToHome={() => setIsViewingLogin(false)}
+          onLoginSuccess={(user, token) => {
+            setCurrentUser(user);
+            setAuthToken(token);
+            setIsViewingLogin(false);
+            showToast(`Welcome back, ${user.name || user.username}!`, 'success');
+          }}
+        />
+      );
+    }
     return (
-      <LoginView
-        onLoginSuccess={(user, token) => {
-          setCurrentUser(user);
-          setAuthToken(token);
-          showToast(`Welcome back, ${user.name || user.username}!`, 'success');
-        }}
+      <HomePage
+        onOpenLogin={() => setIsViewingLogin(true)}
+        stations={stations}
       />
     );
   }
 
   return (
-    <div className="min-h-screen flex bg-background text-on-surface font-sans selection:bg-primary selection:text-on-primary">
+    <div className="min-h-screen flex bg-background text-on-surface font-sans selection:bg-primary selection:text-on-primary cyber-arena-grid">
       {/* 1. Terminal Sidebar Navigation */}
       <Sidebar
         currentView={currentView}
@@ -516,6 +685,17 @@ export function App() {
           onLogout={handleLogout}
           onProfileClick={() => setIsProfileModalOpen(true)}
           onWhatsAppClick={() => setIsWhatsAppModalOpen(true)}
+          isEmergencyFrozen={isEmergencyFrozen}
+          onTriggerUPSFreeze={() => setIsFreezeModalOpen(true)}
+          onResumeUPSFreeze={resumeEmergencyFreeze}
+        />
+
+        {/* UPS Emergency Power Cut Freeze Banner */}
+        <UPSFreezeBanner
+          isEmergencyFrozen={isEmergencyFrozen}
+          frozenCount={frozenCount}
+          onResumeAll={resumeEmergencyFreeze}
+          isSubmitting={isSubmitting}
         />
 
         {/* M3 Snackbar Notifications */}
@@ -532,6 +712,13 @@ export function App() {
           {/* VIEW 1: Live Floor Grid */}
           {currentView === 'floor' && (
             <div className="space-y-3 sm:space-y-4">
+              {/* Gaming Arena Hero Banner */}
+              <GamingHeroBanner
+                stations={stations}
+                onQuickStart={quickStart}
+                onNewStation={() => setIsAddStationOpen(true)}
+              />
+
               {/* Floor Overview Strip (Visible on desktop/tablet, hidden on mobile for maximum space) */}
               <div className="hidden sm:block">
                 <StatsBar stations={stations} />
@@ -582,6 +769,7 @@ export function App() {
                     onCancel={(id, name, cust) => initiateCancelSession(id, name, cust)}
                     onDelete={(st) => initiateDeleteStation(st)}
                     onToggleMaintenance={toggleMaintenance}
+                    onDeskQR={(st) => setDeskQRStation(st)}
                   />
                 ))}
               </div>
@@ -610,7 +798,9 @@ export function App() {
           )}
 
           {/* VIEW 3: Customer Ledger & History */}
-          {currentView === 'customers' && <CustomerLedgerView embedded={true} />}
+          {currentView === 'customers' && (
+            <CustomerLedgerView embedded={true} onViewReceipt={setReceiptModalData} />
+          )}
 
           {/* VIEW 4: Shift Reconciliation & Reports */}
           {currentView === 'reports' && <ShiftReportView embedded={true} />}
@@ -626,6 +816,15 @@ export function App() {
               onStartSession={(st) => setSelectedStation(st)}
               onToggleMaintenance={toggleMaintenance}
               onDeleteStation={(st) => initiateDeleteStation(st)}
+            />
+          )}
+
+          {/* VIEW 7: Gaming Lounge Public Home Page / Display */}
+          {currentView === 'home' && (
+            <HomePage
+              isLoggedIn={true}
+              onOpenDashboard={() => setCurrentView('floor')}
+              stations={stations}
             />
           )}
         </main>
@@ -734,6 +933,32 @@ export function App() {
           onClose={() => setIsWhatsAppModalOpen(false)}
         />
       )}
+
+      {/* 80mm / 58mm POS Thermal Receipt Modal */}
+      {receiptModalData && (
+        <ThermalReceiptModal
+          receipt={receiptModalData}
+          currentUser={currentUser}
+          onClose={() => setReceiptModalData(null)}
+        />
+      )}
+
+      {/* Desk QR Code & In-Seat Self-Service Portal Modal */}
+      {deskQRStation && (
+        <DeskQRModal
+          station={deskQRStation}
+          onClose={() => setDeskQRStation(null)}
+        />
+      )}
+
+      {/* UPS Emergency Power Cut Freeze Confirmation Modal */}
+      <UPSFreezeModal
+        isOpen={isFreezeModalOpen}
+        onClose={() => setIsFreezeModalOpen(false)}
+        onConfirm={triggerEmergencyFreeze}
+        isSubmitting={isSubmitting}
+        activeCount={counts.occupied}
+      />
     </div>
   );
 }

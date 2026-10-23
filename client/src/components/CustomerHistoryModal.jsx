@@ -6,11 +6,12 @@ import {
   Clock,
   Phone,
   RefreshCw,
-  AlertCircle
+  AlertCircle,
+  Printer
 } from 'lucide-react';
 import { Card, Button, Badge } from './ui';
 
-export function CustomerLedgerView({ embedded = true }) {
+export function CustomerLedgerView({ embedded = true, onViewReceipt }) {
   const [sessions, setSessions] = useState([]);
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -213,6 +214,7 @@ export function CustomerLedgerView({ embedded = true }) {
                 <th className="py-3.5 px-4 font-semibold text-right">Total Amount</th>
                 <th className="py-3.5 px-4 font-semibold text-center">Payment</th>
                 <th className="py-3.5 px-4 font-semibold text-center">Status</th>
+                <th className="py-3.5 px-4 font-semibold text-center">Receipt</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant/30 text-on-surface-variant">
@@ -303,6 +305,42 @@ export function CustomerLedgerView({ embedded = true }) {
                       <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] border ${sessBadgeStyle}`}>
                         {sessLabel}
                       </span>
+                    </td>
+
+                    {/* Receipt Action */}
+                    <td className="py-3.5 px-4 text-center">
+                      {onViewReceipt && (s.status === 'COMPLETED' || payStatus === 'PAID') ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onViewReceipt({
+                              receiptNumber: `REC-${(s._id || '').toString().slice(-6).toUpperCase()}`,
+                              stationName: s.stationName || 'Computer',
+                              stationType: s.rateCardSnapshot?.tier || 'PC',
+                              customerName: s.customerName || 'Guest',
+                              customerPhone: s.customerPhone || null,
+                              startTime: s.startTime || s.createdAt,
+                              checkoutTime: s.endTime || s.updatedAt,
+                              bookedMinutes: s.bookedMinutes || 60,
+                              financials: {
+                                baseFee: s.financials?.baseAmount || 0,
+                                overtimeFee: s.financials?.overtimeAmount || 0,
+                                billableOvertimeMinutes: s.financials?.billableOvertimeMinutes || 0,
+                                totalActiveMinutes: elapsed,
+                                discount: s.financials?.discount || 0,
+                                totalAmount: payable
+                              },
+                              payments: s.payments || [{ paymentMethod: payStatus === 'PAID' ? 'CASH' : 'PENDING' }]
+                            });
+                          }}
+                          title="View & Print Thermal Receipt"
+                          className="p-1.5 rounded-full bg-surface-container text-on-surface-variant hover:text-primary hover:bg-primary-container/30 transition-all cursor-pointer inline-flex items-center justify-center"
+                        >
+                          <Printer className="w-3.5 h-3.5" />
+                        </button>
+                      ) : (
+                        <span className="text-[10px] text-outline">—</span>
+                      )}
                     </td>
                   </tr>
                 );

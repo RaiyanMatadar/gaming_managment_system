@@ -72,6 +72,14 @@ const sessionSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
+    isEmergencyFrozen: {
+      type: Boolean,
+      default: false
+    },
+    emergencyFrozenAt: {
+      type: Date,
+      default: null
+    },
     extensions: [
       {
         addedMinutes: { type: Number, required: true },

@@ -11,7 +11,8 @@ import {
   X,
   AlertTriangle,
   Menu,
-  LogOut
+  LogOut,
+  Tv
 } from 'lucide-react';
 
 export function Sidebar({
@@ -67,6 +68,12 @@ export function Sidebar({
       label: 'Prices & Computers',
       shortLabel: 'Prices',
       icon: SlidersHorizontal
+    },
+    {
+      id: 'home',
+      label: 'Arena Home & Display',
+      shortLabel: 'Arena Home',
+      icon: Tv
     }
   ];
 
@@ -91,12 +98,21 @@ export function Sidebar({
           {/* Header */}
           <div className="px-6 py-5 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shrink-0">
-                <Gamepad2 className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-xl bg-surface-container-high border border-outline-variant/40 flex items-center justify-center shrink-0 p-1.5 shadow-sm">
+                <img
+                  src="/images/gamedash_esports_logo.svg"
+                  alt="GameDash"
+                  className="w-full h-full object-contain"
+                />
               </div>
               <div>
-                <span className="title-medium text-on-surface font-medium block leading-tight">GameDashboard</span>
-                <span className="body-small text-on-surface-variant block mt-0.5">Management System</span>
+                <span className="title-medium text-on-surface font-black block leading-tight flex items-center gap-1.5">
+                  GameDash
+                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-primary/20 text-primary font-bold">
+                    PRO
+                  </span>
+                </span>
+                <span className="body-small text-on-surface-variant block mt-0.5">Gaming Center System</span>
               </div>
             </div>
 
@@ -222,8 +238,12 @@ export function Sidebar({
       {/* 3. M3 Navigation Rail (Tablet md:flex lg:hidden) */}
       <aside className="hidden md:flex lg:hidden fixed top-0 bottom-0 left-0 w-20 z-40 bg-surface-container-low flex-col items-center justify-between py-4">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center">
-            <Gamepad2 className="w-5 h-5" />
+          <div className="w-10 h-10 rounded-xl bg-surface-container-high border border-outline-variant/40 flex items-center justify-center shrink-0 p-1.5 shadow-sm">
+            <img
+              src="/images/gamedash_esports_logo.svg"
+              alt="GameDash"
+              className="w-full h-full object-contain"
+            />
           </div>
 
           <div className="w-12 h-px bg-outline-variant/30 my-1" />

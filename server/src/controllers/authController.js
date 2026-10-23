@@ -87,16 +87,17 @@ export async function register(req, res, next) {
  */
 export async function login(req, res, next) {
   try {
-    const { username, password } = req.body;
+    const { username, password, email } = req.body;
+    const identifier = username || email;
 
-    if (!username || !password) {
+    if (!identifier || !password) {
       return res.status(400).json({
         success: false,
         error: 'Username and password are required.'
       });
     }
 
-    const normalizedUsername = username.trim().toLowerCase();
+    const normalizedUsername = identifier.trim().toLowerCase();
     const user = await store.getUserByUsername(normalizedUsername);
     if (!user) {
       return res.status(401).json({

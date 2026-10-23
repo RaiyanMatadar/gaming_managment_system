@@ -1,8 +1,15 @@
+import dns from 'dns';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import { app } from './app.js';
 import { expiryPoller } from './services/expiryPoller.js';
 import { whatsappService } from './services/whatsappService.js';
+
+try {
+  dns.setServers(['8.8.8.8', '1.1.1.1']);
+} catch {
+  // Ignore in restricted environments
+}
 
 dotenv.config();
 

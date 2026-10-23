@@ -1,3 +1,4 @@
+import dns from 'dns';
 import mongoose from 'mongoose';
 import { Station } from '../models/Station.js';
 import { Session } from '../models/Session.js';
@@ -5,6 +6,12 @@ import { Payment } from '../models/Payment.js';
 import { AuditLog } from '../models/AuditLog.js';
 import { User } from '../models/User.js';
 import { memoryStore } from './memoryStore.js';
+
+try {
+  dns.setServers(['8.8.8.8', '1.1.1.1']);
+} catch {
+  // Ignore in restricted environments
+}
 
 function isMongoConnected() {
   return mongoose.connection && mongoose.connection.readyState === 1;
@@ -34,7 +41,9 @@ export const store = {
     if (!username) return null;
     const lower = username.toLowerCase().trim();
     if (isMongoConnected()) {
-      return await User.findOne({ username: lower }).lean();
+      return await User.findOne({
+        $or: [{ username: lower }, { email: lower }]
+      }).lean();
     }
     return await memoryStore.getUserByUsername(lower);
   },

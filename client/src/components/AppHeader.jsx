@@ -12,8 +12,10 @@ import {
   LogOut,
   User,
   Smartphone,
+  Zap
 } from "lucide-react";
 import { Button } from "./ui";
+import { AudioControls } from "./AudioControls.jsx";
 
 export function AppHeader({
   currentView,
@@ -28,6 +30,9 @@ export function AppHeader({
   onLogout,
   onProfileClick,
   onWhatsAppClick,
+  isEmergencyFrozen = false,
+  onTriggerUPSFreeze,
+  onResumeUPSFreeze
 }) {
   const [time, setTime] = useState(new Date());
 
@@ -61,12 +66,16 @@ export function AppHeader({
       name: "Prices & Computers",
       desc: "List of computers, hourly rates, and maintenance toggles",
     },
+    home: {
+      name: "Arena Showcase & Home",
+      desc: "Public-facing gaming lounge display, battlestation specs, and rates",
+    },
   };
 
   const current = viewTitles[currentView] || viewTitles.floor;
 
   return (
-    <header className="sticky top-0 z-30 w-full border-b border-outline-variant/40 bg-surface-container-low">
+    <header className="sticky top-0 z-30 w-full border-b border-primary/20 bg-surface/85 backdrop-blur-xl shadow-lg shadow-black/20">
       <div className="mx-auto max-w-7xl px-3 py-2 sm:px-6 sm:py-2.5">
         {/* Desktop / tablet header */}
         <div className="hidden sm:flex min-w-0 items-center justify-between gap-3 lg:gap-4">
@@ -80,15 +89,24 @@ export function AppHeader({
               <Menu className="h-5 w-5" />
             </button>
 
+            <div className="w-8 h-8 rounded-lg bg-surface-container-high border border-outline-variant/40 flex items-center justify-center p-1 shadow-sm shrink-0">
+              <img
+                src="/images/gamedash_esports_logo.svg"
+                alt="GameDash"
+                className="w-full h-full object-contain"
+              />
+            </div>
+
             <div className="min-w-0">
-              <div className="flex items-center gap-1.5 truncate text-label-small text-on-surface-variant">
-                <span>GameDashboard</span>
+              <div className="flex items-center gap-1.5 truncate text-label-small text-on-surface-variant font-mono">
+                <span className="font-bold text-on-surface">GameDash</span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded bg-primary/20 text-primary font-bold">PRO</span>
                 <ChevronRight className="h-3 w-3 shrink-0 text-outline" />
-                <span className="truncate font-semibold text-on-surface">
+                <span className="truncate font-semibold text-primary">
                   {current.name}
                 </span>
               </div>
-              <p className="truncate text-sm text-on-surface-variant">
+              <p className="truncate text-xs text-on-surface-variant font-medium">
                 {current.desc}
               </p>
             </div>
@@ -96,12 +114,12 @@ export function AppHeader({
 
           {/* Right: desktop actions */}
           <div className="flex shrink-0 items-center gap-2">
-            <div className="hidden items-center gap-2 rounded-full bg-surface-container px-3 py-1.5 text-label-small text-on-surface-variant xl:flex">
-              <Clock className="h-3.5 w-3.5 shrink-0 text-outline" />
-              <span className="font-mono font-medium tabular-nums text-on-surface">
+            <div className="hidden items-center gap-2 rounded-full bg-surface-container border border-outline-variant/30 px-3 py-1.5 text-label-small xl:flex shadow-xs">
+              <Clock className="h-3.5 w-3.5 shrink-0 text-primary animate-pulse" />
+              <span className="font-mono font-bold tabular-nums text-on-surface tracking-wider">
                 {time.toLocaleTimeString()}
               </span>
-              <span className="text-[11px] text-on-surface-variant">
+              <span className="text-[10px] uppercase font-semibold text-on-surface-variant border-l border-outline-variant/40 pl-2">
                 {time.toLocaleDateString([], {
                   month: "short",
                   day: "numeric",
@@ -113,26 +131,28 @@ export function AppHeader({
 
             <UrgentAlerts count={urgentAlertsCount} />
 
+            <AudioControls />
+
             {onQuickStartClick && (
               <Button
                 variant="filled"
                 size="sm"
                 onClick={onQuickStartClick}
-                className="shrink-0 whitespace-nowrap px-3 text-xs font-semibold"
+                className="shrink-0 whitespace-nowrap px-3.5 text-xs font-bold shadow-md cyber-glow-primary"
               >
                 <Gamepad2 className="h-3.5 w-3.5 shrink-0" />
-                <span>Start Session</span>
+                <span>Quick Play</span>
               </Button>
             )}
 
             <Button
-              variant="outlined"
+              variant="tonal"
               size="sm"
               onClick={onNewStationClick}
-              className="shrink-0 whitespace-nowrap px-3 text-xs font-semibold"
+              className="shrink-0 whitespace-nowrap px-3 text-xs font-semibold backdrop-blur-md"
             >
               <Plus className="h-3.5 w-3.5 shrink-0" />
-              <span>Add Computer</span>
+              <span>Add Rig</span>
             </Button>
 
             {onWhatsAppClick && (
@@ -148,6 +168,23 @@ export function AppHeader({
               </Button>
             )}
 
+            {(onTriggerUPSFreeze || onResumeUPSFreeze) && (
+              <Button
+                variant={isEmergencyFrozen ? 'filled' : 'outlined'}
+                size="sm"
+                onClick={isEmergencyFrozen ? onResumeUPSFreeze : onTriggerUPSFreeze}
+                title={isEmergencyFrozen ? 'Resume floor clocks' : 'Freeze all clocks for power cut / UPS generator change'}
+                className={`shrink-0 whitespace-nowrap px-2.5 text-xs font-semibold ${
+                  isEmergencyFrozen
+                    ? 'bg-warning text-on-warning animate-pulse'
+                    : 'text-warning border-warning/40 hover:bg-warning-container/30'
+                }`}
+              >
+                <Zap className="h-3.5 w-3.5 shrink-0 fill-current" />
+                <span className="hidden md:inline">{isEmergencyFrozen ? 'Resume Clocks' : 'UPS Freeze'}</span>
+              </Button>
+            )}
+
             <RefreshButton
               onRefresh={onRefresh}
               isRefreshing={isRefreshing}
@@ -159,14 +196,19 @@ export function AppHeader({
                   type="button"
                   onClick={onProfileClick}
                   title="Edit Profile & WhatsApp Alert Number"
-                  className="hidden max-w-[130px] flex-col text-right lg:flex cursor-pointer hover:opacity-80 transition-opacity"
+                  className="hidden max-w-[140px] items-center gap-2 text-right lg:flex cursor-pointer hover:opacity-85 transition-opacity px-2.5 py-1 rounded-xl bg-surface-container border border-outline-variant/30 shadow-xs"
                 >
-                  <span className="truncate text-label-small font-medium text-on-surface">
-                    {currentUser.name || currentUser.username}
-                  </span>
-                  <span className="truncate text-[10px] leading-none text-on-surface-variant">
-                    {currentUser.centerName || "GameDash"}
-                  </span>
+                  <div className="w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold shrink-0">
+                    <User className="w-3.5 h-3.5" />
+                  </div>
+                  <div className="min-w-0 flex-1 text-left">
+                    <span className="truncate text-xs font-bold text-on-surface block leading-tight">
+                      {currentUser.name || currentUser.username}
+                    </span>
+                    <span className="truncate text-[10px] leading-tight text-primary font-semibold block capitalize">
+                      {currentUser.role || 'Operator'}
+                    </span>
+                  </div>
                 </button>
                 <LogoutButton onLogout={onLogout} />
               </div>
@@ -188,8 +230,8 @@ export function AppHeader({
               </button>
 
               <div className="flex min-w-0 items-center gap-1.5">
-                <Gamepad2 className="h-5 w-5 shrink-0 text-primary" />
-                <span className="truncate text-sm font-bold tracking-tight text-on-surface">
+                <img src="/images/gamedash_esports_logo.svg" alt="GameDash" className="h-6 w-6 shrink-0 object-contain" />
+                <span className="truncate text-sm font-black tracking-tight text-on-surface">
                   GameDash
                 </span>
               </div>
@@ -199,6 +241,7 @@ export function AppHeader({
               <ConnectionStatus isLiveConnected={isLiveConnected} />
 
               <UrgentAlerts count={urgentAlertsCount} />
+              <AudioControls />
 
               <RefreshButton
                 onRefresh={onRefresh}
@@ -264,22 +307,34 @@ export function AppHeader({
 function ConnectionStatus({ isLiveConnected }) {
   return (
     <div
-      className="flex shrink-0 items-center gap-1.5 rounded-full bg-surface-container px-2 py-1.5"
-      title={isLiveConnected ? "Connected" : "Reconnecting"}
-      aria-label={isLiveConnected ? "Online" : "Reconnecting"}
+      className="flex shrink-0 items-center gap-2 rounded-full bg-surface-container border border-outline-variant/40 px-2.5 py-1 shadow-xs"
+      title={isLiveConnected ? "Arena Live Sync Active" : "Reconnecting to Arena"}
+      aria-label={isLiveConnected ? "Live Arena" : "Reconnecting"}
     >
+      <span className="relative flex h-2 w-2">
+        {isLiveConnected && (
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75" />
+        )}
+        <span
+          className={`relative inline-flex rounded-full h-2 w-2 ${
+            isLiveConnected ? "bg-success" : "bg-warning"
+          }`}
+        />
+      </span>
       <span
-        className={`h-2 w-2 shrink-0 rounded-full ${
-          isLiveConnected ? "bg-success" : "bg-warning"
-        }`}
-      />
-      <span
-        className={`hidden text-label-small font-medium md:inline ${
+        className={`hidden text-[10px] font-bold tracking-wider uppercase md:inline ${
           isLiveConnected ? "text-success" : "text-warning"
         }`}
       >
-        {isLiveConnected ? "Online" : "Reconnecting"}
+        {isLiveConnected ? "ARENA LIVE" : "SYNCING"}
       </span>
+      {isLiveConnected && (
+        <div className="hidden lg:flex items-end gap-0.5 h-3 px-1 rounded bg-surface-container-high/60" title="Telemetry Stream">
+          <span className="w-0.5 bg-success rounded-full animate-eq-1" />
+          <span className="w-0.5 bg-success rounded-full animate-eq-2" />
+          <span className="w-0.5 bg-success rounded-full animate-eq-3" />
+        </div>
+      )}
     </div>
   );
 }

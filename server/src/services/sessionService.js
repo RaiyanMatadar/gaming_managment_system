@@ -492,7 +492,11 @@ export class SessionService {
       receipt: {
         receiptNumber: `REC-${sessionId.toString().slice(-6).toUpperCase()}`,
         stationName: session.stationName,
+        stationType: session.rateCardSnapshot?.tier || 'PC',
+        hourlyRate: session.rateCardSnapshot?.hourlyRate || 100,
         customerName: session.customerName,
+        customerPhone: session.customerPhone || null,
+        bookedMinutes: session.bookedMinutes,
         startTime: session.startTime,
         checkoutTime,
         financials,
@@ -613,6 +617,101 @@ export class SessionService {
     });
 
     return enriched;
+  }
+
+  /**
+   * Freezes all currently ACTIVE sessions simultaneously during power cuts / UPS generator changes.
+   */
+  async emergencyFreezeAll({ staffId = 'Manager', reason = 'UPS Emergency Power Cut', userId = null } = {}) {
+    const filter = { status: SessionStatus.ACTIVE };
+    if (userId) filter.userId = userId;
+    const activeSessions = await store.getAllSessions(filter);
+    const now = new Date();
+    const frozenSessions = [];
+
+    for (const session of activeSessions) {
+      const sessionId = session._id;
+      const updated = await store.updateSession(sessionId, {
+        status: SessionStatus.PAUSED,
+        currentPauseStartTime: now,
+        isEmergencyFrozen: true,
+        emergencyFrozenAt: now
+      });
+
+      await store.createAuditLog({
+        action: 'PAUSE_SESSION',
+        actorId: staffId,
+        targetType: 'SESSION',
+        targetId: String(sessionId),
+        customerName: session.customerName,
+        stationName: session.stationName,
+        before: { status: session.status },
+        after: { status: SessionStatus.PAUSED, currentPauseStartTime: now, isEmergencyFrozen: true },
+        reason,
+        userId: session.userId || null
+      });
+
+      eventBroadcaster.broadcast('SESSION_PAUSED', {
+        sessionId,
+        stationId: session.stationId,
+        currentPauseStartTime: now
+      });
+
+      frozenSessions.push(updated);
+    }
+
+    eventBroadcaster.broadcast('EMERGENCY_FREEZE_TRIGGERED', {
+      count: frozenSessions.length,
+      frozenAt: now,
+      reason
+    });
+
+    return {
+      frozenCount: frozenSessions.length,
+      sessions: frozenSessions
+    };
+  }
+
+  /**
+   * Resumes all sessions frozen by the emergency power cut trigger.
+   */
+  async emergencyResumeAll({ staffId = 'Manager', userId = null } = {}) {
+    const filter = { status: SessionStatus.PAUSED };
+    if (userId) filter.userId = userId;
+    const pausedSessions = await store.getAllSessions(filter);
+    const eligible = pausedSessions.filter(s => s.isEmergencyFrozen || (s.currentPauseStartTime && s.status === SessionStatus.PAUSED));
+    const resumedSessions = [];
+
+    for (const session of eligible) {
+      const sessionId = session._id;
+      const resumed = await this.resumeSession(sessionId, { staffId, userId });
+      await store.updateSession(sessionId, { isEmergencyFrozen: false, emergencyFrozenAt: null });
+      resumedSessions.push(resumed);
+    }
+
+    eventBroadcaster.broadcast('EMERGENCY_RESUME_TRIGGERED', {
+      count: resumedSessions.length,
+      resumedAt: new Date()
+    });
+
+    return {
+      resumedCount: resumedSessions.length,
+      sessions: resumedSessions
+    };
+  }
+
+  /**
+   * Retrieves current UPS emergency status across the floor.
+   */
+  async getEmergencyStatus(userId = null) {
+    const filter = { status: SessionStatus.PAUSED };
+    if (userId) filter.userId = userId;
+    const pausedSessions = await store.getAllSessions(filter);
+    const frozen = pausedSessions.filter(s => s.isEmergencyFrozen);
+    return {
+      isEmergencyFrozen: frozen.length > 0,
+      frozenCount: frozen.length
+    };
   }
 }
 

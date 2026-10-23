@@ -260,3 +260,38 @@ export async function getSessionById(req, res, next) {
     next(err);
   }
 }
+
+export async function emergencyFreezeAll(req, res, next) {
+  try {
+    const { reason } = req.body || {};
+    const result = await sessionService.emergencyFreezeAll({
+      staffId: req.user?.username || 'Manager',
+      reason: reason || 'UPS Emergency Power Cut',
+      userId: req.user?.id || null
+    });
+    res.json({ success: true, data: result });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function emergencyResumeAll(req, res, next) {
+  try {
+    const result = await sessionService.emergencyResumeAll({
+      staffId: req.user?.username || 'Manager',
+      userId: req.user?.id || null
+    });
+    res.json({ success: true, data: result });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getEmergencyStatus(req, res, next) {
+  try {
+    const status = await sessionService.getEmergencyStatus(req.user?.id || null);
+    res.json({ success: true, data: status });
+  } catch (err) {
+    next(err);
+  }
+}

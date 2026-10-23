@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="vrBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#14091c"/>
+      <stop offset="50%" stop-color="#1e0c2a"/>
+      <stop offset="100%" stop-color="#08040d"/>
+    </linearGradient>
+    <radialGradient id="purpleGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.7"/>
+      <stop offset="60%" stop-color="#7c3aed" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#08040d" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="visorGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="50%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </linearGradient>
+    <filter id="neonGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="450" fill="url(#vrBg)"/>
+  <circle cx="400" cy="225" r="300" fill="url(#purpleGlow)"/>
+
+  <!-- Futuristic Cyber Grid / Hex Pattern -->
+  <g stroke="#c084fc" stroke-opacity="0.15" stroke-width="1.2">
+    <line x1="0" y1="75" x2="800" y2="75"/>
+    <line x1="0" y1="150" x2="800" y2="150"/>
+    <line x1="0" y1="225" x2="800" y2="225"/>
+    <line x1="0" y1="300" x2="800" y2="300"/>
+    <line x1="0" y1="375" x2="800" y2="375"/>
+    <line x1="100" y1="0" x2="100" y2="450"/>
+    <line x1="250" y1="0" x2="250" y2="450"/>
+    <line x1="400" y1="0" x2="400" y2="450"/>
+    <line x1="550" y1="0" x2="550" y2="450"/>
+    <line x1="700" y1="0" x2="700" y2="450"/>
+  </g>
+
+  <!-- VR Headset Central Illustration -->
+  <g transform="translate(250, 120)">
+    <!-- Headset Shadow -->
+    <ellipse cx="150" cy="210" rx="140" ry="24" fill="#000" opacity="0.6"/>
+    <!-- Head Strap (Rigid halo) -->
+    <path d="M 30 110 C 20 40 280 40 270 110" fill="none" stroke="#332442" stroke-width="26" stroke-linecap="round"/>
+    <path d="M 30 110 C 20 40 280 40 270 110" fill="none" stroke="#9333ea" stroke-width="2" stroke-opacity="0.5"/>
+    <!-- Headset Main Visor Body -->
+    <rect x="25" y="80" width="250" height="110" rx="30" fill="#181324" stroke="#a855f7" stroke-width="2" filter="url(#neonGlow)"/>
+    <!-- Curved Cyber Visor Screen -->
+    <rect x="40" y="95" width="220" height="80" rx="20" fill="#09060f"/>
+    <path d="M 45 135 Q 150 160 255 135" stroke="url(#visorGrad)" stroke-width="6" fill="none" filter="url(#neonGlow)"/>
+    <!-- HUD Holographic Elements inside Visor -->
+    <circle cx="100" cy="130" r="18" fill="none" stroke="#06b6d4" stroke-width="1.5" stroke-dasharray="4,2"/>
+    <circle cx="200" cy="130" r="18" fill="none" stroke="#ec4899" stroke-width="1.5" stroke-dasharray="4,2"/>
+    <text x="150" y="135" fill="#f0abfc" font-family="system-ui, sans-serif" font-size="11" font-weight="bold" text-anchor="middle" letter-spacing="2">6-DOF VIRTUAL REALITY</text>
+    <!-- Tracking Sensors -->
+    <circle cx="55" cy="105" r="4" fill="#a855f7"/>
+    <circle cx="245" cy="105" r="4" fill="#a855f7"/>
+    <circle cx="55" cy="165" r="4" fill="#a855f7"/>
+    <circle cx="245" cy="165" r="4" fill="#a855f7"/>
+  </g>
+
+  <!-- Left VR Motion Controller -->
+  <g transform="translate(110, 210)">
+    <circle cx="45" cy="45" r="35" fill="none" stroke="#a855f7" stroke-width="5" filter="url(#neonGlow)"/>
+    <rect x="35" y="45" width="20" height="70" rx="8" fill="#1c142b" stroke="#9333ea" stroke-width="1.5"/>
+    <circle cx="45" cy="55" r="6" fill="#06b6d4"/>
+  </g>
+
+  <!-- Right VR Motion Controller -->
+  <g transform="translate(610, 210)">
+    <circle cx="45" cy="45" r="35" fill="none" stroke="#ec4899" stroke-width="5" filter="url(#neonGlow)"/>
+    <rect x="35" y="45" width="20" height="70" rx="8" fill="#1c142b" stroke="#db2777" stroke-width="1.5"/>
+    <circle cx="45" cy="55" r="6" fill="#ec4899"/>
+  </g>
+
+  <!-- VR Badge Label -->
+  <g transform="translate(630, 30)">
+    <rect x="0" y="0" width="140" height="34" rx="17" fill="#a855f7" fill-opacity="0.2" stroke="#c084fc" stroke-width="1.5"/>
+    <text x="70" y="22" fill="#f0abfc" font-family="system-ui, sans-serif" font-size="13" font-weight="700" text-anchor="middle" letter-spacing="1.5">VR ARENA</text>
+  </g>
+</svg>

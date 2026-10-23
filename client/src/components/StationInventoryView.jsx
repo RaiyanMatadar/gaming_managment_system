@@ -17,16 +17,32 @@ import { Card, Button, Badge, Input, Select } from './ui';
 function getStationIcon(type) {
   switch (type) {
     case 'PS5':
-      return <Tv className="w-5 h-5 text-tertiary" />;
+      return <Tv className="w-4 h-4 text-tertiary" />;
     case 'XBOX':
-      return <Tv className="w-5 h-5 text-success" />;
+      return <Tv className="w-4 h-4 text-success" />;
     case 'VR':
-      return <Glasses className="w-5 h-5 text-secondary" />;
+      return <Glasses className="w-4 h-4 text-secondary" />;
     case 'PC_VIP':
-      return <Monitor className="w-5 h-5 text-warning" />;
+      return <Monitor className="w-4 h-4 text-warning" />;
     case 'PC_STANDARD':
     default:
-      return <Monitor className="w-5 h-5 text-primary" />;
+      return <Monitor className="w-4 h-4 text-primary" />;
+  }
+}
+
+function getHardwareThumbnail(type) {
+  switch (type) {
+    case 'PS5':
+      return '/images/ps5_console_station.jpg';
+    case 'XBOX':
+      return '/images/xbox_controller_lounge.jpg';
+    case 'VR':
+      return '/images/vr_player_experience.jpg';
+    case 'PC_VIP':
+      return '/images/cyberpunk_battlestation.jpg';
+    case 'PC_STANDARD':
+    default:
+      return '/images/pc_gaming_rig.jpg';
   }
 }
 
@@ -165,12 +181,27 @@ export function StationInventoryView({
 
               return (
                 <tr key={st._id} className="hover:bg-surface-container-high transition-colors">
-                  <td className="py-3.5 px-4">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-lg bg-surface-container-lowest border border-outline-variant/50 flex items-center justify-center flex-shrink-0">
-                        {getStationIcon(st.type)}
+                  <td className="py-3 px-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl overflow-hidden border border-outline-variant/50 relative shrink-0 shadow-xs">
+                        <img
+                          src={getHardwareThumbnail(st.type)}
+                          alt={st.name}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-black/25 flex items-end p-0.5 justify-end">
+                          <span className="p-0.5 rounded bg-background/80 backdrop-blur-xs">
+                            {getStationIcon(st.type)}
+                          </span>
+                        </div>
                       </div>
-                      <span className="font-bold text-on-surface text-sm">{st.name}</span>
+                      <div>
+                        <span className="font-bold text-on-surface text-sm block">{st.name}</span>
+                        <span className="text-[11px] font-mono text-on-surface-variant block">
+                          ₹{st.hourlyRate}/hour
+                        </span>
+                      </div>
                     </div>
                   </td>
 
