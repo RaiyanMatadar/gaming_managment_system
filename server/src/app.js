@@ -10,6 +10,7 @@ import whatsappRoutes from './routes/whatsappRoutes.js';
 import { getCustomerHistory } from './controllers/sessionController.js';
 import { store } from './storage/index.js';
 import { eventBroadcaster } from './services/eventBroadcaster.js';
+import { expiryPoller } from './services/expiryPoller.js';
 import { authMiddleware } from './middleware/authMiddleware.js';
 
 export function createApp() {
@@ -25,6 +26,21 @@ export function createApp() {
       timestamp: new Date().toISOString(),
       service: 'GameDashboard Gaming Center Management API'
     });
+  });
+
+  // Serverless Cron Endpoint for automated background session checks
+  app.get('/api/cron/check-expiry', async (req, res) => {
+    try {
+      const result = await expiryPoller.checkActiveSessions();
+      res.json({
+        success: true,
+        service: 'GameDash Expiry Poller',
+        timestamp: new Date().toISOString(),
+        result
+      });
+    } catch (err) {
+      res.status(500).json({ success: false, error: err.message });
+    }
   });
 
   // Authentication routes (login, register, me)

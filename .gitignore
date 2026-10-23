@@ -1,3 +1,7 @@
 node_modules/
 .env
+.env.local
+.vercel/
 server/src/storage/wa_session/
+dist/
+client/dist/

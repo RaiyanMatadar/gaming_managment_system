@@ -10,6 +10,17 @@ function isMongoConnected() {
   return mongoose.connection && mongoose.connection.readyState === 1;
 }
 
+export async function connectMongo(uri = process.env.MONGO_URI) {
+  if (!uri || mongoose.connection.readyState >= 1) return true;
+  try {
+    await mongoose.connect(uri, { serverSelectionTimeoutMS: 5000 });
+    return true;
+  } catch (err) {
+    console.error('[STORAGE] MongoDB connection failed:', err.message);
+    return false;
+  }
+}
+
 export const store = {
   // --- USERS ---
   async createUser(data) {
