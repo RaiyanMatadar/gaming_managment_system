@@ -11,7 +11,7 @@ export class LocalQrWhatsAppProvider extends BaseWhatsAppProvider {
   constructor(options = {}) {
     super('local_qr');
     this.gatewayUrl = options.gatewayUrl || process.env.WHATSAPP_LOCAL_GATEWAY_URL || null;
-    this.sessionDir = options.sessionDir || path.resolve('src/storage/wa_session');
+    this.sessionDir = options.sessionDir || (process.env.VERCEL ? path.join('/tmp', 'wa_session') : path.resolve('src/storage/wa_session'));
     this.history = [];
     this.sock = null;
     this.qrCodeDataUrl = null;
