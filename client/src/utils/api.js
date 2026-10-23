@@ -137,3 +137,74 @@ export async function verifySession() {
     return null;
   }
 }
+
+/**
+ * Update Current User Profile & WhatsApp Alert Phone
+ */
+export async function updateProfile(profileData) {
+  const res = await window.fetch('/api/auth/profile', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(profileData)
+  });
+
+  const data = await res.json();
+  if (!res.ok || !data.success) {
+    throw new Error(data.error || 'Failed to update profile.');
+  }
+
+  setCurrentUser(data.user);
+  return data.user;
+}
+
+/**
+ * WhatsApp Gateway Management APIs
+ */
+export async function getWhatsAppStatus() {
+  const res = await window.fetch('/api/whatsapp/status');
+  const data = await res.json();
+  if (!res.ok || !data.success) {
+    throw new Error(data.error || 'Failed to fetch WhatsApp gateway status');
+  }
+  return data.data;
+}
+
+export async function getWhatsAppQr() {
+  const res = await window.fetch('/api/whatsapp/qr');
+  const data = await res.json();
+  if (!res.ok || !data.success) {
+    throw new Error(data.error || 'Failed to fetch WhatsApp QR code');
+  }
+  return data.data;
+}
+
+export async function connectWhatsApp() {
+  const res = await window.fetch('/api/whatsapp/connect', { method: 'POST' });
+  const data = await res.json();
+  if (!res.ok || !data.success) {
+    throw new Error(data.error || 'Failed to connect WhatsApp');
+  }
+  return data.data;
+}
+
+export async function logoutWhatsApp() {
+  const res = await window.fetch('/api/whatsapp/logout', { method: 'POST' });
+  const data = await res.json();
+  if (!res.ok || !data.success) {
+    throw new Error(data.error || 'Failed to unlink WhatsApp device');
+  }
+  return data;
+}
+
+export async function sendWhatsAppTest(phone, message) {
+  const res = await window.fetch('/api/whatsapp/test', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ phone, message })
+  });
+  const data = await res.json();
+  if (!res.ok || !data.success) {
+    throw new Error(data.error || 'Failed to send test alert');
+  }
+  return data;
+}

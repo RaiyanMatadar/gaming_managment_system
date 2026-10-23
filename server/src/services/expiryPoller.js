@@ -2,6 +2,7 @@ import { store } from '../storage/index.js';
 import { SessionStatus } from '../domain/sessionStateMachine.js';
 import { eventBroadcaster } from './eventBroadcaster.js';
 import { emailService } from './emailService.js';
+import { whatsappService } from './whatsappService.js';
 
 export class ExpiryPoller {
   constructor() {
@@ -97,6 +98,19 @@ export class ExpiryPoller {
             remainingMinutes
           }).catch(err => {
             console.error('[EXPIRY POLLER] Error sending owner alert email:', err.message);
+          });
+
+          // 3. Dispatch dual WhatsApp notifications to customer and manager (non-blocking, fail-safe)
+          whatsappService.sendFiveMinuteAlerts({
+            sessionId: session._id,
+            customerPhone: session.customerPhone,
+            customerName,
+            stationName,
+            scheduledEndTime: session.scheduledEndTime,
+            remainingMinutes,
+            userId: session.userId
+          }).catch(err => {
+            console.error('[EXPIRY POLLER] Error sending WhatsApp warning:', err.message);
           });
 
           warnedCount++;

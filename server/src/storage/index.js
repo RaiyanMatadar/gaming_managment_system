@@ -43,6 +43,21 @@ export const store = {
     return await memoryStore.getUserById(id);
   },
 
+  async updateUser(id, updates = {}) {
+    if (!id) return null;
+    if (isMongoConnected()) {
+      try {
+        if (mongoose.Types.ObjectId.isValid(id)) {
+          return await User.findByIdAndUpdate(id, { $set: updates }, { new: true }).lean();
+        }
+        return await User.findOneAndUpdate({ _id: id }, { $set: updates }, { new: true }).lean();
+      } catch {
+        return null;
+      }
+    }
+    return await memoryStore.updateUser(id, updates);
+  },
+
   // --- STATIONS ---
   async getAllStations(filter = {}) {
     if (isMongoConnected()) {

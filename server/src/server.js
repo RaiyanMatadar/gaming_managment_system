@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import { app } from './app.js';
 import { expiryPoller } from './services/expiryPoller.js';
+import { whatsappService } from './services/whatsappService.js';
 
 dotenv.config();
 
@@ -22,6 +23,11 @@ async function startServer() {
 
   // Start background expiration poller
   expiryPoller.start(5000);
+
+  // Initialize WhatsApp Web connection
+  whatsappService.initSocket().catch(err => {
+    console.error('[WHATSAPP] Failed to start socket on server boot:', err.message);
+  });
 
   const server = app.listen(PORT, () => {
     console.log(`Gaming Center Management API listening on port ${PORT}`);

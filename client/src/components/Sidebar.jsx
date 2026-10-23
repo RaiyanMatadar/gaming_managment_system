@@ -22,7 +22,8 @@ export function Sidebar({
   isOpen,
   onClose,
   currentUser,
-  onLogout
+  onLogout,
+  onProfileClick
 }) {
   const occupiedCount = stations.filter(s => s.status === 'OCCUPIED').length;
   const alertCount = stations.filter(s => s.liveSession && (s.liveSession.isWarning || s.liveSession.isOvertime)).length;
@@ -187,7 +188,11 @@ export function Sidebar({
 
           {/* Active Staff / Authenticated User */}
           <div className="flex items-center justify-between gap-2 pt-1 border-t border-outline-variant/30">
-            <div className="flex items-center gap-2.5 min-w-0">
+            <div
+              onClick={onProfileClick}
+              title="Edit Profile & WhatsApp Settings"
+              className="flex items-center gap-2.5 min-w-0 cursor-pointer hover:opacity-80 transition-opacity"
+            >
               <div className="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shrink-0">
                 <UserCheck className="w-4 h-4" />
               </div>

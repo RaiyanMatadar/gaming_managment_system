@@ -10,6 +10,8 @@ import {
   Gamepad2,
   ChevronRight,
   LogOut,
+  User,
+  Smartphone,
 } from "lucide-react";
 import { Button } from "./ui";
 
@@ -24,6 +26,8 @@ export function AppHeader({
   urgentAlertsCount = 0,
   currentUser,
   onLogout,
+  onProfileClick,
+  onWhatsAppClick,
 }) {
   const [time, setTime] = useState(new Date());
 
@@ -131,6 +135,19 @@ export function AppHeader({
               <span>Add Computer</span>
             </Button>
 
+            {onWhatsAppClick && (
+              <Button
+                variant="outlined"
+                size="sm"
+                onClick={onWhatsAppClick}
+                title="WhatsApp Device Connection & QR Link"
+                className="shrink-0 whitespace-nowrap px-2.5 text-xs font-semibold"
+              >
+                <Smartphone className="h-3.5 w-3.5 shrink-0 text-primary" />
+                <span className="hidden md:inline">WhatsApp</span>
+              </Button>
+            )}
+
             <RefreshButton
               onRefresh={onRefresh}
               isRefreshing={isRefreshing}
@@ -138,14 +155,19 @@ export function AppHeader({
 
             {currentUser && (
               <div className="flex shrink-0 items-center gap-2 border-l border-outline-variant/40 pl-2">
-                <div className="hidden max-w-[130px] flex-col text-right lg:flex">
+                <button
+                  type="button"
+                  onClick={onProfileClick}
+                  title="Edit Profile & WhatsApp Alert Number"
+                  className="hidden max-w-[130px] flex-col text-right lg:flex cursor-pointer hover:opacity-80 transition-opacity"
+                >
                   <span className="truncate text-label-small font-medium text-on-surface">
                     {currentUser.name || currentUser.username}
                   </span>
                   <span className="truncate text-[10px] leading-none text-on-surface-variant">
                     {currentUser.centerName || "GameDash"}
                   </span>
-                </div>
+                </button>
                 <LogoutButton onLogout={onLogout} />
               </div>
             )}
@@ -182,6 +204,28 @@ export function AppHeader({
                 onRefresh={onRefresh}
                 isRefreshing={isRefreshing}
               />
+
+              {onWhatsAppClick && (
+                <button
+                  type="button"
+                  onClick={onWhatsAppClick}
+                  title="WhatsApp Device Connection & QR"
+                  className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full bg-surface-container text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface"
+                >
+                  <Smartphone className="h-4 w-4 text-primary" />
+                </button>
+              )}
+
+              {currentUser && (
+                <button
+                  type="button"
+                  onClick={onProfileClick}
+                  title="WhatsApp & Profile Settings"
+                  className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full bg-surface-container text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface"
+                >
+                  <User className="h-4 w-4" />
+                </button>
+              )}
 
               {currentUser && <LogoutButton onLogout={onLogout} />}
             </div>

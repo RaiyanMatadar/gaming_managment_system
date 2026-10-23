@@ -50,6 +50,7 @@ export class MemoryStore {
       name: data.name || 'Gaming Center Staff',
       centerName: data.centerName || 'GameDash Arena',
       email: data.email || '',
+      whatsappNumber: data.whatsappNumber || '',
       role: data.role || 'manager',
       createdAt: new Date(),
       updatedAt: new Date()
@@ -69,6 +70,19 @@ export class MemoryStore {
     if (!id) return null;
     const user = this.users.get(String(id));
     return user ? { ...user } : null;
+  }
+
+  async updateUser(id, updates = {}) {
+    if (!id) return null;
+    const existing = this.users.get(String(id));
+    if (!existing) return null;
+    const updated = {
+      ...existing,
+      ...updates,
+      updatedAt: new Date()
+    };
+    this.users.set(String(id), updated);
+    return { ...updated };
   }
 
   // --- STATIONS ---

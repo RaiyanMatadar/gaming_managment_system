@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { register, login, getMe } from '../controllers/authController.js';
+import { register, login, getMe, updateProfile } from '../controllers/authController.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 
 const router = Router();
@@ -8,7 +8,9 @@ const router = Router();
 router.post('/register', register);
 router.post('/login', login);
 
-// Authenticated user profile check
+// Authenticated user profile check & settings
 router.get('/me', authMiddleware, getMe);
+router.patch('/profile', authMiddleware, updateProfile);
+router.patch('/me', authMiddleware, updateProfile);
 
 export default router;

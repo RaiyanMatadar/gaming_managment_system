@@ -18,7 +18,7 @@ export async function register(req, res, next) {
       });
     }
 
-    const { username, password, name, centerName, email, role } = req.body;
+    const { username, password, name, centerName, email, whatsappNumber, role } = req.body;
 
     if (!username || typeof username !== 'string' || username.trim().length < 3) {
       return res.status(400).json({
@@ -54,6 +54,7 @@ export async function register(req, res, next) {
       name: (name && name.trim()) || 'Gaming Center Staff',
       centerName: (centerName && centerName.trim()) || 'GameDash Arena',
       email: (email && email.trim()) || '',
+      whatsappNumber: (whatsappNumber && whatsappNumber.trim()) || '',
       role: role && ['admin', 'manager', 'cashier'].includes(role) ? role : 'manager'
     });
 
@@ -65,6 +66,7 @@ export async function register(req, res, next) {
         username: newUser.username,
         name: newUser.name,
         centerName: newUser.centerName,
+        whatsappNumber: newUser.whatsappNumber || '',
         role: newUser.role
       }
     });
@@ -116,6 +118,7 @@ export async function login(req, res, next) {
       username: user.username,
       name: user.name,
       centerName: user.centerName,
+      whatsappNumber: user.whatsappNumber || '',
       role: user.role
     };
 
@@ -130,6 +133,7 @@ export async function login(req, res, next) {
         username: user.username,
         name: user.name,
         centerName: user.centerName,
+        whatsappNumber: user.whatsappNumber || '',
         role: user.role
       }
     });
@@ -159,7 +163,41 @@ export async function getMe(req, res, next) {
         username: user.username,
         name: user.name,
         centerName: user.centerName,
+        whatsappNumber: user.whatsappNumber || '',
         role: user.role
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * Update User Profile & WhatsApp Settings
+ */
+export async function updateProfile(req, res, next) {
+  try {
+    const { name, centerName, whatsappNumber } = req.body;
+    const updates = {};
+    if (name !== undefined) updates.name = String(name).trim();
+    if (centerName !== undefined) updates.centerName = String(centerName).trim();
+    if (whatsappNumber !== undefined) updates.whatsappNumber = String(whatsappNumber).trim();
+
+    const updated = await store.updateUser(req.user.id, updates);
+    if (!updated) {
+      return res.status(404).json({ success: false, error: 'User not found.' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Profile updated successfully.',
+      user: {
+        id: updated._id,
+        username: updated.username,
+        name: updated.name,
+        centerName: updated.centerName,
+        whatsappNumber: updated.whatsappNumber || '',
+        role: updated.role
       }
     });
   } catch (err) {

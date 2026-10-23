@@ -165,6 +165,39 @@ describe('Multi-User Authentication & Multi-Tenant Data Isolation', () => {
       assert.equal(meRes.body.user.username, 'cashier_sam');
     });
 
+    it('updates user profile including whatsappNumber via PATCH /api/auth/profile', async () => {
+      const loginRes = await request(app)
+        .post('/api/auth/login')
+        .send({
+          username: 'cashier_sam',
+          password: 'SamPassword2026!'
+        });
+      const token = loginRes.body.token;
+
+      const patchRes = await request(app)
+        .patch('/api/auth/profile')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          name: 'Samuel Manager',
+          centerName: 'Sam Gaming Lounge',
+          whatsappNumber: '919876500000'
+        });
+
+      assert.equal(patchRes.status, 200);
+      assert.equal(patchRes.body.success, true);
+      assert.equal(patchRes.body.user.name, 'Samuel Manager');
+      assert.equal(patchRes.body.user.centerName, 'Sam Gaming Lounge');
+      assert.equal(patchRes.body.user.whatsappNumber, '919876500000');
+
+      // Verify GET /api/auth/me returns updated fields
+      const meRes = await request(app)
+        .get('/api/auth/me')
+        .set('Authorization', `Bearer ${token}`);
+
+      assert.equal(meRes.status, 200);
+      assert.equal(meRes.body.user.whatsappNumber, '919876500000');
+    });
+
     it('rejects invalid or forged Bearer token with 401', async () => {
       const res = await request(app)
         .get('/api/stations')

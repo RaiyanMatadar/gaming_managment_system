@@ -9,13 +9,15 @@
     "test": "node --test src/tests/*.test.js"
   },
   "dependencies": {
+    "@whiskeysockets/baileys": "^7.0.0-rc14",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^8.10.1",
-    "nodemailer": "^10.1.7"
+    "nodemailer": "^10.1.7",
+    "qrcode": "^1.5.4"
   },
   "devDependencies": {
     "supertest": "^7.0.0"

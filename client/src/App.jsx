@@ -16,13 +16,15 @@ import {
   CheckoutModal,
   AddStationModal,
   CancelSessionModal,
-  DeleteStationModal
+  DeleteStationModal,
+  ProfileSettingsModal,
+  WhatsAppLinkModal
 } from './components/Modals.jsx';
 import { FiveMinuteWarningModal } from './components/FiveMinuteWarningModal.jsx';
 import { LoginView } from './components/LoginView.jsx';
 import { Snackbar } from './components/ui/index.js';
 import { AlertCircle, CheckCircle2, X } from 'lucide-react';
-import { getToken, getCurrentUser, clearAuth, verifySession } from './utils/api.js';
+import { getToken, getCurrentUser, clearAuth, verifySession, updateProfile } from './utils/api.js';
 
 export function App() {
   // Authentication & Session State
@@ -50,6 +52,8 @@ export function App() {
   const [cancelModalData, setCancelModalData] = useState(null);
   const [deleteModalStation, setDeleteModalStation] = useState(null);
   const [isAddStationOpen, setIsAddStationOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // 5-minute active warning popups queue
@@ -63,6 +67,20 @@ export function App() {
     setTimeout(() => {
       setToast((t) => (t && t.id === toast?.id ? null : t));
     }, 4000);
+  };
+
+  const handleSaveProfile = async (profileData) => {
+    setIsSubmitting(true);
+    try {
+      const updated = await updateProfile(profileData);
+      setCurrentUser(updated);
+      setIsProfileModalOpen(false);
+      showToast('Manager profile & WhatsApp number updated successfully!', 'success');
+    } catch (err) {
+      showToast(err.message || 'Failed to update profile settings', 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Verify token on mount and listen for authorization invalidation
@@ -479,6 +497,7 @@ export function App() {
         onClose={() => setIsMobileMenuOpen(false)}
         currentUser={currentUser}
         onLogout={handleLogout}
+        onProfileClick={() => setIsProfileModalOpen(true)}
       />
 
       {/* 2. Main Workspace Layout with M3 Responsive Adaptations */}
@@ -495,6 +514,8 @@ export function App() {
           urgentAlertsCount={counts.alerts}
           currentUser={currentUser}
           onLogout={handleLogout}
+          onProfileClick={() => setIsProfileModalOpen(true)}
+          onWhatsAppClick={() => setIsWhatsAppModalOpen(true)}
         />
 
         {/* M3 Snackbar Notifications */}
@@ -689,6 +710,30 @@ export function App() {
         onDismiss={(sessId) => setActiveWarnings((prev) => prev.filter((w) => String(w.sessionId) !== String(sessId)))}
         onExtend={(sessId, stName) => setExtendData({ sessionId: sessId, stationName: stName })}
       />
+
+      {/* Tenant Manager Profile & WhatsApp Alert Settings Modal */}
+      {isProfileModalOpen && (
+        <ProfileSettingsModal
+          isOpen={true}
+          user={currentUser}
+          onClose={() => setIsProfileModalOpen(false)}
+          onSave={handleSaveProfile}
+          onOpenWhatsAppLink={() => {
+            setIsProfileModalOpen(false);
+            setIsWhatsAppModalOpen(true);
+          }}
+          isSubmitting={isSubmitting}
+        />
+      )}
+
+      {/* WhatsApp Device Connection & QR Modal */}
+      {isWhatsAppModalOpen && (
+        <WhatsAppLinkModal
+          isOpen={true}
+          user={currentUser}
+          onClose={() => setIsWhatsAppModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

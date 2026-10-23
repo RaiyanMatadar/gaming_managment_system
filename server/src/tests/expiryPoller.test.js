@@ -4,6 +4,7 @@ import { memoryStore } from '../storage/memoryStore.js';
 import { expiryPoller } from '../services/expiryPoller.js';
 import { eventBroadcaster } from '../services/eventBroadcaster.js';
 import { emailService } from '../services/emailService.js';
+import { whatsappService } from '../services/whatsappService.js';
 import { sessionService } from '../services/sessionService.js';
 import { SessionStatus } from '../domain/sessionStateMachine.js';
 
@@ -12,6 +13,7 @@ describe('Milestone 3: Expiry Poller & Event Broadcaster', () => {
     memoryStore.reset();
     eventBroadcaster.reset();
     emailService.reset();
+    whatsappService.reset();
     expiryPoller.stop();
   });
 
@@ -19,6 +21,7 @@ describe('Milestone 3: Expiry Poller & Event Broadcaster', () => {
     expiryPoller.stop();
     eventBroadcaster.reset();
     emailService.reset();
+    whatsappService.reset();
   });
 
   it('detects an expired session and transitions it to EXPIRED_UNSETTLED', async () => {

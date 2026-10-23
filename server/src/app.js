@@ -6,6 +6,7 @@ import authRoutes from './routes/authRoutes.js';
 import stationRoutes from './routes/stationRoutes.js';
 import sessionRoutes from './routes/sessionRoutes.js';
 import reportRoutes from './routes/reportRoutes.js';
+import whatsappRoutes from './routes/whatsappRoutes.js';
 import { getCustomerHistory } from './controllers/sessionController.js';
 import { store } from './storage/index.js';
 import { eventBroadcaster } from './services/eventBroadcaster.js';
@@ -59,6 +60,7 @@ export function createApp() {
   app.use('/api/stations', authMiddleware, stationRoutes);
   app.use('/api/sessions', authMiddleware, sessionRoutes);
   app.use('/api/reports', authMiddleware, reportRoutes);
+  app.use('/api/whatsapp', whatsappRoutes);
 
   // Serve static production frontend if built
   const candidateDistPaths = [

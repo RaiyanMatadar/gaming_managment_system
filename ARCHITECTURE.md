@@ -99,6 +99,7 @@ flowchart TD
 - **`services/eventBroadcaster.js`:** SSE connection manager managing active cashier clients and broadcasting real-time lifecycle events.
 - **`services/reportService.js`:** Generates shift reports scoped strictly to the calling tenant.
 - **`services/emailService.js`:** Nodemailer email transport delivering owner alerts with fallback mock logging.
+- **`services/whatsappService.js` & `services/whatsapp/`:** Dual-warning WhatsApp notification engine. Supports Approach 2 (Local QR Gateway / Baileys) and Approach 1 (Meta Graph Cloud API / Twilio) via provider adapter. Routes manager warnings dynamically based on authenticated tenant `userId`.
 - **`storage/index.js` & `storage/memoryStore.js`:** The persistence layer. Routes calls between MongoDB (via Mongoose) and the concurrency-safe in-memory store.
 
 ---
@@ -124,6 +125,7 @@ erDiagram
         string name
         string centerName
         string role "admin|manager|cashier"
+        string whatsappNumber
         date createdAt
         date updatedAt
     }
@@ -330,6 +332,17 @@ The `expiryPoller` runs on a 5000ms timer in `server/src/services/expiryPoller.j
 3. If $0 < (\text{scheduledEndTime} - \text{now}) \le 300,000 \text{ ms}$ (5 minutes): Dispatches `SESSION_EXPIRY_WARNING` (deduplicated per session) and invokes `emailService.sendExpiryAlert()`.
 4. Once per hour: Executes `store.pruneOldSessions()`, automatically deleting completed or cancelled session records older than 30 days.
 
+### 8.3 Multi-Tenant WhatsApp Dual-Warning Engine
+When the `expiryPoller` detects a session with $\le 5$ minutes remaining:
+1. **Customer Notification:** If `customerPhone` was provided during session creation, sanitizes the phone to international format (`91XXXXXXXXXX`) and dispatches a WhatsApp alert directly to the customer.
+2. **Manager Notification:** Resolves the owning gaming center manager dynamically by querying `store.getUserById(session.userId)`. If configured, routes the alert directly to the manager's personal WhatsApp number (`user.whatsappNumber`).
+3. **Pluggable Architecture:**
+   - **Approach 2 (Default):** Local QR Gateway (`LocalQrWhatsAppProvider`) communicating with a local Baileys / WPPConnect microservice.
+   - **Approach 1 (Meta Cloud API):** Zero-code swappable (`CloudApiWhatsAppProvider`) calling Graph API endpoints directly via setting `WHATSAPP_PROVIDER=cloud_api`.
+4. **Idempotency & Fail-Safety:**
+   - Message keys are cached per-session (`warn_wa_${sessionId}`) to eliminate duplicates.
+   - All WhatsApp operations are non-blocking fire-and-forget; failure to dispatch never interrupts station operations or timer tracking.
+
 ---
 
 ## 9. Concurrency & Data Integrity Guardrails
@@ -351,16 +364,17 @@ The `expiryPoller` runs on a 5000ms timer in `server/src/services/expiryPoller.j
 
 ## 10. Verification & Test Architecture
 
-The system maintains 100% test coverage across 59 automated test suites executed via the native Node.js test runner:
+The system maintains 100% test coverage across 69 automated test suites executed via the native Node.js test runner:
 
 ```bash
 npm test
 ```
 
 ### Test Suite Organization:
-- **`src/tests/auth.test.js` (12 tests):** Public registration blocking (403), admin key verification, duplicate username conflict (409), password hashing, JWT authentication, and strict multi-tenant isolation between User Alpha and User Beta across stations, sessions, live overview, and shift reports.
+- **`src/tests/auth.test.js` (13 tests):** Public registration blocking (403), admin key verification, duplicate username conflict (409), password hashing, JWT authentication, profile updates (`PATCH /api/auth/profile`), and strict multi-tenant isolation between User Alpha and User Beta across stations, sessions, live overview, and shift reports.
+- **`src/tests/whatsapp.test.js` (7 tests):** Phone number sanitation and formatting, dual customer + manager dispatch, idempotency deduplication, Approach 1 vs Approach 2 provider abstraction, poller integration, and tenant-scoped manager routing.
 - **`src/tests/billingCalculator.test.js` (14 tests):** Pro-rata rounding, pause deduction, initial and extended end time, grace period thresholds ($0 \text{ fee} \le 5\text{m}$), and 15-minute block increments.
 - **`src/tests/sessionApi.test.js` (15 tests):** REST lifecycle, atomic occupancy locking, concurrency collision rollbacks, pause/resume calculations, station transfers, idempotent checkouts, session cancellations, and audit queries.
 - **`src/tests/stateMachine.test.js` (12 tests):** Valid and illegal transition enforcement for Station and Session state machines.
-- **`src/tests/expiryPoller.test.js` (3 tests):** Expiry detection, 5-minute remaining warning events, and event broadcasting.
-- **`src/tests/report.test.js` (3 tests):** Daily revenue aggregation, Cash vs UPI breakdown, chronological audit trail, and 30-day session retention pruning.
+- **`src/tests/expiryPoller.test.js` (4 tests):** Expiry detection, 5-minute remaining warning events, email alerts, and event broadcasting.
+- **`src/tests/report.test.js` (4 tests):** Daily revenue aggregation, Cash vs UPI breakdown, chronological audit trail, and 30-day session retention pruning.

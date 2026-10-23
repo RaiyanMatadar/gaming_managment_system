@@ -30,6 +30,11 @@ const userSchema = new mongoose.Schema(
       default: 'GameDash Arena',
       trim: true
     },
+    whatsappNumber: {
+      type: String,
+      trim: true,
+      default: ''
+    },
     role: {
       type: String,
       enum: ['admin', 'manager', 'cashier'],

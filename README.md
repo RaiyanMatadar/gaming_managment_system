@@ -106,8 +106,11 @@ GameDash/
    - 5-minute grace period before overtime charges kick in.
    - 15-minute block rounding for billable overtime beyond grace period.
    - Automatic deduction of accumulated and active pause periods.
-8. **5-Minute Warning Popup & Automated Owner Alert:**
+8. **5-Minute Warning Alerts & Dual WhatsApp Notifications:**
    - Real-time overlay popup modal: **"Only 5 minutes left for [Customer Name] on PC [PC Number]."**
+   - **Dual WhatsApp Notifications:** Automatically alerts both the player on their mobile phone and the manager on WhatsApp when 5 minutes remain on any active station.
+   - **Multi-Tenant Routing:** Each logged-in manager sets their own dedicated WhatsApp alert number in Profile Settings (`PATCH /api/auth/profile`), ensuring warnings route strictly to their account.
+   - **Swappable Architecture:** Uses a modular provider pattern supporting Approach 2 (Local QR Gateway / Baileys) by default and Approach 1 (Meta Graph Cloud API / Twilio) via simple `.env` switch.
    - Dispatches automated email notification to the gaming center owner's inbox.
    - Deduplicated across server restarts and multiple concurrent players.
 9. **Customer History, Player Ledger & Operational Audit Trail:**

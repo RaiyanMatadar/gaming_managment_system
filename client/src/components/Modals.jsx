@@ -14,9 +14,19 @@ import {
   Trash2,
   XCircle,
   Plus,
-  Minus
+  Minus,
+  QrCode,
+  MessageSquare,
+  Send,
+  RefreshCw
 } from 'lucide-react';
 import { Modal, Button, Input, Select, Card, Badge } from './ui/index.js';
+import {
+  getWhatsAppStatus,
+  getWhatsAppQr,
+  logoutWhatsApp,
+  sendWhatsAppTest
+} from '../utils/api.js';
 
 /**
  * Modal to start a new gaming session
@@ -713,3 +723,295 @@ export function AddStationModal({ onClose, onSubmit, isSubmitting }) {
     </Modal>
   );
 }
+
+/**
+ * Modal to configure Manager Profile & WhatsApp Notification Number (Tenant Scoped)
+ */
+export function ProfileSettingsModal({ isOpen, user, onClose, onSave, onOpenWhatsAppLink, isSubmitting }) {
+  if (!isOpen) return null;
+  const [name, setName] = useState(user?.name || '');
+  const [centerName, setCenterName] = useState(user?.centerName || '');
+  const [whatsappNumber, setWhatsappNumber] = useState(user?.whatsappNumber || '');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSave({
+      name: name.trim(),
+      centerName: centerName.trim(),
+      whatsappNumber: whatsappNumber.trim()
+    });
+  };
+
+  return (
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      maxWidth="max-w-md"
+      title="Manager & WhatsApp Settings"
+      subtitle={`Account: @${user?.username || 'user'}`}
+      icon={Phone}
+      iconColor="text-primary bg-primary-container"
+    >
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-xs font-semibold text-on-surface mb-1">
+            Gaming Center Name
+          </label>
+          <Input
+            type="text"
+            required
+            placeholder="e.g. GameDash Arena, CyberZone"
+            value={centerName}
+            onChange={(e) => setCenterName(e.target.value)}
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-on-surface mb-1">
+            Manager / Staff Name
+          </label>
+          <Input
+            type="text"
+            required
+            placeholder="e.g. Alex Sharma"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-on-surface mb-1">
+            Manager WhatsApp Number for Alerts
+          </label>
+          <Input
+            type="tel"
+            placeholder="e.g. 9876543210 (or +919876543210)"
+            value={whatsappNumber}
+            onChange={(e) => setWhatsappNumber(e.target.value)}
+          />
+          <p className="text-[11px] text-on-surface-variant mt-1 leading-normal">
+            📲 5-minute warning alerts for your center's gaming computers will be sent directly to this WhatsApp number.
+          </p>
+        </div>
+
+        {onOpenWhatsAppLink && (
+          <div className="pt-2 border-t border-outline-variant/30">
+            <Button
+              type="button"
+              variant="outlined"
+              onClick={onOpenWhatsAppLink}
+              className="w-full flex items-center justify-center gap-2 text-xs py-2"
+            >
+              <QrCode className="w-4 h-4 text-primary" />
+              <span>Link WhatsApp Device (Scan QR Code)</span>
+            </Button>
+          </div>
+        )}
+
+        <div className="flex gap-2.5 pt-2">
+          <Button type="button" variant="tonal" onClick={onClose} className="flex-1" disabled={isSubmitting}>
+            Cancel
+          </Button>
+          <Button type="submit" variant="filled" disabled={isSubmitting} className="flex-1">
+            {isSubmitting ? 'Saving...' : 'Save Settings'}
+          </Button>
+        </div>
+      </form>
+    </Modal>
+  );
+}
+
+/**
+ * Modal to scan WhatsApp Web QR code and manage linked device
+ */
+export function WhatsAppLinkModal({ isOpen, onClose, user }) {
+  if (!isOpen) return null;
+  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState(null);
+  const [qrData, setQrData] = useState(null);
+  const [testPhone, setTestPhone] = useState(user?.whatsappNumber || '');
+  const [testSending, setTestSending] = useState(false);
+  const [testResult, setTestResult] = useState(null);
+  const [error, setError] = useState(null);
+  const [unlinking, setUnlinking] = useState(false);
+
+  const fetchStatusAndQr = async () => {
+    try {
+      const data = await getWhatsAppStatus();
+      setStatus(data);
+      if (!data.isConnected) {
+        const qrRes = await getWhatsAppQr();
+        setQrData(qrRes?.qr || null);
+      } else {
+        setQrData(null);
+      }
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchStatusAndQr();
+    const interval = setInterval(fetchStatusAndQr, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleUnlink = async () => {
+    setUnlinking(true);
+    try {
+      await logoutWhatsApp();
+      await fetchStatusAndQr();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setUnlinking(false);
+    }
+  };
+
+  const handleSendTest = async (e) => {
+    e.preventDefault();
+    if (!testPhone) return;
+    setTestSending(true);
+    setTestResult(null);
+    try {
+      const res = await sendWhatsAppTest(testPhone);
+      setTestResult({ success: true, message: res.message || 'Test message sent successfully!' });
+    } catch (err) {
+      setTestResult({ success: false, message: err.message });
+    } finally {
+      setTestSending(false);
+    }
+  };
+
+  const isConnected = Boolean(status?.isConnected);
+
+  return (
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      maxWidth="max-w-md"
+      title="WhatsApp Device Connection"
+      subtitle="Link WhatsApp to send real 5-minute warnings to customers & staff"
+      icon={QrCode}
+      iconColor="text-primary bg-primary-container"
+    >
+      <div className="space-y-4">
+        {error && (
+          <div className="p-3 rounded-[12px] bg-error-container text-on-error-container text-xs flex items-center gap-2">
+            <XCircle className="w-4 h-4 shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        {loading ? (
+          <div className="py-8 text-center text-xs text-on-surface-variant flex flex-col items-center justify-center gap-2">
+            <RefreshCw className="w-5 h-5 animate-spin text-primary" />
+            <span>Connecting to WhatsApp service...</span>
+          </div>
+        ) : isConnected ? (
+          <div className="space-y-4 text-center">
+            <div className="p-4 rounded-[16px] bg-success-container text-on-success-container flex flex-col items-center gap-2">
+              <CheckCircle className="w-8 h-8 text-success" />
+              <div className="font-semibold text-sm">WhatsApp Device Connected!</div>
+              <div className="text-xs opacity-90">
+                Linked Phone: <span className="font-mono font-bold">+{status?.connectedPhone || 'Active'}</span>
+              </div>
+              <p className="text-[11px] mt-1 leading-normal">
+                Automated 5-minute warning messages will now be sent in real-time to both player phones and your manager WhatsApp.
+              </p>
+            </div>
+
+            {/* Test WhatsApp Message Form */}
+            <form onSubmit={handleSendTest} className="text-left space-y-2 pt-2 border-t border-outline-variant/30">
+              <label className="block text-xs font-semibold text-on-surface">
+                Send Quick Test Alert
+              </label>
+              <div className="flex gap-2">
+                <Input
+                  type="tel"
+                  placeholder="e.g. 9876543210"
+                  value={testPhone}
+                  onChange={(e) => setTestPhone(e.target.value)}
+                  className="flex-1"
+                />
+                <Button type="submit" variant="tonal" disabled={testSending || !testPhone} className="shrink-0 px-3">
+                  <Send className="w-3.5 h-3.5" />
+                  <span>{testSending ? 'Sending...' : 'Test'}</span>
+                </Button>
+              </div>
+              {testResult && (
+                <div
+                  className={`text-xs p-2.5 rounded-[8px] flex items-center gap-1.5 ${
+                    testResult.success
+                      ? 'bg-success-container text-on-success-container'
+                      : 'bg-error-container text-on-error-container'
+                  }`}
+                >
+                  {testResult.success ? <CheckCircle className="w-3.5 h-3.5 shrink-0" /> : <XCircle className="w-3.5 h-3.5 shrink-0" />}
+                  <span>{testResult.message}</span>
+                </div>
+              )}
+            </form>
+
+            <div className="flex gap-2 pt-2">
+              <Button type="button" variant="tonal" onClick={onClose} className="flex-1">
+                Close
+              </Button>
+              <Button
+                type="button"
+                variant="error"
+                onClick={handleUnlink}
+                disabled={unlinking}
+                className="shrink-0 text-xs px-3"
+              >
+                {unlinking ? 'Unlinking...' : 'Unlink Device'}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="flex flex-col items-center justify-center p-4 bg-surface-container rounded-[16px] border border-outline-variant/40">
+              {qrData ? (
+                <div className="p-2 bg-surface rounded-[12px] shadow-sm">
+                  <img src={qrData} alt="WhatsApp QR Code" className="w-52 h-52 object-contain" />
+                </div>
+              ) : (
+                <div className="w-52 h-52 flex flex-col items-center justify-center gap-2 text-on-surface-variant text-xs">
+                  <RefreshCw className="w-6 h-6 animate-spin text-primary" />
+                  <span>Generating QR code...</span>
+                </div>
+              )}
+              <div className="mt-2 text-[11px] text-on-surface-variant flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-warning animate-pulse" />
+                <span>Waiting for scan (auto-updates every 3s)</span>
+              </div>
+            </div>
+
+            <div className="p-3 bg-surface-container-low rounded-[12px] border border-outline-variant/30 space-y-1.5 text-xs text-on-surface-variant">
+              <div className="font-semibold text-on-surface">How to link your phone:</div>
+              <ol className="list-decimal list-inside space-y-1 text-[11px]">
+                <li>Open <strong className="text-on-surface">WhatsApp</strong> on your phone</li>
+                <li>Tap <strong className="text-on-surface">Settings</strong> or <strong className="text-on-surface">3 dots</strong> &gt; <strong className="text-on-surface">Linked Devices</strong></li>
+                <li>Tap <strong className="text-on-surface">Link a Device</strong> and scan the QR code above</li>
+              </ol>
+            </div>
+
+            <div className="flex gap-2 pt-1">
+              <Button type="button" variant="tonal" onClick={onClose} className="flex-1">
+                Close
+              </Button>
+              <Button type="button" variant="outlined" onClick={fetchStatusAndQr} className="shrink-0 text-xs px-3">
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>Refresh</span>
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+    </Modal>
+  );
+}
+
