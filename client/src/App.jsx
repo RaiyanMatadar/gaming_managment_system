@@ -24,7 +24,7 @@ import { FiveMinuteWarningModal } from './components/FiveMinuteWarningModal.jsx'
 import { LoginView } from './components/LoginView.jsx';
 import { Snackbar } from './components/ui/index.js';
 import { AlertCircle, CheckCircle2, X } from 'lucide-react';
-import { getToken, getCurrentUser, clearAuth, verifySession, updateProfile } from './utils/api.js';
+import { getToken, getCurrentUser, clearAuth, verifySession, updateProfile, API_BASE } from './utils/api.js';
 
 export function App() {
   // Authentication & Session State
@@ -149,7 +149,8 @@ export function App() {
 
     let eventSource;
     function connectSSE() {
-      eventSource = new EventSource('/api/events');
+      const sseUrl = API_BASE ? `${API_BASE}/api/events` : '/api/events';
+      eventSource = new EventSource(sseUrl);
 
       eventSource.onopen = () => {
         setIsLiveConnected(true);

@@ -93,6 +93,16 @@ export function createApp() {
       }
       next();
     });
+  } else {
+    // When deployed standalone (e.g. Vercel backend deployment without frontend dist)
+    app.get('/', (req, res) => {
+      res.json({
+        status: 'OK',
+        service: 'GameDashboard Gaming Center Management System API',
+        version: '1.0.0',
+        timestamp: new Date().toISOString()
+      });
+    });
   }
 
   // 404 Handler for unmatched API endpoints

@@ -52,7 +52,9 @@ export function clearAuth() {
   } catch {}
 }
 
-// Global fetch interceptor to automatically inject Authorization token
+export const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+
+// Global fetch interceptor to automatically inject Authorization token and API_BASE
 if (typeof window !== 'undefined' && window.fetch && !window.__gamedash_fetch_intercepted) {
   const originalFetch = window.fetch;
   window.fetch = async (input, init = {}) => {
@@ -60,10 +62,10 @@ if (typeof window !== 'undefined' && window.fetch && !window.__gamedash_fetch_in
 
     // Check if this is an internal API call that requires auth
     if (
-      url.startsWith('/api/') &&
-      !url.startsWith('/api/auth/login') &&
-      !url.startsWith('/api/auth/register') &&
-      !url.startsWith('/api/health')
+      url.includes('/api/') &&
+      !url.includes('/api/auth/login') &&
+      !url.includes('/api/auth/register') &&
+      !url.includes('/api/health')
     ) {
       const token = getToken();
       if (token) {
@@ -76,14 +78,20 @@ if (typeof window !== 'undefined' && window.fetch && !window.__gamedash_fetch_in
       }
     }
 
-    const response = await originalFetch(input, init);
+    // Automatically prefix with API_BASE if configured for independent client/server deployment
+    let finalInput = input;
+    if (API_BASE && typeof input === 'string' && input.startsWith('/api/')) {
+      finalInput = `${API_BASE}${input}`;
+    }
+
+    const response = await originalFetch(finalInput, init);
 
     // If an authenticated endpoint returns 401, trigger logout
     if (
       response.status === 401 &&
-      url.startsWith('/api/') &&
-      !url.startsWith('/api/auth/login') &&
-      !url.startsWith('/api/auth/register')
+      url.includes('/api/') &&
+      !url.includes('/api/auth/login') &&
+      !url.includes('/api/auth/register')
     ) {
       clearAuth();
       window.dispatchEvent(new CustomEvent('gamedash:unauthorized'));
