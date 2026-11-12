@@ -2,6 +2,20 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { store } from '../storage/index.js';
 import { JWT_SECRET, ADMIN_REGISTRATION_SECRET } from '../middleware/authMiddleware.js';
+import { formatPhoneNumber } from '../utils/phoneUtils.js';
+import { whatsappService } from '../services/whatsappService.js';
+
+function serializeUser(user) {
+  return {
+    id: user._id,
+    username: user.username,
+    name: user.name,
+    centerName: user.centerName,
+    whatsappNumber: user.whatsappNumber || '',
+    whatsappLinkedNumber: user.whatsappLinkedNumber || '',
+    role: user.role
+  };
+}
 
 /**
  * Register a new user (Strict Admin Only via Postman/cURL)
@@ -18,7 +32,18 @@ export async function register(req, res, next) {
       });
     }
 
-    const { username, password, name, centerName, email, whatsappNumber, role } = req.body;
+    const {
+      username,
+      password,
+      name,
+      centerName,
+      email,
+      whatsappNumber,
+      managerPhone,
+      whatsappLinkedNumber,
+      linkedWhatsappNumber,
+      role
+    } = req.body;
 
     if (!username || typeof username !== 'string' || username.trim().length < 3) {
       return res.status(400).json({
@@ -45,6 +70,54 @@ export async function register(req, res, next) {
       });
     }
 
+    // Validate & enforce account-exclusive Manager Phone Number (if provided)
+    const rawManagerPhone = whatsappNumber !== undefined ? whatsappNumber : managerPhone;
+    const trimmedManagerPhone = rawManagerPhone !== undefined && rawManagerPhone !== null
+      ? String(rawManagerPhone).trim()
+      : '';
+    let normalizedManagerPhone = '';
+    if (trimmedManagerPhone) {
+      const formatted = formatPhoneNumber(trimmedManagerPhone);
+      if (!formatted) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid Manager Phone Number. Please enter a valid 10-digit or international phone number.'
+        });
+      }
+      const existingManagerOwner = await store.findUserByPhoneField('whatsappNumber', formatted);
+      if (existingManagerOwner) {
+        return res.status(409).json({
+          success: false,
+          error: 'This Manager Phone Number is already assigned to another account.'
+        });
+      }
+      normalizedManagerPhone = formatted;
+    }
+
+    // Validate & enforce account-exclusive WhatsApp Linked Number (if provided)
+    const rawLinkedPhone = whatsappLinkedNumber !== undefined ? whatsappLinkedNumber : linkedWhatsappNumber;
+    const trimmedLinkedPhone = rawLinkedPhone !== undefined && rawLinkedPhone !== null
+      ? String(rawLinkedPhone).trim()
+      : '';
+    let normalizedLinkedPhone = '';
+    if (trimmedLinkedPhone) {
+      const formatted = formatPhoneNumber(trimmedLinkedPhone);
+      if (!formatted) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid WhatsApp Linked Number. Please enter a valid 10-digit or international phone number.'
+        });
+      }
+      const existingLinkedOwner = await store.findUserByPhoneField('whatsappLinkedNumber', formatted);
+      if (existingLinkedOwner) {
+        return res.status(409).json({
+          success: false,
+          error: 'This WhatsApp Linked Number is already linked to another account.'
+        });
+      }
+      normalizedLinkedPhone = formatted;
+    }
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -54,21 +127,15 @@ export async function register(req, res, next) {
       name: (name && name.trim()) || 'Gaming Center Staff',
       centerName: (centerName && centerName.trim()) || 'GameDash Arena',
       email: (email && email.trim()) || '',
-      whatsappNumber: (whatsappNumber && whatsappNumber.trim()) || '',
+      whatsappNumber: normalizedManagerPhone,
+      whatsappLinkedNumber: normalizedLinkedPhone,
       role: role && ['admin', 'manager', 'cashier'].includes(role) ? role : 'manager'
     });
 
     res.status(201).json({
       success: true,
       message: 'User registered successfully.',
-      user: {
-        id: newUser._id,
-        username: newUser.username,
-        name: newUser.name,
-        centerName: newUser.centerName,
-        whatsappNumber: newUser.whatsappNumber || '',
-        role: newUser.role
-      }
+      user: serializeUser(newUser)
     });
   } catch (err) {
     if (err.code === 11000) {
@@ -113,29 +180,14 @@ export async function login(req, res, next) {
       });
     }
 
-    const tokenPayload = {
-      id: user._id,
-      username: user.username,
-      name: user.name,
-      centerName: user.centerName,
-      whatsappNumber: user.whatsappNumber || '',
-      role: user.role
-    };
-
+    const tokenPayload = serializeUser(user);
     const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: '7d' });
 
     res.json({
       success: true,
       message: 'Authentication successful.',
       token,
-      user: {
-        id: user._id,
-        username: user.username,
-        name: user.name,
-        centerName: user.centerName,
-        whatsappNumber: user.whatsappNumber || '',
-        role: user.role
-      }
+      user: serializeUser(user)
     });
   } catch (err) {
     next(err);
@@ -158,14 +210,7 @@ export async function getMe(req, res, next) {
 
     res.json({
       success: true,
-      user: {
-        id: user._id,
-        username: user.username,
-        name: user.name,
-        centerName: user.centerName,
-        whatsappNumber: user.whatsappNumber || '',
-        role: user.role
-      }
+      user: serializeUser(user)
     });
   } catch (err) {
     next(err);
@@ -173,32 +218,86 @@ export async function getMe(req, res, next) {
 }
 
 /**
- * Update User Profile & WhatsApp Settings
+ * Update User Profile & Account-Specific WhatsApp Settings
  */
 export async function updateProfile(req, res, next) {
   try {
-    const { name, centerName, whatsappNumber } = req.body;
+    const {
+      name,
+      centerName,
+      whatsappNumber,
+      managerPhone,
+      whatsappLinkedNumber,
+      linkedWhatsappNumber
+    } = req.body;
     const updates = {};
+
     if (name !== undefined) updates.name = String(name).trim();
     if (centerName !== undefined) updates.centerName = String(centerName).trim();
-    if (whatsappNumber !== undefined) updates.whatsappNumber = String(whatsappNumber).trim();
+
+    const rawManagerPhone = whatsappNumber !== undefined ? whatsappNumber : managerPhone;
+    if (rawManagerPhone !== undefined) {
+      const trimmed = rawManagerPhone === null ? '' : String(rawManagerPhone).trim();
+      if (!trimmed) {
+        updates.whatsappNumber = '';
+      } else {
+        const formatted = formatPhoneNumber(trimmed);
+        if (!formatted) {
+          return res.status(400).json({
+            success: false,
+            error: 'Invalid Manager Phone Number. Please enter a valid 10-digit or international phone number.'
+          });
+        }
+        const existingOwner = await store.findUserByPhoneField('whatsappNumber', formatted, req.user.id);
+        if (existingOwner) {
+          return res.status(409).json({
+            success: false,
+            error: 'This Manager Phone Number is already assigned to another account.'
+          });
+        }
+        updates.whatsappNumber = formatted;
+      }
+    }
+
+    const rawLinkedPhone = whatsappLinkedNumber !== undefined ? whatsappLinkedNumber : linkedWhatsappNumber;
+    let linkedNumberUpdated = false;
+    if (rawLinkedPhone !== undefined) {
+      const trimmed = rawLinkedPhone === null ? '' : String(rawLinkedPhone).trim();
+      linkedNumberUpdated = true;
+      if (!trimmed) {
+        updates.whatsappLinkedNumber = '';
+      } else {
+        const formatted = formatPhoneNumber(trimmed);
+        if (!formatted) {
+          return res.status(400).json({
+            success: false,
+            error: 'Invalid WhatsApp Linked Number. Please enter a valid 10-digit or international phone number.'
+          });
+        }
+        const existingOwner = await store.findUserByPhoneField('whatsappLinkedNumber', formatted, req.user.id);
+        if (existingOwner) {
+          return res.status(409).json({
+            success: false,
+            error: 'This WhatsApp Linked Number is already linked to another account.'
+          });
+        }
+        updates.whatsappLinkedNumber = formatted;
+      }
+    }
 
     const updated = await store.updateUser(req.user.id, updates);
     if (!updated) {
       return res.status(404).json({ success: false, error: 'User not found.' });
     }
 
+    if (linkedNumberUpdated) {
+      await whatsappService.syncUserLinkedNumber(req.user.id, updated.whatsappLinkedNumber || '');
+    }
+
     res.json({
       success: true,
       message: 'Profile updated successfully.',
-      user: {
-        id: updated._id,
-        username: updated.username,
-        name: updated.name,
-        centerName: updated.centerName,
-        whatsappNumber: updated.whatsappNumber || '',
-        role: updated.role
-      }
+      user: serializeUser(updated)
     });
   } catch (err) {
     next(err);

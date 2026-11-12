@@ -35,6 +35,11 @@ const userSchema = new mongoose.Schema(
       trim: true,
       default: ''
     },
+    whatsappLinkedNumber: {
+      type: String,
+      trim: true,
+      default: ''
+    },
     role: {
       type: String,
       enum: ['admin', 'manager', 'cashier'],

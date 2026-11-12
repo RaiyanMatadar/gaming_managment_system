@@ -5,6 +5,7 @@ import { Payment } from '../models/Payment.js';
 import { AuditLog } from '../models/AuditLog.js';
 import { User } from '../models/User.js';
 import { memoryStore } from './memoryStore.js';
+import { formatPhoneNumber } from '../utils/phoneUtils.js';
 
 function isMongoConnected() {
   return mongoose.connection && mongoose.connection.readyState === 1;
@@ -67,6 +68,32 @@ export const store = {
       }
     }
     return await memoryStore.updateUser(id, updates);
+  },
+
+  async getAllUsers() {
+    if (isMongoConnected()) {
+      return await User.find({}).lean();
+    }
+    return await memoryStore.getAllUsers();
+  },
+
+  async findUserByPhoneField(fieldName, phone, excludeUserId = null) {
+    if (!['whatsappNumber', 'whatsappLinkedNumber'].includes(fieldName)) return null;
+    const target = formatPhoneNumber(phone);
+    if (!target) return null;
+
+    if (isMongoConnected()) {
+      const users = await User.find({ [fieldName]: { $nin: ['', null] } }).lean();
+      for (const u of users) {
+        if (excludeUserId && String(u._id) === String(excludeUserId)) continue;
+        if (formatPhoneNumber(u[fieldName]) === target) {
+          return u;
+        }
+      }
+      return null;
+    }
+
+    return await memoryStore.findUserByPhoneField(fieldName, phone, excludeUserId);
   },
 
   // --- STATIONS ---

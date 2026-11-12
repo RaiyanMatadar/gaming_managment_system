@@ -7,8 +7,10 @@ import { BaseWhatsAppProvider } from './baseProvider.js';
 export class CloudApiWhatsAppProvider extends BaseWhatsAppProvider {
   constructor(options = {}) {
     super('cloud_api');
+    this.userId = options.userId ? String(options.userId) : null;
     this.token = options.token || process.env.WHATSAPP_CLOUD_TOKEN || null;
     this.phoneNumberId = options.phoneNumberId || process.env.WHATSAPP_PHONE_NUMBER_ID || null;
+    this.connectedPhone = options.connectedPhone || null;
     this.apiVersion = options.apiVersion || process.env.WHATSAPP_API_VERSION || 'v18.0';
     this.templateName = options.templateName || process.env.WHATSAPP_WARNING_TEMPLATE || null;
     this.history = [];
@@ -18,13 +20,19 @@ export class CloudApiWhatsAppProvider extends BaseWhatsAppProvider {
    * Dispatches WhatsApp message via Meta Cloud API.
    * @param {Object} params
    * @param {string} params.to
+   * @param {string} [params.from]
    * @param {string} params.message
    * @param {string} [params.type='warning']
    * @param {Object} [params.meta]
    */
-  async sendMessage({ to, message, type = 'warning', meta = {} }) {
+  async sendMessage({ to, from = null, message, type = 'warning', meta = {} }) {
+    if (this.userId && meta?.userId && String(this.userId) !== String(meta.userId)) {
+      throw new Error(`Account isolation error: Cloud API provider for user '${this.userId}' cannot send for user '${meta.userId}'.`);
+    }
+
     const timestamp = new Date().toISOString();
     const messageId = `wa_cloud_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    const senderPhone = from || this.connectedPhone || this.phoneNumberId || null;
 
     // If Meta Cloud credentials are fully configured, dispatch real Graph API request
     if (this.token && this.phoneNumberId) {
@@ -83,10 +91,10 @@ export class CloudApiWhatsAppProvider extends BaseWhatsAppProvider {
         const data = await response.json().catch(() => ({}));
         const realId = data?.messages?.[0]?.id || messageId;
 
-        const record = { messageId: realId, to, message, type, meta, timestamp, deliveredVia: 'meta_cloud_api' };
+        const record = { messageId: realId, to, from: senderPhone, userId: this.userId, message, type, meta, timestamp, deliveredVia: 'meta_cloud_api' };
         this.history.push(record);
 
-        return { success: true, messageId: realId, provider: this.name };
+        return { success: true, messageId: realId, from: senderPhone, provider: this.name };
       } catch (err) {
         console.error(`[WHATSAPP CLOUD API] Error sending to ${to}:`, err.message);
         // Fall back to local log recording
@@ -94,13 +102,14 @@ export class CloudApiWhatsAppProvider extends BaseWhatsAppProvider {
     }
 
     // Direct mock/log recording when credentials are not yet populated
-    console.log(`[WHATSAPP (Cloud API Simulation)] To: ${to} | Message: "${message.replace(/\n/g, ' ')}"`);
-    const record = { messageId, to, message, type, meta, timestamp, deliveredVia: 'cloud_api_mock' };
+    console.log(`[WHATSAPP (Cloud API Simulation)]${senderPhone ? ` From: +${senderPhone} ->` : ''} To: ${to} | Message: "${message.replace(/\n/g, ' ')}"`);
+    const record = { messageId, to, from: senderPhone, userId: this.userId, message, type, meta, timestamp, deliveredVia: 'cloud_api_mock' };
     this.history.push(record);
 
     return {
       success: true,
       messageId,
+      from: senderPhone,
       provider: this.name
     };
   }
@@ -108,8 +117,10 @@ export class CloudApiWhatsAppProvider extends BaseWhatsAppProvider {
   async getStatus() {
     return {
       provider: this.name,
+      userId: this.userId,
       ready: Boolean(this.token && this.phoneNumberId),
       configured: Boolean(this.token && this.phoneNumberId),
+      connectedPhone: this.connectedPhone,
       apiVersion: this.apiVersion,
       messagesSent: this.history.length
     };

@@ -732,13 +732,15 @@ export function ProfileSettingsModal({ isOpen, user, onClose, onSave, onOpenWhat
   const [name, setName] = useState(user?.name || '');
   const [centerName, setCenterName] = useState(user?.centerName || '');
   const [whatsappNumber, setWhatsappNumber] = useState(user?.whatsappNumber || '');
+  const [whatsappLinkedNumber, setWhatsappLinkedNumber] = useState(user?.whatsappLinkedNumber || '');
 
   const handleSubmit = (e) => {
     e.preventDefault();
     onSave({
       name: name.trim(),
       centerName: centerName.trim(),
-      whatsappNumber: whatsappNumber.trim()
+      whatsappNumber: whatsappNumber.trim(),
+      whatsappLinkedNumber: whatsappLinkedNumber.trim()
     });
   };
 
@@ -781,7 +783,7 @@ export function ProfileSettingsModal({ isOpen, user, onClose, onSave, onOpenWhat
 
         <div>
           <label className="block text-xs font-semibold text-on-surface mb-1">
-            Manager WhatsApp Number for Alerts
+            Manager Phone Number (Receives Alerts)
           </label>
           <Input
             type="tel"
@@ -790,7 +792,22 @@ export function ProfileSettingsModal({ isOpen, user, onClose, onSave, onOpenWhat
             onChange={(e) => setWhatsappNumber(e.target.value)}
           />
           <p className="text-[11px] text-on-surface-variant mt-1 leading-normal">
-            📲 5-minute warning alerts for your center's gaming computers will be sent directly to this WhatsApp number.
+            5-minute warning alerts for your center's gaming computers will be sent to this exclusive manager number.
+          </p>
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-on-surface mb-1">
+            WhatsApp Linked Number (Sender Device)
+          </label>
+          <Input
+            type="tel"
+            placeholder="Auto-filled on QR link, or enter dedicated sender number"
+            value={whatsappLinkedNumber}
+            onChange={(e) => setWhatsappLinkedNumber(e.target.value)}
+          />
+          <p className="text-[11px] text-on-surface-variant mt-1 leading-normal">
+            Customer and staff notifications for this account are routed strictly through this linked WhatsApp number.
           </p>
         </div>
 
@@ -894,15 +911,15 @@ export function WhatsAppLinkModal({ isOpen, onClose, user }) {
       onClose={onClose}
       maxWidth="max-w-md"
       title="WhatsApp Device Connection"
-      subtitle="Link WhatsApp to send real 5-minute warnings to customers & staff"
+      subtitle={`Account: @${user?.username || 'user'} • Dedicated WhatsApp link`}
       icon={QrCode}
       iconColor="text-primary bg-primary-container"
     >
       <div className="space-y-4">
-        {error && (
+        {(error || status?.error) && (
           <div className="p-3 rounded-[12px] bg-error-container text-on-error-container text-xs flex items-center gap-2">
             <XCircle className="w-4 h-4 shrink-0" />
-            <span>{error}</span>
+            <span>{error || status?.error}</span>
           </div>
         )}
 
@@ -917,8 +934,13 @@ export function WhatsAppLinkModal({ isOpen, onClose, user }) {
               <CheckCircle className="w-8 h-8 text-success" />
               <div className="font-semibold text-sm">WhatsApp Device Connected!</div>
               <div className="text-xs opacity-90">
-                Linked Phone: <span className="font-mono font-bold">+{status?.connectedPhone || 'Active'}</span>
+                Linked Sender Phone: <span className="font-mono font-bold">+{status?.connectedPhone || status?.linkedWhatsappNumber || 'Active'}</span>
               </div>
+              {status?.managerPhone && (
+                <div className="text-xs opacity-90">
+                  Manager Alert Phone: <span className="font-mono font-bold">+{status.managerPhone}</span>
+                </div>
+              )}
               <p className="text-[11px] mt-1 leading-normal">
                 Automated 5-minute warning messages will now be sent in real-time to both player phones and your manager WhatsApp.
               </p>

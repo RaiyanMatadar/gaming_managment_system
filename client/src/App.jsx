@@ -167,6 +167,10 @@ export function App() {
         const data = JSON.parse(e.data);
         const payload = data.payload;
 
+        if (payload.userId && currentUser?.id && String(payload.userId) !== String(currentUser.id)) {
+          return;
+        }
+
         // Push warning to active modal queue if not already present
         setActiveWarnings((prev) => {
           if (prev.some((w) => String(w.sessionId) === String(payload.sessionId))) {
@@ -732,7 +736,11 @@ export function App() {
         <WhatsAppLinkModal
           isOpen={true}
           user={currentUser}
-          onClose={() => setIsWhatsAppModalOpen(false)}
+          onClose={async () => {
+            setIsWhatsAppModalOpen(false);
+            const refreshed = await verifySession().catch(() => null);
+            if (refreshed) setCurrentUser(refreshed);
+          }}
         />
       )}
     </div>

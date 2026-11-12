@@ -5,6 +5,8 @@
  * for unit testing and offline development.
  */
 
+import { formatPhoneNumber } from '../utils/phoneUtils.js';
+
 let nextId = 1;
 function generateId() {
   return `id_${Date.now()}_${nextId++}`;
@@ -51,6 +53,7 @@ export class MemoryStore {
       centerName: data.centerName || 'GameDash Arena',
       email: data.email || '',
       whatsappNumber: data.whatsappNumber || '',
+      whatsappLinkedNumber: data.whatsappLinkedNumber || '',
       role: data.role || 'manager',
       createdAt: new Date(),
       updatedAt: new Date()
@@ -83,6 +86,24 @@ export class MemoryStore {
     };
     this.users.set(String(id), updated);
     return { ...updated };
+  }
+
+  async getAllUsers() {
+    return Array.from(this.users.values()).map(u => ({ ...u }));
+  }
+
+  async findUserByPhoneField(fieldName, phone, excludeUserId = null) {
+    if (!['whatsappNumber', 'whatsappLinkedNumber'].includes(fieldName)) return null;
+    const target = formatPhoneNumber(phone);
+    if (!target) return null;
+
+    for (const u of this.users.values()) {
+      if (excludeUserId && String(u._id) === String(excludeUserId)) continue;
+      if (formatPhoneNumber(u[fieldName]) === target) {
+        return { ...u };
+      }
+    }
+    return null;
   }
 
   // --- STATIONS ---

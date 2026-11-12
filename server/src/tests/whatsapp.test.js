@@ -9,6 +9,7 @@ import { memoryStore } from '../storage/memoryStore.js';
 import { expiryPoller } from '../services/expiryPoller.js';
 import { eventBroadcaster } from '../services/eventBroadcaster.js';
 import { SessionStatus } from '../domain/sessionStateMachine.js';
+import { ADMIN_REGISTRATION_SECRET } from '../middleware/authMiddleware.js';
 
 describe('WhatsApp Notification Service (Dual Warning Engine)', () => {
   beforeEach(() => {
@@ -230,6 +231,172 @@ describe('WhatsApp Notification Service (Dual Warning Engine)', () => {
 
       assert.ok(msgB);
       assert.equal(msgB.phone, '919222222222');
+    });
+
+    it('isolates per-account linked WhatsApp sender numbers, session directories, and avoids global fallback', async () => {
+      memoryStore.reset();
+      whatsappService.reset();
+
+      const userA = await memoryStore.createUser({
+        username: 'arena_a',
+        password: 'hashA',
+        name: 'Manager A',
+        whatsappNumber: '919111111111',
+        whatsappLinkedNumber: '918111111111'
+      });
+
+      const userB = await memoryStore.createUser({
+        username: 'arena_b',
+        password: 'hashB',
+        name: 'Manager B',
+        whatsappNumber: '919222222222',
+        whatsappLinkedNumber: '918222222222'
+      });
+
+      const userC = await memoryStore.createUser({
+        username: 'arena_c_unconfigured',
+        password: 'hashC',
+        name: 'Manager C',
+        whatsappNumber: '',
+        whatsappLinkedNumber: ''
+      });
+
+      // Verify independent provider instances & session paths
+      const provA = whatsappService.getProviderForUser(userA._id);
+      const provB = whatsappService.getProviderForUser(userB._id);
+      assert.notEqual(provA, provB);
+      assert.notEqual(provA.sessionDir, provB.sessionDir);
+      assert.ok(provA.sessionDir.includes(String(userA._id)));
+      assert.ok(provB.sessionDir.includes(String(userB._id)));
+
+      // Route alerts for Account A
+      const resA = await whatsappService.sendFiveMinuteAlerts({
+        sessionId: 'sess_iso_a',
+        customerPhone: '9888888888',
+        customerName: 'Player A',
+        stationName: 'PC-A1',
+        scheduledEndTime: new Date(),
+        remainingMinutes: 5,
+        userId: userA._id
+      });
+      assert.equal(resA.from, '918111111111');
+      assert.equal(resA.customerSent, true);
+      assert.equal(resA.managerSent, true);
+
+      // Route alerts for Account B
+      const resB = await whatsappService.sendFiveMinuteAlerts({
+        sessionId: 'sess_iso_b',
+        customerPhone: '9777777777',
+        customerName: 'Player B',
+        stationName: 'PC-B1',
+        scheduledEndTime: new Date(),
+        remainingMinutes: 5,
+        userId: userB._id
+      });
+      assert.equal(resB.from, '918222222222');
+      assert.equal(resB.customerSent, true);
+      assert.equal(resB.managerSent, true);
+
+      // Account C without Manager Phone must NOT fall back to global or other account numbers
+      const resC = await whatsappService.sendFiveMinuteAlerts({
+        sessionId: 'sess_iso_c',
+        customerPhone: '9666666666',
+        customerName: 'Player C',
+        stationName: 'PC-C1',
+        scheduledEndTime: new Date(),
+        remainingMinutes: 5,
+        userId: userC._id
+      });
+      assert.equal(resC.customerSent, true);
+      assert.equal(resC.managerSent, false);
+      assert.equal(resC.from, null);
+
+      // Verify provider histories remained strictly isolated
+      assert.equal(provA.history.length, 2);
+      assert.ok(provA.history.every(m => m.from === '918111111111' && m.userId === String(userA._id)));
+      assert.equal(provB.history.length, 2);
+      assert.ok(provB.history.every(m => m.from === '918222222222' && m.userId === String(userB._id)));
+
+      // Verify mismatched live socket phone vs DB linked number is blocked
+      provA.connectedPhone = '919999999999';
+      const mismatchRes = await whatsappService.sendFiveMinuteAlerts({
+        sessionId: 'sess_iso_mismatch',
+        customerPhone: '9888888888',
+        customerName: 'Player A2',
+        stationName: 'PC-A2',
+        scheduledEndTime: new Date(),
+        remainingMinutes: 5,
+        userId: userA._id
+      });
+      assert.equal(mismatchRes.success, false);
+      assert.equal(mismatchRes.customerSent, false);
+      assert.equal(mismatchRes.managerSent, false);
+    });
+
+    it('isolates /api/whatsapp status and logout endpoints per authenticated user', async () => {
+      memoryStore.reset();
+      whatsappService.reset();
+      const app = createApp();
+
+      // Register & login User Alpha and User Beta with distinct numbers
+      await request(app)
+        .post('/api/auth/register')
+        .set('x-admin-key', ADMIN_REGISTRATION_SECRET)
+        .send({
+          username: 'wa_alpha',
+          password: 'Password123!',
+          whatsappNumber: '919100000001',
+          whatsappLinkedNumber: '918100000001'
+        });
+      const loginA = await request(app)
+        .post('/api/auth/login')
+        .send({ username: 'wa_alpha', password: 'Password123!' });
+      const tokenA = loginA.body.token;
+
+      await request(app)
+        .post('/api/auth/register')
+        .set('x-admin-key', ADMIN_REGISTRATION_SECRET)
+        .send({
+          username: 'wa_beta',
+          password: 'Password123!',
+          whatsappNumber: '919200000002',
+          whatsappLinkedNumber: '918200000002'
+        });
+      const loginB = await request(app)
+        .post('/api/auth/login')
+        .send({ username: 'wa_beta', password: 'Password123!' });
+      const tokenB = loginB.body.token;
+
+      // Each account sees only its own managerPhone & linkedWhatsappNumber
+      const statusA = await request(app)
+        .get('/api/whatsapp/status')
+        .set('Authorization', `Bearer ${tokenA}`);
+      assert.equal(statusA.status, 200);
+      assert.equal(statusA.body.data.managerPhone, '919100000001');
+      assert.equal(statusA.body.data.linkedWhatsappNumber, '918100000001');
+
+      const statusB = await request(app)
+        .get('/api/whatsapp/status')
+        .set('Authorization', `Bearer ${tokenB}`);
+      assert.equal(statusB.status, 200);
+      assert.equal(statusB.body.data.managerPhone, '919200000002');
+      assert.equal(statusB.body.data.linkedWhatsappNumber, '918200000002');
+
+      // User A logging out WhatsApp device must clear ONLY User A's linked number, not User B's
+      const logoutA = await request(app)
+        .post('/api/whatsapp/logout')
+        .set('Authorization', `Bearer ${tokenA}`);
+      assert.equal(logoutA.status, 200);
+
+      const statusAAfter = await request(app)
+        .get('/api/whatsapp/status')
+        .set('Authorization', `Bearer ${tokenA}`);
+      assert.equal(statusAAfter.body.data.linkedWhatsappNumber, null);
+
+      const statusBAfter = await request(app)
+        .get('/api/whatsapp/status')
+        .set('Authorization', `Bearer ${tokenB}`);
+      assert.equal(statusBAfter.body.data.linkedWhatsappNumber, '918200000002');
     });
   });
 

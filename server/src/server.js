@@ -24,9 +24,9 @@ async function startServer() {
   // Start background expiration poller
   expiryPoller.start(5000);
 
-  // Initialize WhatsApp Web connection
-  whatsappService.initSocket().catch(err => {
-    console.error('[WHATSAPP] Failed to start socket on server boot:', err.message);
+  // Reconnect saved per-account WhatsApp Web connections
+  whatsappService.initAllSavedSockets().catch(err => {
+    console.error('[WHATSAPP] Failed to restore saved per-account sockets on server boot:', err.message);
   });
 
   const server = app.listen(PORT, () => {

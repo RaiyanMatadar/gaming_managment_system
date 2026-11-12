@@ -62,6 +62,8 @@ describe('Multi-User Authentication & Multi-Tenant Data Isolation', () => {
           password: 'SecurePassword123!',
           name: 'Dan Operator',
           centerName: 'Dan CyberArena Downtown',
+          whatsappNumber: '9876543210',
+          whatsappLinkedNumber: '+919123456789',
           role: 'manager'
         });
 
@@ -70,7 +72,46 @@ describe('Multi-User Authentication & Multi-Tenant Data Isolation', () => {
       assert.equal(res.body.user.username, 'operator_dan');
       assert.equal(res.body.user.name, 'Dan Operator');
       assert.equal(res.body.user.centerName, 'Dan CyberArena Downtown');
+      assert.equal(res.body.user.whatsappNumber, '919876543210');
+      assert.equal(res.body.user.whatsappLinkedNumber, '919123456789');
       assert.equal(res.body.user.password, undefined); // Never leak hash
+    });
+
+    it('enforces exclusive Manager Phone Number and WhatsApp Linked Number across accounts', async () => {
+      const firstRes = await request(app)
+        .post('/api/auth/register')
+        .set('x-admin-key', ADMIN_REGISTRATION_SECRET)
+        .send({
+          username: 'center_one',
+          password: 'Password123!',
+          whatsappNumber: '9876500001',
+          whatsappLinkedNumber: '9876500002'
+        });
+      assert.equal(firstRes.status, 201);
+
+      // Second account attempting same Manager Phone Number (even in +91 format) -> 409
+      const dupManagerRes = await request(app)
+        .post('/api/auth/register')
+        .set('x-admin-key', ADMIN_REGISTRATION_SECRET)
+        .send({
+          username: 'center_two',
+          password: 'Password123!',
+          whatsappNumber: '+919876500001',
+          whatsappLinkedNumber: '9876500099'
+        });
+      assert.equal(dupManagerRes.status, 409);
+
+      // Second account attempting same WhatsApp Linked Number -> 409
+      const dupLinkedRes = await request(app)
+        .post('/api/auth/register')
+        .set('x-admin-key', ADMIN_REGISTRATION_SECRET)
+        .send({
+          username: 'center_two',
+          password: 'Password123!',
+          whatsappNumber: '9876500088',
+          whatsappLinkedNumber: '+91-98765-00002'
+        });
+      assert.equal(dupLinkedRes.status, 409);
     });
 
     it('rejects duplicate username with 409 Conflict', async () => {

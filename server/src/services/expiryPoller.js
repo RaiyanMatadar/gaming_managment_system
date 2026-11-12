@@ -75,6 +75,14 @@ export class ExpiryPoller {
           const customerName = session.customerName || 'Guest';
           const stationName = session.stationName || 'PC Station';
 
+          let sessionUserId = session.userId || null;
+          if (!sessionUserId && session.stationId) {
+            try {
+              const station = await store.getStationById(session.stationId);
+              sessionUserId = station?.userId || null;
+            } catch {}
+          }
+
           // 1. Broadcast SSE warning to cashier dashboard popup
           eventBroadcaster.broadcast('SESSION_EXPIRY_WARNING', {
             sessionId: session._id,
@@ -85,6 +93,7 @@ export class ExpiryPoller {
             scheduledEndTime: session.scheduledEndTime,
             remainingMinutes,
             remainingSeconds: Math.ceil(diffMs / 1000),
+            userId: sessionUserId,
             message: `Only 5 minutes left for ${customerName} on PC ${stationName}.`
           });
 
@@ -100,7 +109,7 @@ export class ExpiryPoller {
             console.error('[EXPIRY POLLER] Error sending owner alert email:', err.message);
           });
 
-          // 3. Dispatch dual WhatsApp notifications to customer and manager (non-blocking, fail-safe)
+          // 3. Dispatch dual WhatsApp notifications to customer and manager (tenant-scoped)
           whatsappService.sendFiveMinuteAlerts({
             sessionId: session._id,
             customerPhone: session.customerPhone,
@@ -108,7 +117,7 @@ export class ExpiryPoller {
             stationName,
             scheduledEndTime: session.scheduledEndTime,
             remainingMinutes,
-            userId: session.userId
+            userId: sessionUserId
           }).catch(err => {
             console.error('[EXPIRY POLLER] Error sending WhatsApp warning:', err.message);
           });
